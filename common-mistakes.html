@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Các sai lầm phổ biến — Stata Econometrics Task View</title>
+  <meta name="description"
+    content="Những sai lầm thường gặp và để lại hậu quả lớn nhất trong kinh tế lượng ứng dụng với Stata. Tìm hiểu điều gì nên tránh và tại sao.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <style>
+    .mistake-section {
+      margin-bottom: 2.5rem;
+    }
+
+    .mistake-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--diff-advanced);
+      border-radius: 0;
+      padding: var(--space-lg);
+      margin-bottom: 1px;
+    }
+
+    .mistake-title {
+      font-weight: 700;
+      font-size: var(--text-base);
+      color: var(--diff-advanced);
+      margin-bottom: .5rem;
+    }
+
+    .mistake-why {
+      font-size: var(--text-sm);
+      color: var(--muted-fg);
+      margin-bottom: .75rem;
+      line-height: 1.6;
+    }
+
+    .mistake-fix {
+      background: rgba(135,240,202,0.06);
+      border: 1px solid rgba(135,240,202,0.2);
+      border-radius: 0;
+      padding: .75rem;
+      font-size: var(--text-sm);
+    }
+
+    .mistake-fix strong {
+      color: var(--install-ssc);
+    }
+
+    .mistake-fix a { color: var(--install-builtin); }
+
+    .severity {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      padding: .15rem .5rem;
+      border-radius: 0;
+      margin-bottom: .5rem;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-wider);
+    }
+
+    .sev-critical {
+      background: rgba(255,82,82,0.12);
+      color: var(--diff-advanced);
+      border: 1px solid rgba(255,82,82,0.3);
+    }
+
+    .sev-major {
+      background: rgba(255,171,64,0.1);
+      color: var(--diff-intermediate);
+      border: 1px solid rgba(255,171,64,0.25);
+    }
+
+    .sev-moderate {
+      background: rgba(143,215,255,0.08);
+      color: var(--install-builtin);
+      border: 1px solid rgba(143,215,255,0.2);
+    }
+
+    .toc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-bottom: 2rem;
+    }
+
+    .toc-item {
+      background: var(--card-bg);
+      border-radius: 0;
+      padding: .5rem .75rem;
+      font-size: var(--text-sm);
+    }
+
+    .toc-item a {
+      text-decoration: none;
+      color: var(--accent);
+      transition: opacity 0.2s;
+    }
+
+    .toc-item a:hover { opacity: 0.7; }
+
+    @media(max-width:600px) {
+      .toc-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="index.html">Stata <span>Task View</span></a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html">Trang chủ</a></li>
+        <li class="nav-dropdown"><button class="nav-dropdown-btn">Danh mục ▾</button>
+          <div class="nav-dropdown-menu">
+            <a href="categories/ols-diagnostics.html">OLS &amp; Chẩn đoán</a>
+            <a href="categories/limited-dependent.html">Biến phụ thuộc hạn chế</a>
+            <a href="categories/panel-data.html">Dữ liệu bảng</a>
+            <a href="categories/iv-endogeneity.html">IV &amp; Nội sinh</a>
+            <a href="categories/time-series.html">Chuỗi thời gian</a>
+            <a href="categories/causal-inference.html">Suy luận nhân quả</a>
+            <a href="categories/staggered-did.html">Staggered DID</a>
+            <a href="categories/ml-econometrics.html">ML Econometrics</a>
+          </div>
+        </li>
+        <li><a href="decision-tree.html">Cây quyết định</a></li>
+        <li><a href="best-packages.html">Gói lệnh tốt nhất</a></li>
+      </ul>
+      <button class="nav-hamburger" id="nav-hamburger">☰</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-container">
+      <nav class="breadcrumb"><a href="index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><span
+          class="breadcrumb-current">Sai lầm phổ biến</span></nav>
+      <div class="page-title-block">
+        <h1>Các sai lầm phổ biến trong Kinh tế lượng ứng dụng</h1>
+        <p class="page-subtitle">Những lỗi thường gặp và để lại hậu quả lớn nhất — và cách chính xác để khắc phục chúng
+        </p>
+      </div>
+
+      <div class="callout callout-warning">
+        <div class="callout-title">Đối tượng của trang này</div>
+        <p>Trang này ghi lại các lỗi xuất hiện thường xuyên trong bài làm của sinh viên, nghiên cứu mới bắt đầu và thậm
+          chí cả các công trình đã xuất bản. Mỗi sai lầm được đánh dấu theo mức độ nghiêm trọng: <span
+            class="severity sev-critical">Tới hạn</span> (làm mất giá trị suy luận), <span
+            class="severity sev-major">Nghiêm trọng</span> (gây chệch đáng kể hoặc hiểu lầm), hoặc <span
+            class="severity sev-moderate">Trung bình</span> (ảnh hưởng đến chất lượng nhưng vẫn có thể xử lý được).</p>
+      </div>
+
+      <!-- OLS Section -->
+      <section class="mistake-section" id="ols">
+        <h2>OLS &amp; Suy luận</h2>
+
+        <div class="mistake-item">
+          <div class="severity sev-critical">Tới hạn</div>
+          <div class="mistake-title">Sử dụng sai số chuẩn cổ điển (không có tùy chọn robust)</div>
+          <div class="mistake-why">Kết quả mặc định của <code>reg y x</code> sử dụng sai số chuẩn (SE) cổ điển giả định
+            sai số không đổi và không tương quan (phương sai đồng nhất). Giả định này bị vi phạm trong hầu hết mọi bộ dữ
+            liệu thực tế. Kết quả là: thống kê t quá lớn, giá trị p quá nhỏ và dẫn đến kết luận có ý nghĩa thống kê sai
+            lầm (false significance).</div>
+          <div class="mistake-fix"><strong>Khắc phục:</strong> Luôn sử dụng <code>reg y x, robust</code> làm mặc định.
+            Khi can thiệp ở cấp độ nhóm (bang, trường học, công ty), hãy dùng <code>vce(cluster groupvar)</code>. Đừng
+            bao giờ sử dụng SE cổ điển trong nghiên cứu ứng dụng. <a href="comparisons/reg-vs-robust.html">→ Hướng dẫn
+              đầy đủ</a></div>
+        </div>
+
+        <div class="mistake-item">
+          <div class="severity sev-major">Nghiêm trọng</div>
+          <div class="mistake-title">Không phân cụm (clustering) khi can thiệp được gán ở cấp độ cao hơn biến kết quả
+          </div>
+          <div class="mistake-why">Khi một chính sách thay đổi ở cấp độ bang nhưng bạn quan sát ở cấp độ cá nhân, việc
+            sử dụng <code>, robust</code> là chưa đủ. Các sai số có tương quan trong nội bộ bang, và robust SE sẽ đánh
+            giá thấp mức độ biến động thực sự. Điều này có thể làm cho SE nhỏ hơn gấp 5–10 lần so với thực tế.</div>
+          <div class="mistake-fix"><strong>Khắc phục:</strong> Phân cụm ở cấp độ được gán can thiệp. Chính sách bang +
+            dữ liệu cá nhân → <code>vce(cluster stateid)</code>. Chương trình trường học + dữ liệu học sinh →
+            <code>vce(cluster schoolid)</code>. Với ít hơn 30–50 cụm, hãy sử dụng <code>boottest</code> (SSC).</div>
+        </div>
+
+        <div class="mistake-item">
+          <div class="severity sev-major">Nghiêm trọng</div>
+          <div class="mistake-title">Diễn giải R-squared là chất lượng mô hình hoặc giá trị nhân quả</div>
+          <div class="mistake-why">R-squared cao không có nghĩa là mô hình của bạn được xác định tốt, rằng bạn đã định
+            danh được tác động nhân quả, hoặc mô hình đó hữu ích cho việc dự báo ngoài mẫu. Một mô hình với R-squared là
+            0.02 có thể có giá trị nhân quả cao hơn một mô hình có R-squared lên tới 0.95.</div>
+          <div class="mistake-fix"><strong>Khắc phục:</strong> Chỉ báo cáo R-squared như thông tin mô tả. Đánh giá chất
+            lượng mô hình thông qua: (1) tính hợp lệ của chiến lược định danh, (2) các kiểm định chẩn đoán (hettest,
+            ovtest, VIF), (3) tính hợp lý về mặt kinh tế của độ lớn các hệ số.</div>
+        </div>
+
+        <div class="mistake-item">
+          <div class="severity sev-moderate">Trung bình</div>
+          <div class="mistake-title">Loại bỏ biến chỉ vì VIF cao</div>
+          <div class="mistake-why">VIF > 10 báo hiệu đa cộng tuyến — sai số chuẩn lớn cho các biến có tương quan — nhưng
+            nó KHÔNG có nghĩa là các hệ số bị chệch. Loại bỏ các biến thuộc về mô hình sẽ gây ra chệch do thiếu biến,
+            điều này tồi tệ hơn nhiều so với việc có SE lớn.</div>
+          <div class="mistake-fix"><strong>Khắc phục:</strong> Bao gồm tất cả các biến mà lý thuyết yêu cầu. Nếu VIF
+            cao, hãy báo cáo đó như một hạn chế. Cân nhắc xem các biến có thể được kết hợp lại (chỉ số), liệu bạn có đủ
+            biến động không, hay liệu bạn thực sự cần cả hai biến đó hay không.</div>
+        </div>
+      </section>
+
+      <!-- Panel Section -->
+      <section class="mistake-section" id="panel">
+        <h2>Dữ liệu bảng (Panel Data)</h2>
+
+        <div class="mistake-item">
+          <div class="severity sev-major">Nghiêm trọng</div>
+          <div class="mistake-title">Sử dụng xtreg, fe nhưng không phân cụm sai số chuẩn</div>
+          <div class="mistake-why">Kết quả FE mặc định sử dụng SE tiêu chuẩn giả định các sai số độc lập theo thời gian
+            trong nội bộ các đơn vị. Trên thực tế, các sai số trong cùng một đơn vị thường có tương quan chuỗi rất cao.
+            SE không phân cụm từ FE thường nhỏ hơn từ 2–5 lần so với thực tế.</div>
+          <div class="mistake-fix"><strong>Khắc phục:</strong> Luôn sử dụng
+            <code>xtreg y x, fe vce(cluster panelid)</code>. Phân cụm ở cấp độ đơn vị bảng giúp tính đến tương quan
+            chuỗi tùy ý trong nội bộ đơn vị.</div>
+        </div>
+
+        <div class="mistake-item">
+          <div class="severity sev-major">Nghiêm trọng</div>
+          <div class="mistake-title">Sử dụng xtreg, fe với biến phụ thuộc trễ (Chệch Nickell)</div>
+          <div class="mistake-why">Trình ước lượng FE bị chệch khi mô hình bao gồm một biến phụ thuộc trễ (vd: thu
+            nhập_t theo thu nhập_t-1). Chệch Nickell này có độ lớn O(1/T) và rất đáng kể trong các bảng có T nhỏ (T <
+              20–30). Các hệ số được báo cáo sẽ đánh giá thấp tính trì trệ một cách có hệ thống.</div>
+              <div class="mistake-fix"><strong>Khắc phục:</strong> Sử dụng <code>xtabond2</code> (Arellano-Bond system
+                GMM) cho các mô hình bảng động. Nếu T lớn (>30), chệch FE có thể chấp nhận được — hãy báo cáo cụ thể độ
+                lớn của chệch Nickell. <a href="comparisons/fe-vs-xtabond2.html">→ Hướng dẫn FE vs. xtabond2</a></div>
+          </div>
+
+          <div class="mistake-item">
+            <div class="severity sev-major">Nghiêm trọng</div>
+            <div class="mistake-title">Sự bùng nổ biến công cụ trong xtabond2</div>
+            <div class="mistake-why">xtabond2 có thể tạo ra một số lượng lớn biến công cụ (lên đến T*(T-1)/2 cho mỗi độ
+              trễ). Quá nhiều biến công cụ sẽ làm tăng giá trị p của kiểm định Hansen J, làm cho có vẻ như các biến công
+              cụ là hợp lệ trong khi không phải vậy. Giá trị p của Hansen J cao một cách vô lý (vd: > 0.5) là một dấu
+              hiệu cảnh báo.</div>
+            <div class="mistake-fix"><strong>Khắc phục:</strong> Sử dụng tùy chọn <code>collapse</code> trong xtabond2
+              để gộp các biến công cụ thành một cho mỗi độ trễ. Giới hạn độ sâu của các độ trễ. Báo cáo thống kê Hansen
+              J và số lượng biến công cụ so với số lượng nhóm.</div>
+          </div>
+      </section>
+
+      <!-- IV Section -->
+      <section class="mistake-section" id="iv">
+        <h2>IV &amp; Nội sinh</h2>
+
+        <div class="mistake-item">
+          <div class="severity sev-critical">Tới hạn</div>
+          <div class="mistake-title">Báo cáo F của Cragg-Donald thay vì F của Kleibergen-Paap rk Wald cho kiểm định công
+            cụ yếu với SE phân cụm</div>
+          <div class="mistake-why">Các giá trị tới hạn Stock-Yogo (quy tắc ngón tay cái F > 10) áp dụng cho thống kê F
+            của Cragg-Donald, vốn giả định sai số i.i.d. Với SE phân cụm (vốn bắt buộc trong hầu hết các bối cảnh ứng
+            dụng), thống kê F của Cragg-Donald là không hợp lệ. Thống kê F của Kleibergen-Paap rk Wald mới là thông số
+            chính xác.</div>
+          <div class="mistake-fix"><strong>Khắc phục:</strong> Sử dụng <code>ivreg2</code> thay cho
+            <code>ivregress</code>. Nó tự động báo cáo thống kê KP rk Wald F. Sử dụng các giá trị tới hạn
+            Montiel-Pflueger (2016) cho thống kê KP, vì các giá trị Stock-Yogo không áp dụng trực tiếp được. <a
+              href="comparisons/ivregress-vs-ivreg2.html">→ Hướng dẫn</a></div>
+        </div>
+
+        <div class="mistake-item">
+          <div class="severity sev-critical">Tới hạn</div>
+          <div class="mistake-title">Sử dụng biến công cụ yếu (thống kê F < 10)</div>
+              <div class="mistake-why">Một biến công cụ yếu tạo ra các ước lượng IV với độ chệch lớn (có khả năng thiên
+                về OLS), các khoảng tin cậy cực rộng và sai lệch kích thước trong các kiểm định giả thuyết. Một ước
+                lượng 2SLS có ý nghĩa với giai đoạn 1 yếu không phải là bằng chứng đáng tin cậy về tác động nhân quả.
+              </div>
+              <div class="mistake-fix"><strong>Khắc phục:</strong> Tìm một biến công cụ mạnh hơn. Nếu bạn bắt buộc phải
+                dùng biến công cụ yếu, hãy báo cáo tập hợp tin cậy Anderson-Rubin (vững trước công cụ yếu) bằng cách
+                dùng <code>ivreg2</code> với tùy chọn <code>robust ar</code>, và thừa nhận rõ ràng hạn chế này.</div>
+          </div>
+
+          <div class="mistake-item">
+            <div class="severity sev-critical">Tới hạn</div>
+            <div class="mistake-title">Giả định một biến công cụ là ngoại sinh mà không lập luận bảo vệ</div>
+            <div class="mistake-why">Tính hợp lệ của biến công cụ đòi hỏi điều kiện loại trừ: biến công cụ CHỈ tác động
+              đến kết quả thông qua biến can thiệp. Điều này không bao giờ có thể kiểm định thống kê được với mô hình
+              vừa đủ định danh (just-identified). Nhiều biến công cụ đã công bố có những vi phạm tiềm tàng (vd: lượng
+              mưa tác động đến tiền lương thông qua các kênh khác ngoài cung lao động).</div>
+            <div class="mistake-fix"><strong>Khắc phục:</strong> Cung cấp một lập luận lý thuyết rõ ràng cho tính ngoại
+              sinh. Sử dụng các kiểm định quá định danh khi bạn có nhiều biến công cụ. Kiểm tra xem điều kiện loại trừ
+              có duy trì trong các mẫu phụ hoặc bối cảnh liên quan không. Thảo luận về các vi phạm tiềm tàng và hướng
+              tác động có thể có của chúng.</div>
+          </div>
+      </section>
+
+      <!-- DID Section -->
+      <section class="mistake-section" id="did">
+        <h2>Difference-in-Differences (DID)</h2>
+
+        <div class="mistake-item">
+          <div class="severity sev-critical">Tới hạn</div>
+          <div class="mistake-title">Sử dụng TWFE cho DID so le với tác động can thiệp không đồng nhất</div>
+          <div class="mistake-why">Mô hình hiệu ứng cố định hai chiều (TWFE) với <code>i.treated##i.time</code> là bị
+            chệch khi (1) thời điểm can thiệp thay đổi giữa các nhóm VÀ (2) tác động can thiệp thay đổi theo nhóm hoặc
+            theo thời gian. Trong thiết kế so le, TWFE sử dụng các đơn vị đã được can thiệp làm nhóm đối chứng — tạo ra
+            sai dấu trong những trường hợp cực đoan.</div>
+          <div class="mistake-fix"><strong>Khắc phục:</strong> Sử dụng <code>csdid</code> (Callaway-Sant'Anna) cho các
+            thiết kế so le. Nó tính toán chính xác các ATT nhóm-thời gian và gộp chúng lại bằng cách sử dụng các đơn vị
+            chưa bao giờ can thiệp và chưa can thiệp làm đối chứng. <a href="comparisons/did-simple-vs-csdid.html">→
+              Hướng dẫn DID đơn giản vs. csdid</a></div>
+        </div>
+
+        <div class="mistake-item">
+          <div class="severity sev-major">Nghiêm trọng</div>
+          <div class="mistake-title">Không kiểm định giả định xu hướng song song (parallel trends)</div>
+          <div class="mistake-why">DID chỉ định danh được tác động nhân quả nếu nhóm can thiệp và đối chứng sẽ đi theo
+            các xu hướng song song nếu không có can thiệp. Điều này không thể kiểm định được cho giai đoạn sau can
+            thiệp, nhưng có thể xác nhận một phần bằng dữ liệu trước can thiệp.</div>
+          <div class="mistake-fix"><strong>Khắc phục:</strong> Luôn vẽ đồ thị xu hướng trước can thiệp bằng nghiên cứu
+            sự kiện (event study). Với <code>csdid</code>, hãy dùng <code>estat event</code> để kiểm tra các ước lượng
+            giai đoạn tiền can thiệp — chúng nên gần bằng 0 và không có ý nghĩa thống kê. Ghi lại và thảo luận bất kỳ
+            quan ngại nào về xu hướng trước can thiệp.</div>
+        </div>
+
+        <div class="mistake-item">
+          <div class="severity sev-moderate">Trung bình</div>
+          <div class="mistake-title">Không phân cụm SE ở cấp độ nhóm can thiệp trong DID</div>
+          <div class="mistake-why">Trong DID, can thiệp thường được gán ở cấp độ nhóm (bang, huyện, công ty). Việc sử
+            dụng SE ở cấp độ cá nhân hoặc chỉ dùng robust SE sẽ đánh giá thấp đáng kể độ không chắc chắn và tạo ra các
+            thống kê t bị thổi phồng.</div>
+          <div class="mistake-fix"><strong>Khắc phục:</strong> Phân cụm ở cấp độ mà can thiệp thay đổi. Đối với chính
+            sách cấp bang + dữ liệu cá nhân, dùng <code>vce(cluster stateid)</code>. Với ít cụm (<30), cân nhắc dùng
+              wild cluster bootstrap qua <code>boottest</code>.</div>
+        </div>
+      </section>
+
+      <!-- RD Section -->
+      <section class="mistake-section" id="rd">
+        <h2>Regression Discontinuity (Gián đoạn hồi quy)</h2>
+
+        <div class="mistake-item">
+          <div class="severity sev-critical">Tới hạn</div>
+          <div class="mistake-title">Không kiểm định sự thao túng tại điểm cắt (kiểm định McCrary)</div>
+          <div class="mistake-why">RD yêu cầu các đơn vị không thể kiểm soát chính xác giá trị biến chạy để rơi vào ngay
+            trên hoặc ngay dưới điểm cắt. Nếu có sự thao túng xảy ra, nhóm can thiệp và đối chứng gần điểm cắt sẽ không
+            thể so sánh được, làm mất giá trị của thiết kế.</div>
+          <div class="mistake-fix"><strong>Khắc phục:</strong> Luôn chạy <code>rddensity runvar, c(cutoff)</code> (kiểm
+            định mật độ McCrary). Việc kiểm tra bằng mắt đồ thị mật độ và một kiểm định thống kê không có ý nghĩa đều là
+            yêu cầu bắt buộc. Nếu kiểm định bác bỏ, thiết kế RD không còn đáng tin cậy.</div>
+        </div>
+
+        <div class="mistake-item">
+          <div class="severity sev-major">Nghiêm trọng</div>
+          <div class="mistake-title">Sử dụng hồi quy đa thức toàn cục thay vì đa thức cục bộ</div>
+          <div class="mistake-why">RD đa thức bậc cao toàn cục (lựa chọn mặc định cũ) rất nhạy cảm với các điểm ngoại lệ
+            ở xa điểm cắt, tạo ra suy luận kém và dễ bị hiện tượng Runge. Cách thực hành tốt nhất hiện nay là sử dụng
+            ước lượng đa thức cục bộ gần điểm cắt.</div>
+          <div class="mistake-fix"><strong>Khắc phục:</strong> Sử dụng <code>rdrobust</code> với mặc định là đa thức cục
+            bộ và băng thông (bandwidth) tối ưu MSE dựa trên dữ liệu. Trình chọn băng thông tính đến cả độ chệch và
+            phương sai. Sử dụng đa thức cục bộ bậc nhất (tuyến tính) trừ khi bạn có lý do cụ thể cho bậc cao hơn.</div>
+        </div>
+      </section>
+
+      <!-- ML Section -->
+      <section class="mistake-section" id="ml">
+        <h2>Kinh tế lượng hỗ trợ bởi ML</h2>
+
+        <div class="mistake-item">
+          <div class="severity sev-critical">Tới hạn</div>
+          <div class="mistake-title">Sử dụng Lasso thô cho suy luận nhân quả (không có lựa chọn kép hậu kỳ)</div>
+          <div class="mistake-why">Lasso cho dự báo lựa chọn các biến để tối thiểu hóa sai số dự báo ngoài mẫu. Khi được
+            sử dụng trực tiếp cho suy luận nhân quả (vd: chọn các biến kiểm soát rồi chạy OLS), sai số chuẩn thu được sẽ
+            không hợp lệ vì bước lựa chọn tạo ra thêm mức độ biến động không được tính đến ở giai đoạn hai.</div>
+          <div class="mistake-fix"><strong>Khắc phục:</strong> Sử dụng <code>pdslasso</code> (post-double-selection)
+            hoặc <code>ddml</code> (Double ML với cross-fitting) cho suy luận nhân quả hợp lệ trong bối cảnh chiều cao.
+            Các phương pháp này tạo ra suy luận hợp lệ sau khi lựa chọn biến. <a
+              href="categories/ml-econometrics.html">→ Hướng dẫn Kinh tế lượng ML</a></div>
+        </div>
+
+        <div class="mistake-item">
+          <div class="severity sev-major">Nghiêm trọng</div>
+          <div class="mistake-title">Nghĩ rằng DDML giải quyết được các biến gây nhiễu không quan sát được</div>
+          <div class="mistake-why">Double ML xử lý linh hoạt nhiều biến kiểm soát *quan sát được* (phi tuyến, với lựa
+            chọn biến). Nó KHÔNG giải quyết được các biến gây nhiễu không quan sát được. Nếu các biến gây nhiễu quan
+            trọng không có trong bộ dữ liệu của bạn, DDML sẽ tạo ra các ước lượng nhân quả bị chệch giống như OLS.</div>
+          <div class="mistake-fix"><strong>Khắc phục:</strong> Chỉ sử dụng DDML khi giả định chọn lọc trên biến quan sát
+            là hợp lý và bạn có một tập hợp phong phú các biến kiểm soát quan sát được. Kết hợp DDML với một lập luận
+            định danh mạnh mẽ — nó không phải là sự thay thế cho điều đó.</div>
+        </div>
+      </section>
+
+      <!-- Time Series Section -->
+      <section class="mistake-section" id="ts">
+        <h2>Chuỗi thời gian</h2>
+
+        <div class="mistake-item">
+          <div class="severity sev-critical">Tới hạn</div>
+          <div class="mistake-title">Chạy OLS, ARIMA hoặc VAR mà không kiểm định tính dừng</div>
+          <div class="mistake-why">Các chuỗi không dừng (I(1) hoặc cao hơn) tạo ra các hồi quy ảo — R-squared cao và
+            thống kê t có ý nghĩa ngay cả giữa các chuỗi hoàn toàn không liên quan. Bất kỳ phân tích chuỗi thời gian nào
+            giả định tính dừng nhưng bỏ qua nghiệm đơn vị đều không đáng tin cậy.</div>
+          <div class="mistake-fix"><strong>Khắc phục:</strong> Luôn chạy <code>dfuller</code> (Dickey-Fuller mở rộng)
+            trên tất cả các biến chuỗi thời gian trước khi mô hình hóa. Kiểm định với nhiều độ dài trễ khác nhau. Nếu
+            chuỗi là I(1), hãy lấy sai phân cho ARIMA/VAR (hoặc dùng VECM nếu các chuỗi có đồng liên kết).</div>
+        </div>
+
+        <div class="mistake-item">
+          <div class="severity sev-major">Nghiêm trọng</div>
+          <div class="mistake-title">Diễn giải nhân quả Granger là nhân quả kinh tế</div>
+          <div class="mistake-why">Kiểm định nhân quả Granger kiểm tra xem X có giúp dự báo Y khi đã biết quá khứ của Y
+            hay không. Đây là một khái niệm mang tính dự báo, không phải nhân quả cấu trúc. X có thể gây ra Granger cho
+            Y vì cả hai cùng phản ứng với một yếu tố thứ ba chung, vì các biến bị bỏ sót hoặc do nhân quả ngược.</div>
+          <div class="mistake-fix"><strong>Khắc phục:</strong> Báo cáo các kiểm định nhân quả Granger như bằng chứng về
+            các mối quan hệ dự báo, không phải nhân quả cấu trúc. Phân biệt rõ ràng giữa "X gây ra Granger cho Y" (X có
+            sức mạnh dự báo bổ sung cho Y) và "X gây ra Y" (khẳng định nhân quả cấu trúc đòi hỏi sự định danh).</div>
+        </div>
+      </section>
+
+      <!-- Reporting Section -->
+      <section class="mistake-section" id="reporting">
+        <h2>Báo cáo &amp; Kết quả</h2>
+
+        <div class="mistake-item">
+          <div class="severity sev-moderate">Trung bình</div>
+          <div class="mistake-title">Sao chép thô kết quả từ Stata vào bài thảo luận hoặc luận văn</div>
+          <div class="mistake-why">Kết quả mặc định của Stata được thiết kế cho bảng điều khiển, không phải để công bố.
+            Kết quả thô có định dạng kém, tên biến không rõ ràng và các thống kê không liên quan. Nó thể hiện sự thiếu
+            chuyên nghiệp trong công trình học thuật.</div>
+          <div class="mistake-fix"><strong>Khắc phục:</strong> Sử dụng <code>estout</code> / <code>esttab</code> cho các
+            bảng LaTeX hoặc <code>outreg2</code> cho Word. Đặt tên biến rõ ràng trong tệp do-file của bạn. Định dạng các
+            con số đến 3 chữ số có nghĩa. Chỉ báo cáo các thống kê liên quan đến lập luận của bạn. <a
+              href="comparisons/outreg2-vs-estout.html">→ Hướng dẫn</a></div>
+        </div>
+
+        <div class="mistake-item">
+          <div class="severity sev-major">Nghiêm trọng</div>
+          <div class="mistake-title">Không báo cáo tác động biên cho các mô hình logit/probit</div>
+          <div class="mistake-why">Các hệ số logit và probit không thể diễn giải trực tiếp như tác động biên lên P(Y=1).
+            Tác động của X lên Y phụ thuộc vào giá trị của tất cả các biến khác (do hàm liên kết phi tuyến). Báo cáo các
+            hệ số thô mà không có tác động biên sẽ gây hiểu lầm cho người đọc.</div>
+          <div class="mistake-fix"><strong>Khắc phục:</strong> Luôn chạy <code>margins, dydx(*)</code> sau
+            <code>logit</code> hoặc <code>probit</code>. Báo cáo tác động biên trung bình (AMEs) trong bảng chính của
+            bạn. Các hệ số thô có thể đưa vào phụ lục hoặc dưới dạng tỉ số chênh (log-odds) nếu muốn diễn giải theo tỉ
+            lệ chênh.</div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <h4>Liên quan</h4>
+        <ul>
+          <li><a href="best-packages.html">Gói lệnh tốt nhất</a></li>
+          <li><a href="decision-tree.html">Cây quyết định</a></li>
+          <li><a href="comparison-index.html">Tất cả so sánh</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Các khu vực lỗi phổ biến</h4>
+        <ul>
+          <li><a href="categories/staggered-did.html">Staggered DID (TWFE)</a></li>
+          <li><a href="categories/iv-endogeneity.html">IV &amp; Nội sinh</a></li>
+          <li><a href="categories/ml-econometrics.html">ML Econometrics</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">Stata Econometrics Task View — Bản tiếng Việt</div>
+  </footer>
+  <script src="assets/js/navigation.js"></script>
+</body>
+
+</html>

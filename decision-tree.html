@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cây Quyết Định Chọn Lệnh — Stata Econometrics Task View</title>
+  <meta name="description" content="Trả lời một vài câu hỏi để tìm đúng lệnh Stata cho tác vụ kinh tế lượng của bạn.">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <style>
+    #decision-mount {
+      min-height: 300px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="noise-overlay" aria-hidden="true"></div>
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="index.html">Stata <span>Task View</span></a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html">Trang chủ</a></li>
+        <li class="nav-dropdown"><button class="nav-dropdown-btn">Danh mục ▾</button>
+          <div class="nav-dropdown-menu">
+            <a href="categories/ols-diagnostics.html">OLS &amp; Chẩn đoán</a>
+            <a href="categories/limited-dependent.html">Biến phụ thuộc hạn chế</a>
+            <a href="categories/panel-data.html">Dữ liệu bảng</a>
+            <a href="categories/iv-endogeneity.html">IV &amp; Nội sinh</a>
+            <a href="categories/time-series.html">Chuỗi thời gian</a>
+            <a href="categories/causal-inference.html">Suy luận nhân quả</a>
+            <a href="categories/staggered-did.html">Staggered DID</a>
+            <a href="categories/ml-econometrics.html">ML Econometrics</a>
+          </div>
+        </li>
+        <li><a href="decision-tree.html" class="active">Cây quyết định</a></li>
+        <li><a href="best-packages.html">Gói lệnh tốt nhất</a></li>
+      </ul>
+      <button class="nav-hamburger" id="nav-hamburger">☰</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-container">
+      <nav class="breadcrumb"><a href="index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><span
+          class="breadcrumb-current">Cây quyết định</span></nav>
+      <div class="page-title-block">
+        <h1>Tôi nên sử dụng lệnh Stata nào?</h1>
+        <p class="page-subtitle">Trả lời một vài câu hỏi về dữ liệu và mục tiêu nghiên cứu của bạn — nhận đề xuất lệnh
+          phù hợp.</p>
+      </div>
+
+      <div class="callout callout-info" style="margin-bottom:1.5rem;">
+        <div class="callout-title">Cách sử dụng công cụ này</div>
+        <p>Nhấp qua các câu hỏi. Mỗi lựa chọn sẽ thu hẹp phạm vi đến đúng lệnh cho tình huống của bạn. Sử dụng nút Quay
+          lại để chỉnh sửa câu trả lời trước đó. Nhấp Bắt đầu lại để làm lại từ đầu.</p>
+      </div>
+
+      <!-- Decision tree mount point -->
+      <div id="decision-mount">
+        <div class="decision-loading" style="padding:2rem;text-align:center;color:var(--muted-fg);">Đang tải cây quyết định...
+        </div>
+      </div>
+
+      <!-- Static fallback: text-based guide -->
+      <details style="margin-top:2.5rem;">
+        <summary style="cursor:pointer;font-weight:600;color:var(--color-stata-blue);padding:.5rem 0;">Hiển thị hướng
+          dẫn dạng văn bản (phiên bản tĩnh)</summary>
+        <div style="margin-top:1rem;">
+          <div class="callout callout-tip" style="margin-bottom:1rem;">
+            <div class="callout-title">Sơ đồ tham khảo nhanh</div>
+            <p>Sử dụng phần này nếu cây quyết định tương tác ở trên không tải được (yêu cầu JavaScript).</p>
+          </div>
+
+          <h3>Bước 1: Loại biến phụ thuộc của bạn là gì?</h3>
+          <ul>
+            <li><strong>Liên tục</strong> → Bước 2</li>
+            <li><strong>Nhị phân (0/1)</strong> → Sử dụng <a href="commands/command.html?cmd=logit">logit</a> + <a
+                href="commands/command.html?cmd=margins">margins</a>. Luôn tính toán tác động biên — đừng bao giờ báo
+              cáo hệ số logit thô.</li>
+            <li><strong>Bị kiểm duyệt hoặc bị rút cụt</strong> → Sử dụng <a
+                href="commands/command.html?cmd=tobit">tobit</a></li>
+            <li><strong>Dữ liệu đếm</strong> → Poisson hoặc binomial âm (tham khảo giáo trình kinh tế lượng)</li>
+          </ul>
+
+          <h3>Bước 2: Mục tiêu nghiên cứu chính của bạn là gì?</h3>
+          <ul>
+            <li><strong>Ước lượng tác động nhân quả</strong> → Bước 3 (Nhân quả)</li>
+            <li><strong>Kiểm soát các biến gây nhiễu, dự báo hoặc mô tả</strong> → Bước 4 (Hồi quy)</li>
+            <li><strong>Mô hình hóa động thái chuỗi thời gian</strong> → Bước 5 (Chuỗi thời gian)</li>
+          </ul>
+
+          <h3>Bước 3: Định danh nhân quả — thiết kế của bạn là gì?</h3>
+          <ul>
+            <li><strong>Thời điểm can thiệp so le giữa các nhóm/đơn vị</strong> → <a
+                href="commands/command.html?cmd=csdid">csdid</a> (Callaway-Sant'Anna). KHÔNG sử dụng TWFE.</li>
+            <li><strong>Cần phân tích độ nhạy cho staggered DID</strong> → Thêm <a
+                href="commands/command.html?cmd=honestdid">honestdid</a> sau khi ước lượng event-study.</li>
+            <li><strong>Ngưỡng / điểm cắt rõ ràng (thiết kế RD)</strong> → <a
+                href="commands/command.html?cmd=rdrobust">rdrobust</a> + rdplot + rddensity</li>
+            <li><strong>Đơn vị can thiệp duy nhất (synthetic control)</strong> → <a
+                href="commands/command.html?cmd=synth">synth</a></li>
+            <li><strong>Ghép cặp điểm xu hướng (PSM)</strong> → <a
+                href="commands/command.html?cmd=psmatch2">psmatch2</a> (kiểm tra sự cân bằng cẩn thận)</li>
+            <li><strong>DID 2 giai đoạn đơn giản</strong> → <a href="commands/command.html?cmd=diff">diff</a> hoặc hồi
+              quy DID thủ công với sai số chuẩn vững.</li>
+            <li><strong>Biến giải thích nội sinh + biến công cụ hợp lệ</strong> → <a
+                href="commands/command.html?cmd=ivreg2">ivreg2</a></li>
+          </ul>
+
+          <h3>Bước 4: OLS / Hồi quy — cấu trúc dữ liệu của bạn là gì?</h3>
+          <ul>
+            <li><strong>Dữ liệu chéo, không có nội sinh</strong> → <a href="commands/command.html?cmd=reg">reg</a> với
+              tùy chọn <code>robust</code>. Luôn luôn.</li>
+            <li><strong>Dữ liệu bảng, can thiệp tĩnh</strong> → <a href="commands/command.html?cmd=xtreg-fe">xtreg,
+                fe</a> hoặc <a href="commands/command.html?cmd=reghdfe">reghdfe</a>. Phân cụm ở cấp đơn vị; nếu có ít
+              cụm, hãy thêm <a href="commands/command.html?cmd=boottest">boottest</a>.</li>
+            <li><strong>Dữ liệu bảng, biến phụ thuộc trễ hoặc hiệu ứng động</strong> → <a
+                href="commands/command.html?cmd=xtabond2">xtabond2</a> (Arellano-Bond GMM)</li>
+            <li><strong>Nhiều biến kiểm soát (tỷ lệ p/n > 0.1)</strong> → <a
+                href="commands/command.html?cmd=pdslasso">pdslasso</a> (đối chiếu tuyến tính thưa) hoặc <a
+                href="commands/command.html?cmd=ddml">ddml</a> (phi tuyến linh hoạt).</li>
+          </ul>
+
+          <h3>Bước 5: Chuỗi thời gian — chuỗi đơn hay nhiều chuỗi?</h3>
+          <ul>
+            <li><strong>Chuỗi đơn, dự báo hoặc động thái</strong> → Kiểm định tính dừng với <a
+                href="commands/command.html?cmd=dfuller">dfuller</a>, sau đó <a
+                href="commands/command.html?cmd=arima">arima</a></li>
+            <li><strong>Nhiều chuỗi, động thái chung (Granger, IRFs)</strong> → Kiểm định tính dừng, sau đó dùng <a
+                href="commands/command.html?cmd=var">var</a> (nếu dừng) hoặc VECM qua <code>vec</code> (nếu có đồng liên
+              kết)</li>
+          </ul>
+        </div>
+      </details>
+
+    </div>
+  </main>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <h4>Liên quan</h4>
+        <ul>
+          <li><a href="best-packages.html">Gói lệnh tốt nhất</a></li>
+          <li><a href="common-mistakes.html">Sai lầm phổ biến</a></li>
+          <li><a href="comparison-index.html">Tất cả so sánh</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Danh mục</h4>
+        <ul>
+          <li><a href="categories/causal-inference.html">Suy luận nhân quả</a></li>
+          <li><a href="categories/panel-data.html">Dữ liệu bảng</a></li>
+          <li><a href="categories/staggered-did.html">Staggered DID</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">Stata Econometrics Task View — Bản tiếng Việt</div>
+  </footer>
+  <script src="assets/js/navigation.js"></script>
+  <script src="assets/js/decision-tree.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      DecisionTree.init('decision-mount', 'assets/js/data/decision-tree.json');
+    });
+  </script>
+</body>
+
+</html>

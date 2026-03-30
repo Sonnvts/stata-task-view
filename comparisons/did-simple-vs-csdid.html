@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DID đơn giản vs csdid — Stata Kinh Tế Lượng Task View</title>
+  <meta name="description"
+    content="Khi nào DID cổ điển (TWFE) thất bại và tại sao bạn cần csdid (Callaway-Sant'Anna) cho áp dụng theo giai đoạn.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+</head>
+
+<body>
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="../index.html">Stata <span>Task View</span></a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../index.html">Trang chủ</a></li>
+        <li><a href="../categories/staggered-did.html">DID theo giai đoạn</a></li>
+        <li><a href="../comparison-index.html">Tất cả so sánh</a></li>
+      </ul>
+      <button class="nav-hamburger" id="nav-hamburger">☰</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-container" style="max-width:960px;">
+      <nav class="breadcrumb"><a href="../index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><a
+          href="../comparison-index.html">So sánh</a><span class="breadcrumb-sep">›</span><span
+          class="breadcrumb-current">DID đơn giản vs csdid</span></nav>
+
+      <div class="page-title-block">
+        <h1>DID đơn giản (TWFE) vs. <code>csdid</code></h1>
+        <p class="page-subtitle">Lựa chọn phương pháp quan trọng nhất trong kinh tế lượng ứng dụng hiện đại</p>
+      </div>
+
+      <div class="callout callout-danger">
+        <div class="callout-title">Cảnh báo nghiêm trọng</div>
+        <p><strong>Nếu thời điểm can thiệp thay đổi giữa các đơn vị (áp dụng theo giai đoạn), ước lượng TWFE cổ điển bị lệch
+            và KHÔNG nên được sử dụng.</strong> Dưới tính không đồng nhất của hiệu ứng can thiệp, TWFE có thể cho dấu sai, độ lớn sai,
+          và suy diễn sai. Điều này áp dụng cho một phần lớn các bài báo kinh tế thực nghiệm.</p>
+      </div>
+
+      <!-- VS cards -->
+      <div class="vs-cards">
+        <div class="vs-card">
+          <div class="vs-card-header"><span class="vs-card-name">DID đơn giản / TWFE</span><span
+              class="badge badge-builtin">Có sẵn</span></div>
+          <p style="font-size:.875rem;color:var(--muted-fg);">reg y i.treated##i.post, fe <em>hoặc</em> xtreg y treatment i.year,
+            fe</p>
+          <ul class="vs-pro">
+            <li>Đơn giản để thực hiện và báo cáo</li>
+            <li>Hợp lệ cho thiết kế 2×2 sạch (hai nhóm, hai giai đoạn)</li>
+            <li>Hợp lệ dưới tính đồng nhất của hiệu ứng can thiệp (hiếm khi thực tế)</li>
+          </ul>
+          <ul class="vs-con">
+            <li>Lệch dưới áp dụng theo giai đoạn + hiệu ứng không đồng nhất</li>
+            <li>Trọng số âm có thể xảy ra — ước lượng có thể có dấu sai</li>
+            <li>Không có nghiên cứu sự kiện sạch theo nhóm</li>
+            <li>Kiểm định xu hướng song song thất bại không đơn giản để sửa</li>
+          </ul>
+        </div>
+        <div class="vs-card vs-recommended">
+          <div class="vs-card-header"><span class="vs-card-name">csdid (Callaway-Sant'Anna)</span><span
+              class="badge badge-ssc">SSC</span></div>
+          <p style="font-size:.875rem;color:var(--muted-fg);">csdid y, ivar(uid) tvar(year) gvar(first_treat)</p>
+          <ul class="vs-pro">
+            <li>Không lệch dưới áp dụng theo giai đoạn ngay cả với hiệu ứng không đồng nhất</li>
+            <li>Chỉ dùng đơn vị kiểm soát "sạch" (chưa được can thiệp hoặc không bao giờ được can thiệp)</li>
+            <li>Báo cáo ATT nhóm-thời gian, kiểm định xu hướng trước và nghiên cứu sự kiện</li>
+            <li>Hỗ trợ ước lượng kép vững với covariates qua drdid</li>
+            <li>Tiêu chuẩn hiện đại — được kỳ vọng bởi các nhà phản biện ở tạp chí hàng đầu</li>
+          </ul>
+          <ul class="vs-con">
+            <li>Phức tạp hơn để thiết lập (cần biến gvar)</li>
+            <li>Cần hiểu ký hiệu nhóm-thời gian</li>
+            <li>Giải thích ATT tổng hợp cần thận trọng</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Why TWFE fails: intuitive explanation -->
+      <h2 style="margin-top:2rem;">Tại sao TWFE thất bại với áp dụng theo giai đoạn?</h2>
+      <p>TWFE phân tách thành trung bình có trọng số của tất cả các so sánh 2×2 có thể. Với áp dụng theo giai đoạn, một số
+        so sánh dùng <strong>các đơn vị đã được can thiệp làm kiểm soát</strong>. Những "so sánh bị cấm" này làm ô nhiễm
+        ước lượng vì kết quả của nhóm "kiểm soát" đã bao gồm hiệu ứng can thiệp.</p>
+      <p>Về mặt hình thức, ước lượng TWFE β có thể được viết như sau:</p>
+      <blockquote style="font-family:var(--font-mono);background:var(--muted);padding:1rem;border-radius:0;font-size:.9rem;">
+        β<sub>TWFE</sub> = Σ w(g,t) × ATT(g,t)
+        <br>trong đó một số trọng số w(g,t) <strong>có thể âm</strong>
+      </blockquote>
+      <p>Trọng số âm xuất hiện khi các đơn vị được can thiệp sớm được dùng làm kiểm soát cho các đơn vị được can thiệp muộn. Một
+        ATT(g,t) dương lớn có thể dẫn đến β<sub>TWFE</sub> âm nếu nhân với trọng số âm lớn.</p>
+
+      <!-- Side-by-side code -->
+      <h2 style="margin-top:2rem;">So sánh code: cùng tình huống, hai cách tiếp cận</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div>
+          <h4 style="margin-bottom:.5rem;color:var(--diff-advanced);">❌ TWFE cổ điển (lệch)</h4>
+          <div class="code-wrapper">
+            <pre class="language-stata"><code>* Lệch dưới DID theo giai đoạn
+* với hiệu ứng không đồng nhất:
+xtset unitid year
+
+xtreg outcome treatment ///
+  i.year, fe ///
+  vce(cluster unitid)
+
+* Hoặc tương đương:
+reg outcome i.unitid i.year ///
+  treatment, robust
+
+* Hệ số trên 'treatment'
+* là trung bình bị ô nhiễm —
+* tránh dùng cho thiết kế theo giai đoạn</code></pre><button class="copy-btn">Sao chép</button>
+          </div>
+        </div>
+        <div>
+          <h4 style="margin-bottom:.5rem;color:var(--install-ssc);">✓ csdid (đúng)</h4>
+          <div class="code-wrapper">
+            <pre class="language-stata"><code>* Cài đặt trước:
+ssc install csdid
+ssc install drdid
+
+* gvar = năm can thiệp lần đầu
+* (0 cho đơn vị không bao giờ được can thiệp)
+csdid outcome, ///
+  ivar(unitid) ///
+  tvar(year) ///
+  gvar(first_treat_year)
+
+* ATT nghiên cứu sự kiện:
+estat event
+
+* Vẽ biểu đồ:
+csdid_plot</code></pre><button class="copy-btn">Sao chép</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ATT aggregation -->
+      <h2 style="margin-top:2rem;">Hiểu kết quả csdid: tổng hợp ATT</h2>
+      <div class="comparison-table-wrapper">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Tổng hợp</th>
+              <th>Lệnh Stata</th>
+              <th>Cho biết gì</th>
+              <th>Khi nào báo cáo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Trung bình đơn giản</td>
+              <td><code>estat simple</code></td>
+              <td>ATT tổng thể trung bình (như một con số DID đơn)</td>
+              <td>Thống kê tóm tắt</td>
+            </tr>
+            <tr>
+              <td>Theo nhóm</td>
+              <td><code>estat group</code></td>
+              <td>ATT theo nhóm can thiệp (ai áp dụng khi nào)</td>
+              <td>Tính không đồng nhất hiệu ứng theo thời gian</td>
+            </tr>
+            <tr>
+              <td>Thời gian lịch</td>
+              <td><code>estat calendar</code></td>
+              <td>ATT theo giai đoạn lịch</td>
+              <td>Xu hướng thời gian trong hiệu ứng</td>
+            </tr>
+            <tr>
+              <td>Động (nghiên cứu sự kiện)</td>
+              <td><code>estat event</code></td>
+              <td>ATT theo thời gian tương đối so với can thiệp</td>
+              <td><strong>Luôn báo cáo</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- The event study -->
+      <h2 style="margin-top:2rem;">Nghiên cứu sự kiện: luôn báo cáo</h2>
+      <div class="code-wrapper">
+        <pre class="language-stata"><code>* Chạy csdid
+csdid outcome, ivar(uid) tvar(year) gvar(gt)
+
+* Nghiên cứu sự kiện động
+estat event
+
+* Vẽ biểu đồ (các giai đoạn trước can thiệp phải gần 0)
+csdid_plot, ///
+  title("Nghiên cứu sự kiện: Hiệu ứng của việc áp dụng chính sách") ///
+  note("Nguồn: Callaway & Sant'Anna (2021)")
+
+* Kiểm định xu hướng trước (chính thức)
+estat pretrend</code></pre>
+        <button class="copy-btn">Sao chép</button>
+      </div>
+      <p style="margin-top:.5rem;font-size:.875rem;color:var(--muted-fg);">Biểu đồ nghiên cứu sự kiện cho thấy ATT(k) cho k giai đoạn
+        trước và sau can thiệp. ATT trước can thiệp (k &lt; 0) phải không phân biệt được về mặt thống kê với không —
+        điều này xác nhận giả định xu hướng song song.</p>
+
+      <!-- Verdict -->
+      <div class="verdict-box" style="margin-top:2rem;">
+        <div class="verdict-label">Kết luận</div>
+        <p><strong>Dùng csdid bất cứ khi nào thời điểm can thiệp thay đổi giữa các đơn vị.</strong> TWFE cổ điển chỉ hợp lệ cho
+          thiết kế 2×2 sạch (tất cả đơn vị được can thiệp cùng lúc, hoặc không bao giờ được can thiệp vs được can thiệp). Với bất kỳ bộ dữ liệu bảng hiện đại nào có áp dụng chính sách theo giai đoạn, csdid (Callaway-Sant'Anna 2021) là cách tiếp cận đúng. Luôn báo cáo nghiên cứu sự kiện động, kiểm định xu hướng trước, và trình bày cả ATT đơn giản lẫn ATT nghiên cứu sự kiện.</p>
+      </div>
+
+      <div style="margin-top:1.5rem;display:flex;gap:1rem;flex-wrap:wrap;">
+        <a href="../commands/command.html?cmd=csdid" class="btn-primary">Hướng dẫn đầy đủ csdid →</a>
+        <a href="../commands/command.html?cmd=diff" class="btn-secondary">Hướng dẫn DID đơn giản →</a>
+        <a href="csdid-vs-drdid.html" class="btn-secondary">csdid vs drdid →</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <h4>Liên quan</h4>
+        <ul>
+          <li><a href="../categories/staggered-did.html">Danh mục DID theo giai đoạn</a></li>
+          <li><a href="csdid-vs-drdid.html">csdid vs drdid</a></li>
+          <li><a href="../commands/command.html?cmd=synth">Kiểm soát tổng hợp</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">Stata Kinh Tế Lượng Task View · Tài nguyên học thuật cho kinh tế lượng ứng dụng</div>
+  </footer>
+  <script src="../assets/js/navigation.js"></script>
+</body>
+
+</html>

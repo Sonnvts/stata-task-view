@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gói tốt nhất — Stata Kinh tế lượng Task View</title>
+  <meta name="description"
+    content="Hướng dẫn dứt khoát về gói Stata tốt nhất cho từng nhiệm vụ kinh tế lượng. Các đề xuất chuyên sâu và chuẩn mực nghiên cứu.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <style>
+    .pkg-section {
+      margin-bottom: 2.5rem;
+    }
+
+    .pkg-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-bottom: var(--space-2xl);
+    }
+
+    .pkg-card {
+      background: var(--card-bg);
+      border-radius: 0;
+      padding: var(--space-lg);
+    }
+
+    .pkg-card-name {
+      font-family: var(--font-mono);
+      font-size: var(--text-base);
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: .25rem;
+    }
+
+    .pkg-card-use {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-wider);
+      color: var(--muted-fg);
+      margin-bottom: .75rem;
+    }
+
+    .pkg-card-verdict {
+      font-size: var(--text-sm);
+      color: var(--muted-fg);
+      line-height: 1.6;
+    }
+
+    .pkg-card-links {
+      margin-top: .75rem;
+      display: flex;
+      gap: .5rem;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="index.html">Stata <span>Task View</span></a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html">Trang chủ</a></li>
+        <li class="nav-dropdown"><button class="nav-dropdown-btn">Danh mục ▾</button>
+          <div class="nav-dropdown-menu">
+            <a href="categories/ols-diagnostics.html">OLS &amp; Kiểm định</a>
+            <a href="categories/limited-dependent.html">Biến phụ thuộc giới hạn</a>
+            <a href="categories/panel-data.html">Dữ liệu bảng</a>
+            <a href="categories/iv-endogeneity.html">Biến công cụ &amp; Nội sinh</a>
+            <a href="categories/time-series.html">Chuỗi thời gian</a>
+            <a href="categories/causal-inference.html">Suy diễn nhân quả</a>
+            <a href="categories/staggered-did.html">DID theo giai đoạn</a>
+            <a href="categories/ml-econometrics.html">Kinh tế lượng ML</a>
+          </div>
+        </li>
+        <li><a href="decision-tree.html">Cây quyết định</a></li>
+        <li><a href="best-packages.html" class="active">Gói tốt nhất</a></li>
+      </ul>
+      <button class="nav-hamburger" id="nav-hamburger">☰</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-container">
+      <nav class="breadcrumb"><a href="index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><span
+          class="breadcrumb-current">Gói tốt nhất</span></nav>
+      <div class="page-title-block">
+        <h1>Gói tốt nhất theo trường hợp sử dụng</h1>
+        <p class="page-subtitle">Các đề xuất chuyên sâu, chuẩn mực nghiên cứu cho các nhiệm vụ kinh tế lượng phổ biến
+          nhất</p>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-title">Cách sử dụng hướng dẫn này</div>
+        <p>Đây là những đề xuất <em>thực hành tốt nhất hiện nay</em> — các lệnh bạn nên sử dụng mặc định trừ khi bạn có
+          lý do cụ thể để thay đổi. Mỗi đề xuất phản ánh các tiêu chuẩn phương pháp luận hiện hành trong kinh tế lượng
+          ứng dụng (tính đến năm 2024–2025).</p>
+      </div>
+
+      <!-- Master reference table -->
+      <section class="pkg-section">
+        <h2>Tra cứu nhanh</h2>
+        <div class="comparison-table-wrapper">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Trường hợp sử dụng</th>
+                <th>Lựa chọn tốt nhất</th>
+                <th>Cấp độ</th>
+                <th>Ghi chú chính</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>OLS cơ bản</td>
+                <td><a href="commands/command.html?cmd=reg"><code>reg</code></a> với <code>robust</code></td>
+                <td><span class="badge badge-beginner">Cơ bản</span></td>
+                <td>Không bao giờ dùng SE cổ điển; luôn dùng robust hoặc cluster</td>
+              </tr>
+              <tr>
+                <td>Bảng hồi quy</td>
+                <td><a href="commands/command.html?cmd=estout"><code>estout / esttab</code></a></td>
+                <td><span class="badge badge-intermediate">Trung cấp</span></td>
+                <td>Linh hoạt hơn outreg2; kết quả LaTeX tốt hơn</td>
+              </tr>
+              <tr>
+                <td>Trực quan hóa (OLS)</td>
+                <td><a href="commands/command.html?cmd=binscatter2"><code>binscatter2</code></a></td>
+                <td><span class="badge badge-beginner">Cơ bản</span></td>
+                <td>Tốt nhất cho quan hệ hai biến trong tập dữ liệu lớn</td>
+              </tr>
+              <tr>
+                <td>Biến kết quả nhị phân</td>
+                <td><a href="commands/command.html?cmd=logit"><code>logit</code></a> + <a
+                    href="commands/command.html?cmd=margins"><code>margins</code></a></td>
+                <td><span class="badge badge-beginner">Cơ bản</span></td>
+                <td>Luôn tính AME — không báo cáo hệ số thô</td>
+              </tr>
+              <tr>
+                <td>Bảng — định danh bên trong</td>
+                <td><a href="commands/command.html?cmd=xtreg-fe"><code>xtreg, fe</code></a></td>
+                <td><span class="badge badge-intermediate">Trung cấp</span></td>
+                <td>Luôn cluster ở cấp đơn vị bảng; mặc định cho nghiên cứu nhân quả</td>
+              </tr>
+              <tr>
+                <td>Bảng — nhiều hiệu ứng cố định</td>
+                <td><a href="commands/command.html?cmd=reghdfe"><code>reghdfe</code></a></td>
+                <td><span class="badge badge-intermediate">Trung cấp</span></td>
+                <td>Hấp thụ nhiều FE chiều cao một cách hiệu quả</td>
+              </tr>
+              <tr>
+                <td>Bảng — động (DV trễ)</td>
+                <td><a href="commands/command.html?cmd=xtabond2"><code>xtabond2</code></a></td>
+                <td><span class="badge badge-advanced">Nâng cao</span></td>
+                <td>GMM Arellano-Bond; yêu cầu lựa chọn công cụ cẩn thận</td>
+              </tr>
+              <tr>
+                <td>Hồi quy IV</td>
+                <td><a href="commands/command.html?cmd=ivreg2"><code>ivreg2</code></a></td>
+                <td><span class="badge badge-intermediate">Trung cấp</span></td>
+                <td>Dùng thay cho ivregress — KP rk Wald F để kiểm định công cụ yếu</td>
+              </tr>
+              <tr>
+                <td>DID theo giai đoạn</td>
+                <td><a href="commands/command.html?cmd=csdid"><code>csdid</code></a></td>
+                <td><span class="badge badge-advanced">Nâng cao</span></td>
+                <td>Bắt buộc cho thiết kế theo giai đoạn — KHÔNG dùng TWFE</td>
+              </tr>
+              <tr>
+                <td>Thiết kế RD</td>
+                <td><a href="commands/command.html?cmd=rdrobust"><code>rdrobust</code></a></td>
+                <td><span class="badge badge-intermediate">Trung cấp</span></td>
+                <td>Luôn chạy rdplot + rddensity đi kèm</td>
+              </tr>
+              <tr>
+                <td>Ghép cặp (Matching)</td>
+                <td><a href="commands/command.html?cmd=psmatch2"><code>psmatch2</code></a> + kiểm tra cân bằng</td>
+                <td><span class="badge badge-intermediate">Trung cấp</span></td>
+                <td>Kiểm tra cân bằng với pstest; ghép cặp ≠ định danh nhân quả đơn thuần</td>
+              </tr>
+              <tr>
+                <td>Kiểm soát tổng hợp</td>
+                <td><a href="commands/command.html?cmd=synth"><code>synth</code></a></td>
+                <td><span class="badge badge-advanced">Nâng cao</span></td>
+                <td>Chỉ cho đơn vị can thiệp duy nhất; yêu cầu các kiểm định placebo</td>
+              </tr>
+              <tr>
+                <td>Chuỗi thời gian — nghiệm đơn vị</td>
+                <td><a href="commands/command.html?cmd=dfuller"><code>dfuller</code></a></td>
+                <td><span class="badge badge-intermediate">Trung cấp</span></td>
+                <td>Chạy trước bất kỳ mô hình chuỗi thời gian nào; kiểm tra nhiều độ trễ</td>
+              </tr>
+              <tr>
+                <td>Chuỗi thời gian — đơn biến</td>
+                <td><a href="commands/command.html?cmd=arima"><code>arima</code></a></td>
+                <td><span class="badge badge-intermediate">Trung cấp</span></td>
+                <td>Box-Jenkins: định danh ACF/PACF → ước lượng → chẩn đoán</td>
+              </tr>
+              <tr>
+                <td>Chuỗi thời gian — đa biến</td>
+                <td><a href="commands/command.html?cmd=var"><code>var</code></a></td>
+                <td><span class="badge badge-intermediate">Trung cấp</span></td>
+                <td>Kiểm định tính dừng trước; dùng VECM nếu có đồng liên kết</td>
+              </tr>
+              <tr>
+                <td>Kiểm soát chiều cao</td>
+                <td><a href="commands/command.html?cmd=ddml"><code>ddml</code></a></td>
+                <td><span class="badge badge-advanced">Nâng cao</span></td>
+                <td>ML kép với cross-fitting; suy luận hợp lệ trong bối cảnh chiều cao</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- OLS section -->
+      <section class="pkg-section">
+        <h2>OLS &amp; Suy luận</h2>
+        <div class="pkg-grid">
+          <div class="pkg-card">
+            <div class="pkg-card-name"><code>reg</code> với <code>robust</code> <span class="badge badge-builtin">Có
+                sẵn</span></div>
+            <div class="pkg-card-use">Cho: OLS cơ sở với suy luận chính xác</div>
+            <div class="pkg-card-verdict"><strong>Luôn sử dụng sai số chuẩn vững (robust SE).</strong> SE cổ điển (mặc
+              định) thường sai trong hầu hết dữ liệu thực tế. Thêm <code>, robust</code> vào mỗi lệnh <code>reg</code>.
+              Khi can thiệp ở cấp độ nhóm, hãy dùng <code>vce(cluster groupvar)</code> thay thế.</div>
+            <div class="pkg-card-links"><a href="commands/command.html?cmd=reg" class="btn-primary"
+                style="font-size:.8rem;padding:.3rem .8rem;">Hướng dẫn →</a><a href="comparisons/reg-vs-robust.html"
+                class="btn-secondary" style="font-size:.8rem;padding:.3rem .8rem;">reg vs. robust</a></div>
+          </div>
+          <div class="pkg-card">
+            <div class="pkg-card-name"><code>estout / esttab</code> <span class="badge badge-ssc">SSC</span></div>
+            <div class="pkg-card-use">Cho: xuất bảng hồi quy chuyên nghiệp</div>
+            <div class="pkg-card-verdict"><strong>Lựa chọn mặc định tốt nhất hiện nay cho các bảng chuẩn công
+                bố.</strong> Đầu ra LaTeX, HTML và CSV rất linh hoạt. Cú pháp chi tiết hơn outreg2 nhưng kiểm soát tốt
+              hơn nhiều. Dùng <code>eststo</code> để lưu ước lượng, sau đó dùng <code>esttab</code> để định dạng.</div>
+            <div class="pkg-card-links"><a href="commands/command.html?cmd=estout" class="btn-primary"
+                style="font-size:.8rem;padding:.3rem .8rem;">Hướng dẫn →</a><a href="comparisons/outreg2-vs-estout.html"
+                class="btn-secondary" style="font-size:.8rem;padding:.3rem .8rem;">so với outreg2</a></div>
+          </div>
+          <div class="pkg-card">
+            <div class="pkg-card-name"><code>binscatter2</code> <span class="badge badge-ssc">SSC</span></div>
+            <div class="pkg-card-use">Cho: trực quan hóa hai biến của số trung bình có điều kiện</div>
+            <div class="pkg-card-verdict"><strong>Công cụ tốt nhất để trực quan hóa OLS thăm dò.</strong> Gom quan sát
+              trên X thành các thùng (bins), vẽ trung bình Y trong mỗi thùng — xử lý tốt việc tách phần dư, kiểm soát
+              biến và tập dữ liệu lớn. Thiết yếu cho bản thuyết trình và chẩn đoán.</div>
+            <div class="pkg-card-links"><a href="commands/command.html?cmd=binscatter2" class="btn-primary"
+                style="font-size:.8rem;padding:.3rem .8rem;">Hướng dẫn →</a></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- LDV section -->
+      <section class="pkg-section">
+        <h2>Biến phụ thuộc giới hạn</h2>
+        <div class="pkg-grid">
+          <div class="pkg-card">
+            <div class="pkg-card-name"><code>logit</code> + <code>margins</code> <span class="badge badge-builtin">Có
+                sẵn</span></div>
+            <div class="pkg-card-use">Cho: mô hình hóa kết quả nhị phân (0/1)</div>
+            <div class="pkg-card-verdict"><strong>Mặc định cho các kết quả nhị phân.</strong> Dùng logit thay vì probit
+              (khác biệt thực tế không đáng kể; logit có diễn giải log-odds sạch hơn). Luôn theo sau bởi
+              <code>margins, dydx(*)</code> để tính các tác động biên trung bình — các hệ số thô không thể diễn giải
+              trực tiếp.</div>
+            <div class="pkg-card-links"><a href="commands/command.html?cmd=logit" class="btn-primary"
+                style="font-size:.8rem;padding:.3rem .8rem;">Hướng dẫn →</a><a href="comparisons/logit-vs-probit.html"
+                class="btn-secondary" style="font-size:.8rem;padding:.3rem .8rem;">logit vs. probit</a></div>
+          </div>
+          <div class="pkg-card">
+            <div class="pkg-card-name"><code>tobit</code> <span class="badge badge-builtin">Có sẵn</span></div>
+            <div class="pkg-card-use">Cho: kết quả bị kiểm duyệt hoặc rút cụt</div>
+            <div class="pkg-card-verdict"><strong>Sử dụng khi kết quả bị kiểm duyệt</strong> (ví dụ: tiền lương không
+              thể âm; số giờ làm việc là 0 cho người không đi làm). Yêu cầu xác định giới hạn kiểm duyệt. Luôn tính toán
+              tác động biên với <code>margins</code> để diễn giải.</div>
+            <div class="pkg-card-links"><a href="commands/command.html?cmd=tobit" class="btn-primary"
+                style="font-size:.8rem;padding:.3rem .8rem;">Hướng dẫn →</a></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Panel section -->
+      <section class="pkg-section">
+        <h2>Dữ liệu bảng</h2>
+        <div class="pkg-grid">
+          <div class="pkg-card">
+            <div class="pkg-card-name"><code>xtreg, fe</code> <span class="badge badge-builtin">Có sẵn</span></div>
+            <div class="pkg-card-use">Cho: dữ liệu bảng với hiệu ứng cố định đơn vị</div>
+            <div class="pkg-card-verdict"><strong>Trình ước lượng bảng tiêu chuẩn cho nghiên cứu nhân quả.</strong> Loại
+              bỏ tất cả các yếu tố gây nhiễu cấp đơn vị không thay đổi theo thời gian. Luôn cluster SE ở cấp đơn vị
+              bảng. Dùng kiểm định Hausman nếu không chắc chắn về FE vs. RE — nhưng hãy ưu tiên FE cho nghiên cứu nhân
+              quả.</div>
+            <div class="pkg-card-links"><a href="commands/command.html?cmd=xtreg-fe" class="btn-primary"
+                style="font-size:.8rem;padding:.3rem .8rem;">Hướng dẫn →</a><a href="comparisons/xtreg-fe-vs-re.html"
+                class="btn-secondary" style="font-size:.8rem;padding:.3rem .8rem;">FE vs. RE</a></div>
+          </div>
+          <div class="pkg-card">
+            <div class="pkg-card-name"><code>xtabond2</code> <span class="badge badge-ssc">SSC</span></div>
+            <div class="pkg-card-use">Cho: GMM bảng động (DV trễ)</div>
+            <div class="pkg-card-verdict"><strong>Bắt buộc khi mô hình của bạn bao gồm biến phụ thuộc trễ trong dữ liệu
+                bảng.</strong> FE bị chệch trong trường hợp này (chệch Nickell). Triển khai system GMM và difference
+              GMM. Yêu cầu lựa chọn công cụ cẩn thận và luôn báo cáo kiểm định Hansen J.</div>
+            <div class="pkg-card-links"><a href="commands/command.html?cmd=xtabond2" class="btn-primary"
+                style="font-size:.8rem;padding:.3rem .8rem;">Hướng dẫn →</a><a href="comparisons/fe-vs-xtabond2.html"
+                class="btn-secondary" style="font-size:.8rem;padding:.3rem .8rem;">FE vs. xtabond2</a></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- IV section -->
+      <section class="pkg-section">
+        <h2>Biến công cụ &amp; Nội sinh</h2>
+        <div class="pkg-grid">
+          <div class="pkg-card">
+            <div class="pkg-card-name"><code>ivreg2</code> <span class="badge badge-ssc">SSC</span></div>
+            <div class="pkg-card-use">Cho: ước lượng 2SLS/IV với đầy đủ chẩn đoán</div>
+            <div class="pkg-card-verdict"><strong>Luôn ưu tiên ivreg2 hơn ivregress.</strong> Cung cấp thống kê rk Wald
+              F của Kleibergen-Paap (bắt buộc để kiểm định công cụ yếu với cluster SEs), các tập hợp tin cậy vững với
+              công cụ yếu Anderson-Rubin, và các kiểm định nội sinh vững. Tiêu chuẩn nghiên cứu cho IV.</div>
+            <div class="pkg-card-links"><a href="commands/command.html?cmd=ivreg2" class="btn-primary"
+                style="font-size:.8rem;padding:.3rem .8rem;">Hướng dẫn →</a><a
+                href="comparisons/ivregress-vs-ivreg2.html" class="btn-secondary"
+                style="font-size:.8rem;padding:.3rem .8rem;">so với ivregress</a></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Causal section -->
+      <section class="pkg-section">
+        <h2>Suy diễn nhân quả</h2>
+        <div class="pkg-grid">
+          <div class="pkg-card">
+            <div class="pkg-card-name"><code>csdid</code> <span class="badge badge-ssc">SSC</span></div>
+            <div class="pkg-card-use">Cho: DID theo giai đoạn (staggered)</div>
+            <div class="pkg-card-verdict"><strong>Công cụ bắt buộc cho thời điểm can thiệp so le.</strong> Triển khai
+              các ATT nhóm-thời gian Callaway-Sant'Anna với ước lượng doubly-robust. TWFE
+              (<code>i.treated##i.time</code>) bị chệch khi tác động can thiệp không đồng nhất — điều này hầu như luôn
+              xảy ra. KHÔNG dùng TWFE cho các thiết kế theo giai đoạn.</div>
+            <div class="pkg-card-links"><a href="commands/command.html?cmd=csdid" class="btn-primary"
+                style="font-size:.8rem;padding:.3rem .8rem;">Hướng dẫn →</a><a
+                href="comparisons/did-simple-vs-csdid.html" class="btn-secondary"
+                style="font-size:.8rem;padding:.3rem .8rem;">DID vs. csdid</a></div>
+          </div>
+          <div class="pkg-card">
+            <div class="pkg-card-name"><code>rdrobust</code> <span class="badge badge-ssc">SSC</span></div>
+            <div class="pkg-card-use">Cho: thiết kế gián đoạn hồi quy</div>
+            <div class="pkg-card-verdict"><strong>Trình ước lượng RD hiện đại.</strong> Lựa chọn băng thông tối ưu MSE
+              dựa trên dữ liệu, ước lượng đa thức cục bộ và suy luận hiệu chỉnh chệch vững. Luôn chạy
+              <code>rdplot</code> (trực quan hóa) và <code>rddensity</code> (kiểm định McCrary về thao túng) đi kèm.
+            </div>
+            <div class="pkg-card-links"><a href="commands/command.html?cmd=rdrobust" class="btn-primary"
+                style="font-size:.8rem;padding:.3rem .8rem;">Hướng dẫn →</a><a
+                href="comparisons/psmatch2-vs-rdrobust.html" class="btn-secondary"
+                style="font-size:.8rem;padding:.3rem .8rem;">so với psmatch2</a></div>
+          </div>
+          <div class="pkg-card">
+            <div class="pkg-card-name"><code>psmatch2</code> <span class="badge badge-ssc">SSC</span></div>
+            <div class="pkg-card-use">Cho: ghép cặp điểm xu hướng</div>
+            <div class="pkg-card-verdict"><strong>Sử dụng thận trọng.</strong> Ghép cặp trên điểm xu hướng yêu cầu giả
+              định về vùng hỗ trợ chung (overlap) mạnh và kiểm tra cân bằng cẩn thận. Luôn chạy <code>pstest</code> để
+              xác nhận sự cân bằng của các biến kiểm soát sau ghép cặp. Ghép cặp chỉ định danh ATT dưới sự chọn lọc trên
+              các biến quan sát được — nó không giải quyết được các yếu tố gây nhiễu không quan sát được.</div>
+            <div class="pkg-card-links"><a href="commands/command.html?cmd=psmatch2" class="btn-primary"
+                style="font-size:.8rem;padding:.3rem .8rem;">Hướng dẫn →</a></div>
+          </div>
+          <div class="pkg-card">
+            <div class="pkg-card-name"><code>synth</code> <span class="badge badge-ssc">SSC</span></div>
+            <div class="pkg-card-use">Cho: kiểm soát tổng hợp (đơn vị can thiệp duy nhất)</div>
+            <div class="pkg-card-verdict"><strong>Chỉ áp dụng khi bạn có một đơn vị can thiệp duy nhất</strong> (quốc
+              gia, bang, thành phố) và nhiều đơn vị đối chứng trong một giai đoạn dài trước can thiệp. Yêu cầu thực hiện
+              các kiểm định placebo để suy luận hợp lệ. Thường bị áp dụng sai cho các bối cảnh có nhiều đơn vị can
+              thiệp.</div>
+            <div class="pkg-card-links"><a href="commands/command.html?cmd=synth" class="btn-primary"
+                style="font-size:.8rem;padding:.3rem .8rem;">Hướng dẫn →</a></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ML section -->
+      <section class="pkg-section">
+        <h2>Kinh tế lượng hỗ trợ ML</h2>
+        <div class="pkg-grid">
+          <div class="pkg-card">
+            <div class="pkg-card-name"><code>ddml</code> <span class="badge badge-ssc">SSC</span></div>
+            <div class="pkg-card-use">Cho: kiểm soát chiều cao với suy luận nhân quả hợp lệ</div>
+            <div class="pkg-card-verdict"><strong>Cách tiếp cận chuẩn nghiên cứu cho các bối cảnh chiều cao.</strong>
+              Triển khai Double/Debiased ML với cross-fitting sử dụng bất kỳ bộ học máy (learner) nào. Tạo ra suy luận
+              trực giao Neyman hợp lệ trên các tham số nhân quả sau khi ước lượng các thành phần gây nhiễu chiều cao.
+              Yêu cầu N đủ lớn cho mỗi fold cross-fitting.</div>
+            <div class="pkg-card-links"><a href="commands/command.html?cmd=ddml" class="btn-primary"
+                style="font-size:.8rem;padding:.3rem .8rem;">Hướng dẫn →</a></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Critical evaluation -->
+      <section class="pkg-section">
+        <h2>Đánh giá phê phán các gói phổ biến</h2>
+        <div class="callout callout-tip">
+          <div class="callout-title">Lựa chọn mạnh hiện nay</div>
+          <p><strong>ivreg2, rdrobust, csdid, estout, binscatter2, reghdfe</strong> — đây là các tiêu chuẩn vàng trong
+            các lĩnh vực tương ứng. Hãy sử dụng chúng cho công việc chuẩn nghiên cứu mà không do dự.</p>
+        </div>
+        <div class="callout callout-warning" style="margin-top:1rem;">
+          <div class="callout-title">Sử dụng thận trọng</div>
+          <p><strong>psmatch2</strong> — được giảng dạy rộng rãi nhưng dễ bị dùng sai. Luôn kiểm tra vùng hỗ trợ chung
+            và sự cân bằng biến kiểm soát. Giả định định danh (chọn lọc trên các biến quan sát được) thường không đáng
+            tin cậy.<br>
+            <strong>xtabond2</strong> — chính xác cho bảng động, nhưng sự bùng nổ của biến công cụ là một vấn đề thực
+            sự. Hãy dùng với system GMM, thu gọn (collapse) công cụ và luôn báo cáo kiểm định Hansen J.<br>
+            <strong>synth</strong> — chỉ hợp lệ cho các thiết kế đơn vị can thiệp duy nhất. Thường bị áp dụng sai.<br>
+            <strong>ddml</strong> — yêu cầu hiểu biết về cross-fitting, kích thước mẫu phù hợp cho mỗi fold và việc lựa
+            chọn bộ học máy. Không phải là một chiếc hộp đen.
+          </p>
+        </div>
+        <div class="callout callout-danger" style="margin-top:1rem;">
+          <div class="callout-title">Các mẫu hình sử dụng sai phổ biến</div>
+          <p><strong>TWFE cho DID theo giai đoạn</strong> — dùng <code>i.treated##i.time</code> tạo ra các ước lượng bị
+            chệch khi tác động can thiệp không đồng nhất. Hãy dùng <code>csdid</code>.<br>
+            <strong>Lasso thô cho suy diễn nhân quả</strong> — Lasso cho dự báo thì ổn; nhưng cho suy diễn nhân quả bạn
+            cần lựa chọn sau Lasso kép (pdslasso) hoặc Double ML (ddml).<br>
+            <strong>psmatch2 không kiểm tra cân bằng</strong> — ghép cặp mà không làm cân bằng các biến kiểm soát thì
+            không mang lại lợi ích định danh nhân quả nào so với OLS.<br>
+            <strong>ivregress cho công trình xuất bản</strong> — Thống kê Cragg-Donald F (được báo cáo bởi ivregress)
+            không hợp lệ với cluster SEs; hãy dùng ivreg2 và báo cáo rk Wald F của Kleibergen-Paap.
+          </p>
+        </div>
+      </section>
+
+    </div>
+  </main>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <h4>Công cụ</h4>
+        <ul>
+          <li><a href="decision-tree.html">Cây quyết định</a></li>
+          <li><a href="common-mistakes.html">Sai lầm phổ biến</a></li>
+          <li><a href="comparison-index.html">Tất cả so sánh</a></li>
+          <li><a href="taxonomy.html">Phân loại gói</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Danh mục</h4>
+        <ul>
+          <li><a href="categories/causal-inference.html">Suy diễn nhân quả</a></li>
+          <li><a href="categories/staggered-did.html">DID theo giai đoạn</a></li>
+          <li><a href="categories/panel-data.html">Dữ liệu bảng</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">Stata Kinh tế lượng Task View</div>
+  </footer>
+  <script src="assets/js/navigation.js"></script>
+</body>
+
+</html>

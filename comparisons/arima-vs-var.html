@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARIMA vs. VAR — Stata Kinh Tế Lượng Task View</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+</head>
+<body>
+<nav class="site-nav"><div class="nav-inner">
+  <a class="nav-brand" href="../index.html">Stata <span>Task View</span></a>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="../index.html">Trang chủ</a></li>
+    <li><a href="../categories/time-series.html">Chuỗi thời gian</a></li>
+    <li><a href="../comparison-index.html">Tất cả so sánh</a></li>
+  </ul>
+  <button class="nav-hamburger" id="nav-hamburger">☰</button>
+</div></nav>
+
+<main><div class="page-container" style="max-width:960px;">
+<nav class="breadcrumb"><a href="../index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><a href="../comparison-index.html">So sánh</a><span class="breadcrumb-sep">›</span><span class="breadcrumb-current">ARIMA vs. VAR</span></nav>
+<div class="page-title-block">
+  <h1><code>arima</code> vs. <code>var</code></h1>
+  <p class="page-subtitle">Mô hình chuỗi thời gian đơn biến vs. động học hệ thống đa biến</p>
+</div>
+
+<div class="callout callout-info"><div class="callout-title">Điểm khác biệt chính</div>
+  <p><strong>ARIMA mô hình hóa một chuỗi bằng các giá trị quá khứ của chính nó.</strong> VAR mô hình hóa nhiều chuỗi đồng thời, cho phép mỗi chuỗi phụ thuộc vào giá trị quá khứ của tất cả các chuỗi. Dùng ARIMA khi bạn có một chuỗi và muốn dự báo hoặc mô tả động học của nó. Dùng VAR khi bạn có nhiều chuỗi có khả năng phụ thuộc lẫn nhau và muốn nghiên cứu động học kết hợp của chúng.</p>
+</div>
+
+<div class="vs-cards">
+  <div class="vs-card">
+    <div class="vs-card-header"><span class="vs-card-name">arima</span><span class="badge badge-builtin">Có sẵn</span></div>
+    <p style="font-size:.875rem;color:var(--muted-fg);">ARIMA(p,d,q) — tự hồi quy tích hợp trung bình trượt</p>
+    <ul class="vs-pro">
+      <li>Mô hình hóa chuỗi đơn — đơn giản hơn, ít tham số hơn</li>
+      <li>Xử lý sai phân (thành phần I) cho tính không dừng</li>
+      <li>Các số hạng trung bình trượt (MA) nắm bắt cú sốc ngắn hạn</li>
+      <li>Xuất sắc để dự báo chuỗi riêng lẻ</li>
+      <li>Phương pháp luận Box-Jenkins: xác định → ước lượng → chẩn đoán</li>
+    </ul>
+    <ul class="vs-con" style="margin-top:.5rem;">
+      <li>Bỏ qua phản hồi từ các biến khác</li>
+      <li>Không thể nghiên cứu sự phụ thuộc lẫn nhau động giữa các chuỗi</li>
+      <li>Không có phân tích hàm phản ứng xung qua các biến</li>
+    </ul>
+  </div>
+  <div class="vs-card vs-recommended">
+    <div class="vs-card-header"><span class="vs-card-name">var</span><span class="badge badge-builtin">Có sẵn</span></div>
+    <p style="font-size:.875rem;color:var(--muted-fg);">Tự hồi quy véc-tơ — hệ phương trình với độ trễ lẫn nhau</p>
+    <ul class="vs-pro">
+      <li>Mô hình hóa phản hồi và sự phụ thuộc lẫn nhau giữa các biến</li>
+      <li>Kiểm định nhân quả Granger giữa các chuỗi</li>
+      <li>Hàm phản ứng xung (IRF) — phân tích nhân quả động</li>
+      <li>Phân tách phương sai sai số dự báo (FEVD)</li>
+      <li>Phi lý thuyết — không cần ràng buộc trước về thứ tự nhân quả</li>
+    </ul>
+    <ul class="vs-con" style="margin-top:.5rem;">
+      <li>Tràn lan tham số: k biến × p độ trễ × k phương trình</li>
+      <li>Yêu cầu tất cả chuỗi dừng (dùng VECM nếu đồng tích hợp)</li>
+      <li>Giải thích IRF nhạy cảm với giả định thứ tự (Cholesky)</li>
+    </ul>
+  </div>
+</div>
+
+<div class="comparison-table-wrapper">
+  <table class="comparison-table">
+    <thead><tr><th class="feature-name">Tiêu chí</th><th>arima</th><th>var</th></tr></thead>
+    <tbody>
+      <tr><td class="feature-name">Số chuỗi</td><td class="good">Đơn</td><td>Nhiều (k ≥ 2)</td></tr>
+      <tr><td class="feature-name">Nắm bắt động học giữa biến</td><td>Không</td><td class="good">Có</td></tr>
+      <tr><td class="feature-name">Xử lý tính không dừng</td><td class="good">Sai phân tích hợp (d)</td><td>Cần kiểm định trước + sai phân</td></tr>
+      <tr><td class="feature-name">Đồng tích hợp</td><td>Không áp dụng</td><td>Dùng VECM (lệnh vec) thay thế</td></tr>
+      <tr><td class="feature-name">Dự báo chuỗi đơn</td><td class="good">Xuất sắc</td><td>Tốt (nhưng tham số hóa quá mức)</td></tr>
+      <tr><td class="feature-name">Hàm phản ứng xung</td><td>Không</td><td class="good">Có — tính năng cốt lõi</td></tr>
+      <tr><td class="feature-name">Kiểm định nhân quả Granger</td><td>Không</td><td class="good">Có — vargranger</td></tr>
+      <tr><td class="feature-name">Ứng dụng điển hình</td><td>Dự báo, động học chuỗi đơn</td><td>Động học vĩ mô, truyền tải chính sách</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="code-wrapper">
+  <pre class="language-stata"><code>* ── Điều kiện tiên quyết: kiểm định tính dừng ────────────────────
+* Phải kiểm định trước cả hai mô hình
+dfuller gdp_growth, lags(4)      // Kiểm định ADF
+dfuller inflation, lags(4)
+dfuller interest_rate, lags(4)
+
+* ── Quy trình ARIMA ──────────────────────────────────────────────
+* Bước 1: Xác định bậc bằng tương quan đồ
+tsset quarter
+ac gdp_growth      // Hàm tự tương quan (bậc MA)
+pac gdp_growth     // Tự tương quan một phần (bậc AR)
+
+* Bước 2: Ước lượng
+arima gdp_growth, arima(2,0,1)   // AR(2), không sai phân, MA(1)
+
+* Với sai phân cho chuỗi I(1):
+arima gdp_level, arima(1,1,1)    // ARIMA(1,1,1)
+
+* Bước 3: Chẩn đoán
+predict res, residuals
+ac res             // Không nên có tự tương quan
+pac res
+estat ic           // AIC/BIC để so sánh mô hình
+
+* Bước 4: Dự báo
+forecast create mymodel, replace
+forecast estimates arima_ests
+forecast solve, begin(tq(2024q1)) end(tq(2025q4))
+
+* ── Quy trình VAR ────────────────────────────────────────────────
+* Bước 1: Chọn độ dài độ trễ
+varsoc gdp_growth inflation interest_rate, maxlag(8)
+* Chọn độ trễ tối thiểu hóa AIC/BIC (thường AIC ưu tiên cho động học)
+
+* Bước 2: Ước lượng VAR
+var gdp_growth inflation interest_rate, lags(1/4)
+
+* Bước 3: Kiểm tra ổn định
+varstable, graph    // Tất cả giá trị riêng trong vòng tròn đơn vị?
+
+* Bước 4: Nhân quả Granger
+vargranger          // X có nhân quả Granger Y không?
+
+* Bước 5: Hàm phản ứng xung
+irf create myirf, set(myirffile) step(12) replace
+irf graph irf       // Vẽ IRF
+irf graph oirf      // IRF trực giao (Cholesky)
+
+* Bước 6: FEVD
+irf graph fevd      // Phân tách phương sai
+
+* ── Trường hợp đồng tích hợp: dùng VECM thay vì VAR ─────────────
+vecrank gdp_level consumption, trend(constant) max    // Johansen
+vec gdp_level consumption, trend(constant) rank(1)   // VECM</code></pre>
+  <button class="copy-btn">Sao chép</button>
+</div>
+
+<div class="choose-when-grid">
+  <div class="choose-when-box cmd-a">
+    <div class="choose-when-title">Dùng ARIMA khi...</div>
+    <ul>
+      <li>Bạn có một chuỗi thời gian và muốn dự báo nó</li>
+      <li>Bạn muốn mô tả cấu trúc tự tương quan của một biến</li>
+      <li>Cỡ mẫu hạn chế (VAR dùng nhiều tham số)</li>
+      <li>Bạn không có lý do lý thuyết để mô hình hóa động học giữa biến</li>
+      <li>Cách tiếp cận Box-Jenkins phù hợp với câu hỏi nghiên cứu của bạn</li>
+    </ul>
+  </div>
+  <div class="choose-when-box cmd-b">
+    <div class="choose-when-title">Dùng VAR khi...</div>
+    <ul>
+      <li>Bạn có 2+ chuỗi thời gian liên quan và muốn nghiên cứu động học kết hợp của chúng</li>
+      <li>Bạn muốn kiểm định liệu X có nhân quả Granger Y không (và ngược lại)</li>
+      <li>Bạn muốn theo dõi phản ứng động của tất cả biến với cú sốc (IRF)</li>
+      <li>Bạn muốn phân tách phương sai sai số dự báo theo nguồn (FEVD)</li>
+      <li>Bạn đang nghiên cứu cơ chế truyền tải chính sách tiền tệ/tài khóa</li>
+      <li>Tất cả chuỗi đều dừng (hoặc dừng sau sai phân với không đồng tích hợp)</li>
+    </ul>
+  </div>
+</div>
+
+<section style="margin-top:2rem;">
+  <h2>Yêu cầu tính dừng</h2>
+  <div class="callout callout-warning"><div class="callout-title">Luôn kiểm định tính dừng trước</div>
+    <p>Cả ARIMA và VAR đều yêu cầu xử lý cẩn thận tính không dừng:</p>
+    <ul>
+      <li><strong>ARIMA</strong>: Tham số d xử lý sai phân. ARIMA(1,1,1) lấy sai phân bậc một nội bộ. Chỉ đặt d=0 nếu chuỗi đã dừng.</li>
+      <li><strong>VAR</strong>: KHÔNG tự động xử lý tính không dừng. Nếu bất kỳ chuỗi nào là I(1), bạn phải sai phân trước HOẶC kiểm định đồng tích hợp (Johansen qua <code>vecrank</code>) và dùng VECM (<code>vec</code>) thay vì VAR.</li>
+    </ul>
+    <p><strong>Chạy VAR với chuỗi không dừng tạo ra kết quả giả mạo.</strong> Luôn chạy <code>dfuller</code> trên tất cả biến trước khi tiến hành.</p>
+  </div>
+  <div class="callout callout-info"><div class="callout-title">Đồng tích hợp → dùng VECM</div>
+    <p>Nếu các chuỗi I(1) của bạn đồng tích hợp (có cân bằng dài hạn chung), việc sai phân loại bỏ thông tin quan trọng. Dùng <code>vecrank</code> (kiểm định đồng tích hợp Johansen) và <code>vec</code> (mô hình hiệu chỉnh sai số véc-tơ) thay vì sai phân và chạy VAR.</p>
+  </div>
+</section>
+
+<section style="margin-top:2rem;">
+  <h2>Thứ tự IRF: vấn đề Cholesky</h2>
+  <div class="callout callout-warning"><div class="callout-title">Nhận dạng cấu trúc trong VAR</div>
+    <p>Nhân quả Granger và phân tách phương sai sai số dự báo không phụ thuộc vào thứ tự. Nhưng <strong>hàm phản ứng xung</strong> phụ thuộc vào thứ tự giả định của các biến (phân tách Cholesky).</p>
+    <p>Biến được sắp xếp đầu tiên được giả định có hiệu ứng đồng thời lên tất cả biến khác; biến được sắp xếp cuối cùng bị ảnh hưởng đồng thời bởi tất cả biến khác. Giả định cấu trúc này không thể kiểm tra bằng thống kê — nó yêu cầu lý thuyết kinh tế.</p>
+    <p>Thực hành tốt nhất: kiểm tra độ nhạy với thứ tự bằng cách so sánh IRF dưới các thứ tự khác nhau. Để nhận dạng dựa trên lý thuyết, xem xét VAR cấu trúc (SVAR) với <code>svar</code>.</p>
+  </div>
+</section>
+
+<section style="margin-top:2rem;">
+  <h2>Sai lầm phổ biến</h2>
+  <div class="callout callout-danger"><div class="callout-title">Sai lầm hàng đầu</div>
+    <ul>
+      <li><strong>Chạy VAR mà không kiểm định tính dừng</strong> — tạo ra nhân quả Granger và IRF giả mạo</li>
+      <li><strong>Chạy VAR khi chuỗi đồng tích hợp</strong> — phải dùng VECM; sai phân loại bỏ thông tin cân bằng dài hạn</li>
+      <li><strong>Tham số hóa quá mức VAR</strong> — quá nhiều độ trễ với quá ít quan sát dẫn đến ước lượng kém; dùng <code>varsoc</code> để chọn độ dài độ trễ</li>
+      <li><strong>Giải thích nhân quả Granger như nhân quả kinh tế</strong> — nhân quả Granger là dự báo, không phải cấu trúc; nó có nghĩa là X giúp dự báo Y cho trước Y quá khứ, không phải X gây ra Y</li>
+      <li><strong>Bỏ qua thứ tự Cholesky cho IRF</strong> — kết quả thay đổi đáng kể theo thứ tự; kiểm tra độ vững</li>
+      <li><strong>ARIMA với d sai</strong> — d=1 cho chuỗi I(1); sai phân chuỗi đã dừng đưa vào nghiệm đơn vị MA</li>
+    </ul>
+  </div>
+</section>
+
+<div class="verdict-box">
+  <div class="verdict-label">Kết luận</div>
+  <p><strong>Luôn kiểm định tính dừng với <code>dfuller</code> trước — điều này quyết định tất cả phần còn lại.</strong> Để dự báo một chuỗi đơn, dùng ARIMA với các bậc (p,d,q) phù hợp được xác định từ biểu đồ ACF/PACF. Để nghiên cứu mối quan hệ động giữa nhiều chuỗi, dùng VAR (nếu dừng hoặc sau sai phân) hoặc VECM (nếu chuỗi I(1) đồng tích hợp). Không bao giờ chạy VAR với chuỗi không dừng, và luôn kiểm tra ổn định VAR với <code>varstable</code>. Khi báo cáo IRF, xác minh độ vững với thứ tự Cholesky.</p>
+</div>
+<div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:1.5rem;">
+  <a href="../commands/command.html?cmd=arima" class="btn-primary">Hướng dẫn đầy đủ arima →</a>
+  <a href="../commands/command.html?cmd=var" class="btn-secondary">Hướng dẫn var</a>
+  <a href="../commands/command.html?cmd=dfuller" class="btn-secondary">Hướng dẫn dfuller</a>
+  <a href="../categories/time-series.html" class="btn-secondary">Danh mục chuỗi thời gian →</a>
+</div>
+</div></main>
+<footer class="site-footer"><div class="footer-inner"><div class="footer-col"><h4>Liên quan</h4><ul>
+  <li><a href="../categories/time-series.html">Chuỗi thời gian</a></li>
+  <li><a href="../commands/command.html?cmd=dfuller">Kiểm định nghiệm đơn vị ADF</a></li>
+</ul></div></div><div class="footer-bottom">Stata Kinh Tế Lượng Task View · Tài nguyên học thuật cho kinh tế lượng ứng dụng</div></footer>
+<script src="../assets/js/navigation.js"></script>
+</body></html>

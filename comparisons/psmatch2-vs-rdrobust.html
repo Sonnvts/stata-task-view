@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>psmatch2 vs rdrobust — Stata Kinh Tế Lượng Task View</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+</head>
+<body>
+<nav class="site-nav"><div class="nav-inner">
+  <a class="nav-brand" href="../index.html">Stata <span>Task View</span></a>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="../index.html">Trang chủ</a></li>
+    <li><a href="../categories/causal-inference.html">Suy diễn nhân quả</a></li>
+    <li><a href="../comparison-index.html">Tất cả so sánh</a></li>
+  </ul>
+  <button class="nav-hamburger" id="nav-hamburger">☰</button>
+</div></nav>
+
+<main><div class="page-container" style="max-width:960px;">
+<nav class="breadcrumb"><a href="../index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><a href="../comparison-index.html">So sánh</a><span class="breadcrumb-sep">›</span><span class="breadcrumb-current">psmatch2 vs rdrobust</span></nav>
+<div class="page-title-block">
+  <h1><code>psmatch2</code> vs. <code>rdrobust</code></h1>
+  <p class="page-subtitle">Khớp vs. Hồi quy gián đoạn — khoảng cách chất lượng nhận dạng</p>
+</div>
+
+<div class="callout callout-warning"><div class="callout-title">Khoảng cách chất lượng nhận dạng</div>
+  <p>rdrobust khai thác thiết kế gần thực nghiệm (ngưỡng) với <strong>nhận dạng mạnh</strong>. psmatch2 dựa vào giả định lựa chọn trên quan sát được, đây là <strong>yếu hơn nhiều và thường không đáng tin trong kinh tế</strong>. Chúng không phải các lựa chọn thay thế tương đương — RD hầu như luôn cung cấp nhận dạng nhân quả tốt hơn.</p>
+</div>
+
+<div class="vs-cards">
+  <div class="vs-card">
+    <div class="vs-card-header"><span class="vs-card-name">psmatch2</span><span class="badge badge-ssc">SSC</span></div>
+    <p style="font-size:.875rem;color:var(--muted-fg);">Khớp điểm xu hướng — lựa chọn trên quan sát được</p>
+    <ul class="vs-pro"><li>Có thể áp dụng mà không cần thực nghiệm tự nhiên</li><li>Hữu ích khi sự trùng lắp giữa được can thiệp/kiểm soát tốt</li><li>Tốt để dạy lý luận phản thực tế</li></ul>
+    <ul class="vs-con" style="margin-top:.5rem;">
+      <li>Yêu cầu tính không nhầm lẫn (không có biến nhiễu không quan sát được)</li>
+      <li>Hiếm khi đáng tin trong kinh tế — biến không quan sát được hầu như luôn quan trọng</li>
+      <li>Dễ có kết quả trông đẹp nhưng không hợp lệ</li>
+    </ul>
+  </div>
+  <div class="vs-card vs-recommended">
+    <div class="vs-card-header"><span class="vs-card-name">rdrobust</span><span class="badge badge-ssc">SSC</span></div>
+    <p style="font-size:.875rem;color:var(--muted-fg);">Hồi quy gián đoạn — gần thực nghiệm dựa trên ngưỡng</p>
+    <ul class="vs-pro">
+      <li>Nhận dạng gần thực nghiệm mạnh</li>
+      <li>Không yêu cầu tính không nhầm lẫn — chỉ cần tính liên tục tại điểm gián đoạn</li>
+      <li>Lựa chọn băng thông dựa trên dữ liệu hiện đại</li>
+      <li>Tính hợp lệ thiết kế rõ ràng, có thể kiểm tra (kiểm định thao túng, cân bằng)</li>
+    </ul>
+    <ul class="vs-con" style="margin-top:.5rem;"><li>Yêu cầu một ngưỡng (không phải lúc nào cũng có)</li><li>Tính hiệu lực ngoại vi giới hạn ở các đơn vị gần điểm gián đoạn</li></ul>
+  </div>
+</div>
+
+<div class="choose-when-grid">
+  <div class="choose-when-box cmd-a">
+    <h4>Dùng psmatch2 khi…</h4>
+    <ul>
+      <li>Không có thực nghiệm tự nhiên hoặc ngưỡng</li>
+      <li>Lựa chọn được thúc đẩy bởi đặc điểm quan sát được (hiếm trong thực tế)</li>
+      <li>Dạy khái niệm lý luận phản thực tế</li>
+      <li>Tất cả phương án đều thất bại và tuyên bố miễn trách rõ ràng được cung cấp</li>
+    </ul>
+  </div>
+  <div class="choose-when-box cmd-b">
+    <h4>Dùng rdrobust khi…</h4>
+    <ul>
+      <li>Can thiệp được xác định bởi ngưỡng trong biến chạy</li>
+      <li>Biến chạy không thể bị thao túng tại điểm gián đoạn</li>
+      <li>Bạn cần nhận dạng nhân quả đáng tin gần ngưỡng</li>
+      <li>Nghiên cứu ứng dụng chất lượng xuất bản</li>
+    </ul>
+  </div>
+</div>
+
+<div class="verdict-box">
+  <div class="verdict-label">Kết luận</div>
+  <p><strong>Nếu bạn có thiết kế RD, dùng rdrobust — đây là chiến lược nhận dạng mạnh hơn nhiều so với khớp.</strong> Chỉ dùng psmatch2 khi không có thiết kế gần thực nghiệm nào có sẵn VÀ bạn có lý do lý thuyết rất mạnh để tin rằng tất cả biến nhiễu liên quan đều được quan sát. Luôn kiểm tra cân bằng, kiểm định điều kiện hỗ trợ chung và thực hiện phân tích độ nhạy sau psmatch2.</p>
+</div>
+<div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:1.5rem;">
+  <a href="../commands/command.html?cmd=rdrobust" class="btn-primary">Hướng dẫn đầy đủ rdrobust →</a>
+  <a href="../commands/command.html?cmd=psmatch2" class="btn-secondary">Hướng dẫn psmatch2</a>
+</div>
+</div></main>
+<footer class="site-footer"><div class="footer-inner"><div class="footer-col"><h4>Liên quan</h4><ul>
+  <li><a href="did-simple-vs-csdid.html">DID vs csdid</a></li>
+  <li><a href="../categories/causal-inference.html">Suy diễn nhân quả</a></li>
+</ul></div></div><div class="footer-bottom">Stata Kinh Tế Lượng Task View · Tài nguyên học thuật cho kinh tế lượng ứng dụng</div></footer>
+<script src="../assets/js/navigation.js"></script>
+</body></html>

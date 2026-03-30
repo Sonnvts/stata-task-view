@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FE vs xtabond2 — Stata Kinh Tế Lượng Task View</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+</head>
+<body>
+<nav class="site-nav"><div class="nav-inner">
+  <a class="nav-brand" href="../index.html">Stata <span>Task View</span></a>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="../index.html">Trang chủ</a></li>
+    <li><a href="../categories/panel-data.html">Dữ liệu bảng</a></li>
+    <li><a href="../comparison-index.html">Tất cả so sánh</a></li>
+  </ul>
+  <button class="nav-hamburger" id="nav-hamburger">☰</button>
+</div></nav>
+
+<main><div class="page-container" style="max-width:960px;">
+<nav class="breadcrumb"><a href="../index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><a href="../comparison-index.html">So sánh</a><span class="breadcrumb-sep">›</span><span class="breadcrumb-current">FE vs xtabond2</span></nav>
+<div class="page-title-block">
+  <h1><code>xtreg, fe</code> vs. <code>xtabond2</code></h1>
+  <p class="page-subtitle">Hiệu ứng cố định vs. GMM bảng động Arellano-Bond</p>
+</div>
+
+<div class="callout callout-warning"><div class="callout-title">Khi nào dùng từng loại</div>
+  <p><strong>Dùng xtreg, fe</strong> cho mô hình bảng tĩnh. <strong>Chỉ dùng xtabond2</strong> khi mô hình lý thuyết của bạn yêu cầu biến phụ thuộc có độ trễ và N &gt;&gt; T. Không bao giờ dùng xtabond2 chỉ vì bạn có thể — rủi ro phức tạp và lạm dụng là cao.</p>
+</div>
+
+<div class="vs-cards">
+  <div class="vs-card vs-recommended">
+    <div class="vs-card-header"><span class="vs-card-name">xtreg, fe</span><span class="badge badge-builtin">Có sẵn</span></div>
+    <p style="font-size:.875rem;color:var(--muted-fg);">Hiệu ứng cố định tĩnh — ước lượng trong đơn vị</p>
+    <ul class="vs-pro"><li>Đơn giản, dễ giải thích, được hiểu rộng rãi</li><li>Nhất quán dưới tính ngoại sinh nghiêm ngặt</li><li>Hợp lệ cho mô hình bảng tĩnh</li><li>Chẩn đoán bắt buộc: phân cụm, kiểm định Hausman</li></ul>
+    <ul class="vs-con" style="margin-top:.5rem;"><li>Lệch Nickell nếu biến phụ thuộc có độ trễ được bao gồm và T nhỏ</li></ul>
+  </div>
+  <div class="vs-card">
+    <div class="vs-card-header"><span class="vs-card-name">xtabond2</span><span class="badge badge-ssc">SSC</span></div>
+    <p style="font-size:.875rem;color:var(--muted-fg);">GMM bảng động — Arellano-Bond / Blundell-Bond</p>
+    <ul class="vs-pro"><li>Xử lý biến phụ thuộc có độ trễ mà không có lệch Nickell</li><li>Có thể xử lý các biến hồi quy nội sinh khác</li><li>System GMM tăng hiệu quả cho chuỗi bền</li></ul>
+    <ul class="vs-con" style="margin-top:.5rem;"><li>Dễ lạm dụng — cần chỉ định cẩn thận</li><li>Tràn lan biến công cụ có thể làm kiểm định Hansen vô nghĩa</li><li>Yêu cầu N lớn, T nhỏ</li></ul>
+  </div>
+</div>
+
+<h2 style="margin-top:2rem;">Vấn đề lệch Nickell</h2>
+<p>Nếu bạn bao gồm biến phụ thuộc có độ trễ (yᵢₜ₋₁) trong mô hình hiệu ứng cố định, việc khử giá trị trung bình trong đơn vị tạo ra tương quan cơ học giữa biến phụ thuộc có độ trễ đã khử và sai số đã khử, làm lệch hệ số. Đây là "lệch Nickell" và biến mất khi T → ∞ nhưng có thể nghiêm trọng khi T nhỏ (5-10 giai đoạn).</p>
+
+<div class="code-wrapper">
+  <pre class="language-stata"><code>* ── FE tĩnh (đúng cho mô hình tĩnh) ──────────────────────
+xtset firmid year
+xtreg lwage educ exper, fe vce(cluster firmid)
+
+* ── GMM bảng động (chỉ khi cần biến phụ thuộc có độ trễ) ─
+ssc install xtabond2
+
+* System GMM với biến công cụ thu gọn
+xtabond2 lwage L.lwage educ exper, ///
+  gmm(L.lwage, lag(2 4) collapse eq(both)) ///
+  iv(educ exper, eq(level)) ///
+  robust small twostep
+
+* Chẩn đoán QUAN TRỌNG cần kiểm tra:
+* AR(1): nên có ý nghĩa (tự tương quan trong mức)
+* AR(2): KHÔNG nên có ý nghĩa (kiểm định tương quan chuỗi)
+* Hansen J: p > 0,05 (tính hợp lệ biến công cụ)
+* Nếu số biến công cụ > N nhóm: dùng tùy chọn 'collapse'</code></pre>
+  <button class="copy-btn">Sao chép</button>
+</div>
+
+<div class="comparison-table-wrapper">
+  <table class="comparison-table">
+    <thead><tr><th class="feature-name">Tiêu chí</th><th>xtreg, fe</th><th>xtabond2</th></tr></thead>
+    <tbody>
+      <tr><td class="feature-name">Trường hợp dùng</td><td>Mô hình bảng tĩnh</td><td>Mô hình động (biến phụ thuộc có độ trễ)</td></tr>
+      <tr><td class="feature-name">Lệch biến phụ thuộc có độ trễ</td><td class="caution">Lệch Nickell nếu T nhỏ</td><td class="good">Hiệu chỉnh lệch Nickell</td></tr>
+      <tr><td class="feature-name">Chẩn đoán chính</td><td>Kiểm định Hausman, SE phân cụm</td><td>Kiểm định AR(2), kiểm định Hansen J</td></tr>
+      <tr><td class="feature-name">Rủi ro lạm dụng</td><td class="good">Thấp</td><td class="caution">Cao — nhiều cách làm sai</td></tr>
+      <tr><td class="feature-name">Tài liệu bắt buộc đọc</td><td>Bất kỳ sách giáo khoa bảng nào</td><td>Roodman (2009) — bắt buộc</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="verdict-box">
+  <div class="verdict-label">Kết luận</div>
+  <p><strong>Dùng xtreg, fe cho mô hình bảng tĩnh.</strong> Chỉ dùng xtabond2 khi mô hình của bạn có cơ sở lý thuyết cho biến phụ thuộc có độ trễ. Trước khi dùng xtabond2, đọc Roodman (2009) "A Note on the Theme of Too Many Instruments." Luôn báo cáo và giải thích kiểm định AR(2) và kiểm định Hansen J.</p>
+</div>
+<div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:1.5rem;">
+  <a href="../commands/command.html?cmd=xtreg-fe" class="btn-primary">Hướng dẫn xtreg, fe →</a>
+  <a href="../commands/command.html?cmd=xtabond2" class="btn-secondary">Hướng dẫn xtabond2</a>
+  <a href="xtreg-fe-vs-re.html" class="btn-secondary">FE vs RE →</a>
+</div>
+</div></main>
+<footer class="site-footer"><div class="footer-inner"><div class="footer-col"><h4>Liên quan</h4><ul>
+  <li><a href="xtreg-fe-vs-re.html">FE vs RE</a></li>
+  <li><a href="../categories/panel-data.html">Dữ liệu bảng</a></li>
+</ul></div></div><div class="footer-bottom">Stata Kinh Tế Lượng Task View · Tài nguyên học thuật cho kinh tế lượng ứng dụng</div></footer>
+<script src="../assets/js/navigation.js"></script>
+</body></html>

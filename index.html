@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stata Kinh Tế Lượng Task View — Nền Tảng Tra Cứu Lệnh & Gói Thống Kê Tương Tác</title>
+  <meta name="description"
+    content="Hướng dẫn thực hành tập trung vào gói thống kê cho các lệnh kinh tế lượng Stata. So sánh các lệnh tương tự, tìm gói phù hợp và tránh những sai lầm phổ biến.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/print.css" media="print">
+</head>
+
+<body class="home-page">
+
+  <!-- ── Noise Overlay ── -->
+  <div class="noise-overlay" aria-hidden="true"></div>
+
+  <!-- ── Navigation ── -->
+  <nav class="site-nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a class="nav-brand" href="index.html">Stata <span>Task View</span></a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html" class="active">Trang chủ</a></li>
+        <li class="nav-dropdown">
+          <button class="nav-dropdown-btn" aria-haspopup="true">Danh mục ▾</button>
+          <div class="nav-dropdown-menu">
+            <a href="categories/ols-diagnostics.html">OLS &amp; Kiểm định</a>
+            <a href="categories/limited-dependent.html">Biến phụ thuộc giới hạn</a>
+            <a href="categories/panel-data.html">Dữ liệu bảng</a>
+            <a href="categories/iv-endogeneity.html">Biến công cụ &amp; Nội sinh</a>
+            <a href="categories/time-series.html">Chuỗi thời gian</a>
+            <a href="categories/causal-inference.html">Suy diễn nhân quả</a>
+            <a href="categories/staggered-did.html">DID theo giai đoạn</a>
+            <a href="categories/ml-econometrics.html">Kinh tế lượng ML</a>
+            <a href="categories/data-infrastructure.html">Hạ tầng dữ liệu</a>
+            <a href="categories/sensitivity-robustness.html">Kiểm tra độ nhạy &amp; Sự vững</a>
+            <a href="categories/publication-standards.html">Tiêu chuẩn công bố</a>
+          </div>
+        </li>
+        <li class="nav-dropdown">
+          <button class="nav-dropdown-btn" aria-haspopup="true">So sánh ▾</button>
+          <div class="nav-dropdown-menu">
+            <a href="comparisons/reg-vs-robust.html">reg vs. SE Vững</a>
+            <a href="comparisons/boottest-vs-cluster-se.html">boottest vs. SE Cluster</a>
+            <a href="comparisons/logit-vs-probit.html">logit vs. probit</a>
+            <a href="comparisons/xtreg-fe-vs-re.html">FE vs. RE</a>
+            <a href="comparisons/reghdfe-vs-xtreg.html">reghdfe vs. xtreg</a>
+            <a href="comparisons/fe-vs-xtabond2.html">FE vs. xtabond2</a>
+            <a href="comparisons/ivregress-vs-ivreg2.html">ivregress vs. ivreg2</a>
+            <a href="comparisons/did-simple-vs-csdid.html">DID đơn giản vs. csdid</a>
+            <a href="comparisons/csdid-vs-drdid.html">csdid vs. drdid</a>
+            <a href="comparisons/csdid-vs-eventstudyinteract.html">csdid vs. eventstudyinteract</a>
+            <a href="comparisons/pdslasso-vs-ddml.html">pdslasso vs. ddml</a>
+            <a href="comparisons/synth-vs-scpi.html">synth vs. scpi</a>
+            <a href="comparisons/rdrobust-vs-rdlocrand.html">rdrobust vs. rdlocrand</a>
+            <a href="comparisons/psmatch2-vs-rdrobust.html">psmatch2 vs. rdrobust</a>
+            <a href="comparisons/arima-vs-var.html">ARIMA vs. VAR</a>
+            <a href="comparisons/outreg2-vs-estout.html">outreg2 vs. estout</a>
+          </div>
+        </li>
+        <li><a href="decision-tree.html">Cây quyết định</a></li>
+        <li><a href="best-packages.html">Gói tốt nhất</a></li>
+      </ul>
+      <button class="nav-search-btn" id="nav-search-btn" aria-label="Tìm kiếm lệnh">🔍 Tìm kiếm</button>
+      <button class="nav-hamburger" id="nav-hamburger" aria-label="Bật/tắt menu" aria-expanded="false">☰</button>
+    </div>
+  </nav>
+
+  <!-- ── Hero ── -->
+  <header class="hero" role="banner">
+    <span class="hero-bg-text text-9xl" aria-hidden="true">STATA</span>
+    <div class="hero-inner">
+      <h1 class="text-layer" data-text="STATA">
+        STATA
+        <em class="accent">Kinh Tế Lượng</em>
+      </h1>
+      <p class="hero-tagline">Nên dùng lệnh Stata nào? So sánh các gói, hiểu sự đánh đổi và điều hướng hệ sinh thái Stata một cách tự tin.</p>
+      <form class="hero-search-form" action="search.html" method="get" role="search">
+        <input type="search" name="q" placeholder="Tìm kiếm lệnh… vd: reg, csdid, ivreg2"
+          aria-label="Tìm kiếm lệnh Stata">
+        <button type="submit">Tìm kiếm</button>
+      </form>
+      <div class="hero-cta-row" role="group" aria-label="Lối tắt chính">
+        <a class="btn-primary" href="decision-tree.html">Khởi động bằng Cây quyết định</a>
+        <a class="btn-secondary" href="comparison-index.html">Xem toàn bộ so sánh</a>
+      </div>
+      <div class="hero-metrics" role="group" aria-label="Tổng quan nội dung">
+        <div class="hero-metric"><strong>46+</strong><span>Lệnh thực hành</span></div>
+        <div class="hero-metric"><strong>16</strong><span>Hướng dẫn so sánh</span></div>
+        <div class="hero-metric"><strong>11</strong><span>Nhóm nhiệm vụ chính</span></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Main ── -->
+  <main>
+    <div class="page-container">
+
+      <!-- Quick start paths -->
+      <section aria-labelledby="quickstart-heading">
+        <div class="section-header">
+          <h2 id="quickstart-heading" class="accent-bar">Bắt đầu tại đây</h2>
+          <a href="decision-tree.html">Chưa chắc? Dùng Cây quyết định →</a>
+        </div>
+        <div class="quick-path">
+          <div class="quick-path-card">
+            <h3>Lộ trình người mới</h3>
+            <ul>
+              <li><a href="commands/command.html?cmd=reg">Hồi quy OLS (reg)</a></li>
+              <li><a href="commands/command.html?cmd=robust-se">Luôn dùng SE vững</a></li>
+              <li><a href="commands/command.html?cmd=logit">Biến nhị phân (logit + margins)</a></li>
+              <li><a href="commands/command.html?cmd=xtreg-fe">Dữ liệu bảng (xtreg, fe)</a></li>
+              <li><a href="commands/command.html?cmd=diff">Đánh giá chính sách (DID)</a></li>
+              <li><a href="commands/command.html?cmd=estout">Bảng kết quả công bố (estout)</a></li>
+            </ul>
+          </div>
+          <div class="quick-path-card">
+            <h3>Lộ trình nghiên cứu</h3>
+            <ul>
+              <li><a href="commands/command.html?cmd=ivreg2">Ước lượng IV (ivreg2)</a></li>
+              <li><a href="commands/command.html?cmd=reghdfe">FE chiều cao (reghdfe)</a></li>
+              <li><a href="commands/command.html?cmd=csdid">DID theo giai đoạn (csdid)</a></li>
+              <li><a href="commands/command.html?cmd=boottest">Suy luận ít nhóm (boottest)</a></li>
+              <li><a href="commands/command.html?cmd=honestdid">Kiểm tra độ nhạy DID (honestdid)</a></li>
+              <li><a href="commands/command.html?cmd=ddml">Kiểm soát chiều cao (ddml)</a></li>
+              <li><a href="commands/command.html?cmd=rdrobust-advanced">Quy trình RD đầy đủ</a></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Categories -->
+      <section aria-labelledby="categories-heading">
+        <div class="section-header">
+          <h2 id="categories-heading" class="accent-bar">Duyệt theo nhiệm vụ kinh tế lượng</h2>
+          <a href="taxonomy.html">Phân loại đầy đủ →</a>
+        </div>
+        <div class="category-grid">
+
+          <a class="category-card" href="categories/ols-diagnostics.html">
+            <div class="category-icon">📊</div>
+            <div class="category-name">OLS &amp; Kiểm định</div>
+            <div class="category-desc">Hồi quy tuyến tính, suy luận vững, kiểm định chẩn đoán và bảng kết quả chuyên nghiệp.</div>
+            <div class="category-count">9 lệnh · reg, SE vững, estout, mi-impute…</div>
+          </a>
+
+          <a class="category-card" href="categories/limited-dependent.html">
+            <div class="category-icon">🎯</div>
+            <div class="category-name">Biến phụ thuộc giới hạn</div>
+            <div class="category-desc">Mô hình biến kết quả nhị phân, kiểm duyệt và rút cụt sử dụng hợp lý cực đại.</div>
+            <div class="category-count">4 lệnh · logit, probit, tobit, margins</div>
+          </a>
+
+          <a class="category-card" href="categories/panel-data.html">
+            <div class="category-icon">📋</div>
+            <div class="category-name">Dữ liệu bảng</div>
+            <div class="category-desc">Hiệu ứng cố định, hiệu ứng ngẫu nhiên và GMM bảng động cho dữ liệu theo thời gian.</div>
+            <div class="category-count">8 lệnh · xtreg, reghdfe, xtabond2, boottest…</div>
+          </a>
+
+          <a class="category-card" href="categories/iv-endogeneity.html">
+            <div class="category-icon">🔗</div>
+            <div class="category-name">Biến công cụ &amp; Nội sinh</div>
+            <div class="category-desc">Biến công cụ và 2SLS để nhận dạng nhân quả khi biến giải thích bị nội sinh.</div>
+            <div class="category-count">3 lệnh · ivregress, ivreg2, ivreghdfe</div>
+          </a>
+
+          <a class="category-card" href="categories/time-series.html">
+            <div class="category-icon">📈</div>
+            <div class="category-name">Chuỗi thời gian</div>
+            <div class="category-desc">Kiểm định nghiệm đơn vị, mô hình đơn biến ARIMA và VAR cho động thái kinh tế vĩ mô.</div>
+            <div class="category-count">3 lệnh · dfuller, arima, var</div>
+          </a>
+
+          <a class="category-card" href="categories/causal-inference.html">
+            <div class="category-icon">⚡</div>
+            <div class="category-name">Suy diễn nhân quả</div>
+            <div class="category-desc">DID, ghép điểm xu hướng và gián đoạn hồi quy để đánh giá chính sách.</div>
+            <div class="category-count">8 lệnh · diff, rdrobust, rdlocrand, psacalc…</div>
+          </a>
+
+          <a class="category-card" href="categories/staggered-did.html">
+            <div class="category-icon">🔬</div>
+            <div class="category-name">DID theo giai đoạn</div>
+            <div class="category-desc">DID Callaway-Sant'Anna, DID kép mạnh và kiểm soát tổng hợp — bộ công cụ hiện đại.</div>
+            <div class="category-count">8 lệnh · csdid, eventstudyinteract, honestdid, synth…</div>
+          </a>
+
+          <a class="category-card" href="categories/ml-econometrics.html">
+            <div class="category-icon">🤖</div>
+            <div class="category-name">Kinh tế lượng ML</div>
+            <div class="category-desc">Lasso, học máy kép và chọn lựa biến kiểm soát chiều cao.</div>
+            <div class="category-count">3 lệnh · pdslasso, ddml, công cụ lasso</div>
+          </a>
+
+          <a class="category-card" href="categories/data-infrastructure.html">
+            <div class="category-icon">🏗️</div>
+            <div class="category-name">Hạ tầng dữ liệu</div>
+            <div class="category-desc">Tiền xử lý, kiểm toán chất lượng, xử lý dữ liệu thiếu và ngoại lệ.</div>
+            <div class="category-count">7 lệnh · misstable, mi-impute, winsor2, ihs…</div>
+          </a>
+
+          <a class="category-card" href="categories/sensitivity-robustness.html">
+            <div class="category-icon">🛡️</div>
+            <div class="category-name">Kiểm tra độ nhạy &amp; Sự vững</div>
+            <div class="category-desc">Kiểm tra sức chịu đựng nhận dạng nhân quả và độ ổn định hệ số.</div>
+            <div class="category-count">5 lệnh · honestdid, psacalc, wyoung, rwolf…</div>
+          </a>
+
+          <a class="category-card" href="categories/publication-standards.html">
+            <div class="category-icon">📄</div>
+            <div class="category-name">Tiêu chuẩn công bố</div>
+            <div class="category-desc">Báo cáo chuyên nghiệp, định dạng bảng và quy trình tái tạo.</div>
+            <div class="category-count">5 lệnh · estout, outreg2, coefplot, putdocx…</div>
+          </a>
+
+        </div>
+      </section>
+
+      <!-- Featured comparisons -->
+      <section aria-labelledby="comparisons-heading">
+        <div class="section-header">
+          <h2 id="comparisons-heading" class="accent-bar">Các so sánh quan trọng nhất</h2>
+          <a href="comparison-index.html">Tất cả so sánh →</a>
+        </div>
+        <div class="featured-comparisons">
+          <a class="btn-secondary" href="comparisons/did-simple-vs-csdid.html">DID đơn giản vs. csdid</a>
+          <a class="btn-secondary" href="comparisons/xtreg-fe-vs-re.html">FE vs. Hiệu ứng ngẫu nhiên</a>
+          <a class="btn-secondary" href="comparisons/ivregress-vs-ivreg2.html">ivregress vs. ivreg2</a>
+          <a class="btn-secondary" href="comparisons/logit-vs-probit.html">logit vs. probit</a>
+          <a class="btn-secondary" href="comparisons/fe-vs-xtabond2.html">FE vs. xtabond2</a>
+          <a class="btn-secondary" href="comparisons/psmatch2-vs-rdrobust.html">psmatch2 vs. rdrobust</a>
+          <a class="btn-secondary" href="comparisons/csdid-vs-drdid.html">csdid vs. drdid</a>
+          <a class="btn-secondary" href="comparisons/csdid-vs-eventstudyinteract.html">csdid vs. eventstudyinteract</a>
+          <a class="btn-secondary" href="comparisons/reghdfe-vs-xtreg.html">reghdfe vs. xtreg</a>
+          <a class="btn-secondary" href="comparisons/boottest-vs-cluster-se.html">boottest vs. cluster SE</a>
+          <a class="btn-secondary" href="comparisons/pdslasso-vs-ddml.html">pdslasso vs. ddml</a>
+          <a class="btn-secondary" href="comparisons/rdrobust-vs-rdlocrand.html">rdrobust vs. rdlocrand</a>
+          <a class="btn-secondary" href="comparisons/outreg2-vs-estout.html">outreg2 vs. estout</a>
+        </div>
+      </section>
+
+      <!-- Best packages quick reference -->
+      <section aria-labelledby="best-pkg-heading">
+        <div class="section-header">
+          <h2 id="best-pkg-heading" class="accent-bar">Gói tốt nhất theo trường hợp sử dụng</h2>
+          <a href="best-packages.html">Hướng dẫn đầy đủ →</a>
+        </div>
+        <div class="comparison-table-wrapper">
+          <table class="comparison-table" aria-label="Best packages by use case">
+            <thead>
+              <tr>
+                <th>Trường hợp sử dụng</th>
+                <th>Lựa chọn tốt nhất</th>
+                <th>Cấp độ</th>
+                <th>Ghi chú</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Ước lượng OLS cơ bản</td>
+                <td><a href="commands/command.html?cmd=reg"><code>reg</code></a> với <code>robust</code></td>
+                <td><span class="badge badge-beginner">Cơ bản</span></td>
+                <td>Luôn dùng SE vững làm mặc định</td>
+              </tr>
+              <tr>
+                <td>Bảng hồi quy</td>
+                <td><a href="commands/command.html?cmd=estout"><code>estout / esttab</code></a></td>
+                <td><span class="badge badge-intermediate">Trung cấp</span></td>
+                <td>Lựa chọn mặc định tốt nhất hiện tại; linh hoạt hơn outreg2</td>
+              </tr>
+              <tr>
+                <td>Biến kết quả nhị phân</td>
+                <td><a href="commands/command.html?cmd=logit"><code>logit</code></a> + <a
+                    href="commands/command.html?cmd=margins"><code>margins</code></a></td>
+                <td><span class="badge badge-beginner">Cơ bản</span></td>
+                <td>Luôn tính AME — không báo cáo hệ số thô</td>
+              </tr>
+              <tr>
+                <td>Dữ liệu bảng — thận trọng</td>
+                <td><a href="commands/command.html?cmd=xtreg-fe"><code>xtreg, fe</code></a></td>
+                <td><span class="badge badge-intermediate">Trung cấp</span></td>
+                <td>Luôn cluster theo đơn vị bảng</td>
+              </tr>
+              <tr>
+                <td>Hồi quy IV</td>
+                <td><a href="commands/command.html?cmd=ivreg2"><code>ivreg2</code></a></td>
+                <td><span class="badge badge-intermediate">Trung cấp</span></td>
+                <td>Dùng thay ivregress — chẩn đoán công cụ yếu phong phú hơn</td>
+              </tr>
+              <tr>
+                <td>DID theo giai đoạn</td>
+                <td><a href="commands/command.html?cmd=csdid"><code>csdid</code></a></td>
+                <td><span class="badge badge-advanced">Nâng cao</span></td>
+                <td>Bắt buộc cho thiết kế theo giai đoạn — KHÔNG dùng TWFE</td>
+              </tr>
+              <tr>
+                <td>Thiết kế RD</td>
+                <td><a href="commands/command.html?cmd=rdrobust"><code>rdrobust</code></a></td>
+                <td><span class="badge badge-intermediate">Trung cấp</span></td>
+                <td>Mặc định hiện đại; luôn chạy rddensity + rdplot</td>
+              </tr>
+              <tr>
+                <td>Kiểm soát chiều cao</td>
+                <td><a href="commands/command.html?cmd=ddml"><code>ddml</code></a></td>
+                <td><span class="badge badge-advanced">Nâng cao</span></td>
+                <td>ML kép với cross-fitting để suy luận hợp lệ</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Critical evaluation callout -->
+      <section aria-labelledby="eval-heading">
+        <div class="section-header">
+          <h2 id="eval-heading" class="accent-bar">Đánh giá phê phán các gói phổ biến</h2>
+          <a href="common-mistakes.html">Sai lầm phổ biến →</a>
+        </div>
+        <div class="callout-grid">
+
+          <div class="callout callout-tip">
+            <div class="callout-title">✓ Lựa chọn mạnh hiện tại</div>
+            <p><strong>ivreg2, rdrobust, csdid, estout</strong> — đây là tiêu chuẩn vàng trong lĩnh vực tương ứng. Dùng cho công việc nghiên cứu chuyên sâu.</p>
+          </div>
+
+          <div class="callout callout-warning">
+            <div class="callout-title">⚠ Sử dụng thận trọng</div>
+            <p><strong>psmatch2, xtabond2, synth, ddml</strong> — mạnh nhưng dễ dùng sai. Hiểu các chẩn đoán quan trọng trước khi áp dụng.</p>
+          </div>
+
+          <div class="callout callout-danger">
+            <div class="callout-title">✗ Sai lầm phổ biến</div>
+            <p><strong>TWFE cho DID theo giai đoạn</strong> — dùng <code>i.treated##i.time</code> bị lệch khi có hiệu ứng không đồng nhất. Luôn dùng <code>csdid</code>.</p>
+          </div>
+
+        </div>
+      </section>
+
+    </div><!-- .page-container -->
+  </main>
+
+  <!-- ── Footer ── -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <h4>Danh mục</h4>
+        <ul>
+          <li><a href="categories/ols-diagnostics.html">OLS &amp; Kiểm định</a></li>
+          <li><a href="categories/limited-dependent.html">Biến PT giới hạn</a></li>
+          <li><a href="categories/panel-data.html">Dữ liệu bảng</a></li>
+          <li><a href="categories/iv-endogeneity.html">Biến công cụ &amp; Nội sinh</a></li>
+          <li><a href="categories/time-series.html">Chuỗi thời gian</a></li>
+          <li><a href="categories/causal-inference.html">Suy diễn nhân quả</a></li>
+          <li><a href="categories/staggered-did.html">DID theo giai đoạn</a></li>
+          <li><a href="categories/ml-econometrics.html">Kinh tế lượng ML</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Công cụ</h4>
+        <ul>
+          <li><a href="decision-tree.html">Cây quyết định</a></li>
+          <li><a href="best-packages.html">Gói tốt nhất</a></li>
+          <li><a href="research-roadmap.html">Lộ trình nghiên cứu</a></li>
+          <li><a href="common-mistakes.html">Sai lầm phổ biến</a></li>
+          <li><a href="taxonomy.html">Phân loại gói</a></li>
+          <li><a href="comparison-index.html">Tất cả so sánh</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Lệnh phổ biến</h4>
+        <ul>
+          <li><a href="commands/command.html?cmd=reg">reg</a></li>
+          <li><a href="commands/command.html?cmd=logit">logit</a></li>
+          <li><a href="commands/command.html?cmd=xtreg-fe">xtreg, fe</a></li>
+          <li><a href="commands/command.html?cmd=ivreg2">ivreg2</a></li>
+          <li><a href="commands/command.html?cmd=csdid">csdid</a></li>
+          <li><a href="commands/command.html?cmd=rdrobust">rdrobust</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">Stata Kinh Tế Lượng Task View · Tài nguyên học thuật cho kinh tế lượng ứng dụng</div>
+  </footer>
+
+  <script src="assets/js/navigation.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lunr@2.3.9/lunr.min.js"></script>
+  <script src="assets/js/search.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      StataSearch.initNavSearch('nav-search-btn');
+    });
+  </script>
+</body>
+
+</html>

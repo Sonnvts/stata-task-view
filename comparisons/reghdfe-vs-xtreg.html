@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>reghdfe vs xtreg, fe — Stata Kinh Tế Lượng Task View</title>
+  <meta name="description" content="So sánh reghdfe và xtreg, fe cho các công việc hiệu ứng cố định bảng hiện đại.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+</head>
+
+<body>
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="../index.html">Stata <span>Task View</span></a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../index.html">Trang chủ</a></li>
+        <li><a href="../categories/panel-data.html">Dữ liệu bảng</a></li>
+        <li><a href="../comparison-index.html">Tất cả so sánh</a></li>
+      </ul>
+      <button class="nav-hamburger" id="nav-hamburger">☰</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-container" style="max-width:960px;">
+      <nav class="breadcrumb"><a href="../index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><a
+          href="../comparison-index.html">So sánh</a><span class="breadcrumb-sep">›</span><span
+          class="breadcrumb-current">reghdfe vs xtreg</span></nav>
+
+      <div class="page-title-block">
+        <h1><code>reghdfe</code> vs <code>xtreg, fe</code></h1>
+        <p class="page-subtitle">Cơ sở FE đơn lẻ vs trình ước lượng sản xuất FE đa chiều</p>
+      </div>
+
+      <div class="comparison-table-wrapper">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Tính năng</th>
+              <th>xtreg, fe</th>
+              <th>reghdfe</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Số chiều FE</td>
+              <td>Một đơn vị FE (+ biến giả thời gian thủ công)</td>
+              <td>Nhiều chiều FE qua absorb()</td>
+            </tr>
+            <tr>
+              <td>Phân cụm hai chiều</td>
+              <td>Hạn chế / bất tiện</td>
+              <td>Hỗ trợ mặc định</td>
+            </tr>
+            <tr>
+              <td>Tốc độ trên dữ liệu lớn</td>
+              <td>Trung bình</td>
+              <td>Thường nhanh hơn</td>
+            </tr>
+            <tr>
+              <td>Đề xuất cho bài báo hiện đại</td>
+              <td>Cơ sở</td>
+              <td>Trình ước lượng chính</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 style="margin-top:1.5rem;">Mã lệnh</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div class="code-wrapper">
+          <pre class="language-stata"><code>* xtreg cơ sở
+xtset firm_id year
+xtreg y x1 x2 i.year, fe vce(cluster firm_id)</code></pre><button class="copy-btn">Sao chép</button>
+        </div>
+        <div class="code-wrapper">
+          <pre class="language-stata"><code>* reghdfe thực chiến
+reghdfe y x1 x2, ///
+  absorb(firm_id year industry#year) ///
+  vce(cluster firm_id year)</code></pre><button class="copy-btn">Sao chép</button>
+        </div>
+      </div>
+
+      <div class="verdict-box" style="margin-top:1rem;">
+        <div class="verdict-label">Kết luận</div>
+        <p>Sử dụng <strong>xtreg, fe</strong> cho giảng dạy và các cơ sở đơn giản. Sử dụng <strong>reghdfe</strong> cho
+          các đặc điểm chính với nhiều hiệu ứng cố định và phân cụm đa chiều.</p>
+      </div>
+
+      <div style="margin-top:1rem;display:flex;gap:.75rem;flex-wrap:wrap;">
+        <a href="../commands/command.html?cmd=reghdfe" class="btn-primary">Hướng dẫn reghdfe →</a>
+        <a href="../commands/command.html?cmd=xtreg-fe" class="btn-secondary">Hướng dẫn xtreg, fe →</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <h4>Liên quan</h4>
+        <ul>
+          <li><a href="../comparisons/xtreg-fe-vs-re.html">xtreg FE vs RE</a></li>
+          <li><a href="../commands/command.html?cmd=ivreghdfe">ivreghdfe</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">Stata Kinh Tế Lượng Task View · Tài nguyên học thuật cho kinh tế lượng ứng dụng</div>
+  </footer>
+
+  <script src="../assets/js/navigation.js"></script>
+</body>
+
+</html>

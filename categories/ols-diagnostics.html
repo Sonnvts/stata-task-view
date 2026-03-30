@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OLS &amp; Kiểm định — Stata Kinh Tế Lượng Task View</title>
+  <meta name="description" content="Hướng dẫn hồi quy OLS, sai số chuẩn vững, kiểm định chẩn đoán và công cụ xuất kết quả trong Stata.">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/print.css" media="print">
+</head>
+<body>
+  <div class="noise-overlay" aria-hidden="true"></div>
+<nav class="site-nav"><div class="nav-inner">
+  <a class="nav-brand" href="../index.html">Stata <span>Task View</span></a>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="../index.html">Trang chủ</a></li>
+    <li class="nav-dropdown"><button class="nav-dropdown-btn">Danh mục ▾</button>
+      <div class="nav-dropdown-menu">
+        <a href="ols-diagnostics.html" class="active">OLS &amp; Kiểm định</a>
+        <a href="limited-dependent.html">Biến phụ thuộc giới hạn</a>
+        <a href="panel-data.html">Dữ liệu bảng</a>
+        <a href="iv-endogeneity.html">Biến công cụ &amp; Nội sinh</a>
+        <a href="time-series.html">Chuỗi thời gian</a>
+        <a href="causal-inference.html">Suy diễn nhân quả</a>
+        <a href="staggered-did.html">DID theo giai đoạn</a>
+        <a href="ml-econometrics.html">Kinh tế lượng ML</a>
+      </div>
+    </li>
+    <li><a href="../decision-tree.html">Cây quyết định</a></li>
+    <li><a href="../best-packages.html">Gói tốt nhất</a></li>
+  </ul>
+  <button class="nav-search-btn" id="nav-search-btn">🔍 Tìm kiếm</button>
+  <button class="nav-hamburger" id="nav-hamburger" aria-label="Bật/tắt menu">☰</button>
+</div></nav>
+
+<main><div class="page-container">
+<nav class="breadcrumb"><a href="../index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><span class="breadcrumb-current">OLS &amp; Kiểm định</span></nav>
+
+<div class="page-title-block">
+  <h1>📊 OLS &amp; Kiểm định</h1>
+  <p class="page-subtitle">Hồi quy tuyến tính, suy luận vững, kiểm định đặc tả và kết quả chuyên nghiệp</p>
+</div>
+
+<!-- Tổng quan -->
+<section style="margin-bottom:2rem;">
+  <h2>Tổng quan</h2>
+  <p>OLS là nền tảng của kinh tế lượng ứng dụng. Hầu hết mọi phân tích thực nghiệm với biến kết quả liên tục đều bắt đầu tại đây. Nhưng mục tiêu không chỉ là chạy <code>reg y x</code> — mà là chạy <strong>đúng cách</strong>: với sai số chuẩn vững, kiểm định chẩn đoán phù hợp và báo cáo minh bạch.</p>
+  <p>OLS cổ điển với sai số chuẩn mặc định giả định sai số đồng phương sai và độc lập — một giả định hầu như luôn bị vi phạm trong dữ liệu thực. Khi không dùng SE vững, t-thống kê có hệ thống sai và p-value gây hiểu lầm.</p>
+  <div class="callout callout-info">
+    <div class="callout-title">Nguyên tắc chính</div>
+    <p><strong>Luôn dùng <code>reg y x, robust</code> làm mặc định.</strong> Không bao giờ dùng sai số chuẩn cổ điển trong công việc ứng dụng. Thói quen đơn giản này sẽ ngăn một phần lớn các lỗi suy luận phổ biến.</p>
+  </div>
+</section>
+
+<!-- Thanh lọc -->
+<div class="filter-bar">
+  <label>Lọc theo:</label>
+  <select class="filter-select" data-filter-key="difficulty">
+    <option value="all">Tất cả cấp độ</option>
+    <option value="beginner">Cơ bản</option>
+    <option value="intermediate">Trung cấp</option>
+    <option value="advanced">Nâng cao</option>
+  </select>
+  <select class="filter-select" data-filter-key="install">
+    <option value="all">Tất cả nguồn</option>
+    <option value="builtin">Có sẵn</option>
+    <option value="ssc">SSC</option>
+  </select>
+  <button class="filter-clear" id="filter-clear">Xóa</button>
+  <span class="filter-count" id="filter-count"></span>
+</div>
+
+<!-- Thẻ lệnh -->
+<div class="cmd-grid" id="cmd-grid">
+
+  <a class="cmd-card" href="../commands/command.html?cmd=reg"
+     data-tags='{"difficulty":"beginner","install":"builtin"}'>
+    <div class="cmd-card-header">
+      <div><div class="cmd-card-name">reg</div><div class="cmd-card-title">Hồi quy tuyến tính OLS</div></div>
+      <span class="badge badge-builtin">Có sẵn</span>
+    </div>
+    <div class="cmd-card-desc">Nền tảng cho biến kết quả liên tục. Tối thiểu hóa tổng bình phương phần dư. Luôn thêm tùy chọn <code>robust</code>.</div>
+    <div class="cmd-card-footer"><span class="badge badge-beginner">Cơ bản</span><span class="tag-pill">OLS</span><span class="tag-pill">cắt ngang</span></div>
+  </a>
+
+  <a class="cmd-card" href="../commands/command.html?cmd=robust-se"
+     data-tags='{"difficulty":"beginner","install":"builtin"}'>
+    <div class="cmd-card-header">
+      <div><div class="cmd-card-name">vce(robust) / vce(cluster)</div><div class="cmd-card-title">SE Vững &amp; SE Cluster</div></div>
+      <span class="badge badge-builtin">Có sẵn</span>
+    </div>
+    <div class="cmd-card-desc">Sửa sai số chuẩn cho phương sai sai số không đồng đều và tương quan trong nhóm. Tùy chọn Stata quan trọng nhất.</div>
+    <div class="cmd-card-footer"><span class="badge badge-beginner">Cơ bản</span><span class="tag-pill">suy luận</span><span class="tag-pill">vững</span></div>
+  </a>
+
+  <a class="cmd-card" href="../commands/command.html?cmd=vif"
+     data-tags='{"difficulty":"beginner","install":"builtin"}'>
+    <div class="cmd-card-header">
+      <div><div class="cmd-card-name">estat vif</div><div class="cmd-card-title">Nhân tử phóng đại phương sai</div></div>
+      <span class="badge badge-builtin">Có sẵn</span>
+    </div>
+    <div class="cmd-card-desc">Kiểm định đa cộng tuyến giữa các biến giải thích. VIF &gt; 10 cần điều tra thêm.</div>
+    <div class="cmd-card-footer"><span class="badge badge-beginner">Cơ bản</span><span class="tag-pill">chẩn đoán</span><span class="tag-pill">đa cộng tuyến</span></div>
+  </a>
+
+  <a class="cmd-card" href="../commands/command.html?cmd=hettest"
+     data-tags='{"difficulty":"beginner","install":"builtin"}'>
+    <div class="cmd-card-header">
+      <div><div class="cmd-card-name">hettest</div><div class="cmd-card-title">Kiểm định Breusch-Pagan về phương sai sai số không đồng đều</div></div>
+      <span class="badge badge-builtin">Có sẵn</span>
+    </div>
+    <div class="cmd-card-desc">Kiểm định xem phương sai sai số có không đổi không. Dùng để ghi chép — nhưng luôn dùng SE vững bất kể kết quả.</div>
+    <div class="cmd-card-footer"><span class="badge badge-beginner">Cơ bản</span><span class="tag-pill">chẩn đoán</span><span class="tag-pill">phương sai không đồng đều</span></div>
+  </a>
+
+  <a class="cmd-card" href="../commands/command.html?cmd=ovtest"
+     data-tags='{"difficulty":"intermediate","install":"builtin"}'>
+    <div class="cmd-card-header">
+      <div><div class="cmd-card-name">ovtest / estat ovtest</div><div class="cmd-card-title">Kiểm định RESET của Ramsey</div></div>
+      <span class="badge badge-builtin">Có sẵn</span>
+    </div>
+    <div class="cmd-card-desc">Kiểm định sai đặc tả dạng hàm bằng cách thêm lũy thừa của giá trị dự báo. Lực kiểm định hạn chế, nhưng hữu ích như một trong nhiều kiểm định chẩn đoán.</div>
+    <div class="cmd-card-footer"><span class="badge badge-intermediate">Trung cấp</span><span class="tag-pill">chẩn đoán</span><span class="tag-pill">đặc tả</span></div>
+  </a>
+
+  <a class="cmd-card" href="../commands/command.html?cmd=outreg2"
+     data-tags='{"difficulty":"beginner","install":"ssc"}'>
+    <div class="cmd-card-header">
+      <div><div class="cmd-card-name">outreg2</div><div class="cmd-card-title">Xuất kết quả ra Word/Excel/LaTeX</div></div>
+      <span class="badge badge-ssc">SSC</span>
+    </div>
+    <div class="cmd-card-desc">Xuất nhanh kết quả hồi quy ra Word, Excel hoặc LaTeX. Tốt cho người mới; estout linh hoạt hơn cho bảng phức tạp.</div>
+    <div class="cmd-card-footer"><span class="badge badge-beginner">Cơ bản</span><span class="tag-pill">báo cáo</span><span class="tag-pill">bảng</span></div>
+  </a>
+
+  <a class="cmd-card" href="../commands/command.html?cmd=estout"
+     data-tags='{"difficulty":"intermediate","install":"ssc"}'>
+    <div class="cmd-card-header">
+      <div><div class="cmd-card-name">estout / esttab</div><div class="cmd-card-title">Bảng hồi quy linh hoạt</div></div>
+      <span class="badge badge-ssc">SSC</span>
+    </div>
+    <div class="cmd-card-desc">Lựa chọn mặc định tốt nhất hiện tại cho bảng hồi quy chuyên nghiệp. Xuất LaTeX, HTML và văn bản có khả năng tùy chỉnh cao.</div>
+    <div class="cmd-card-footer"><span class="badge badge-intermediate">Trung cấp</span><span class="tag-pill">báo cáo</span><span class="tag-pill">LaTeX</span></div>
+  </a>
+
+  <a class="cmd-card" href="../commands/command.html?cmd=binscatter2"
+     data-tags='{"difficulty":"beginner","install":"ssc"}'>
+    <div class="cmd-card-header">
+      <div><div class="cmd-card-name">binscatter2</div><div class="cmd-card-title">Đồ thị phân tán phân bin</div></div>
+      <span class="badge badge-ssc">SSC</span>
+    </div>
+    <div class="cmd-card-desc">Trực quan hóa mối quan hệ trung bình có điều kiện giữa X và Y. Hoạt động với bộ dữ liệu lớn và biến kiểm soát. Cần thiết cho phân tích khám phá.</div>
+    <div class="cmd-card-footer"><span class="badge badge-beginner">Cơ bản</span><span class="tag-pill">trực quan hóa</span><span class="tag-pill">phi tham số</span></div>
+  </a>
+
+</div><!-- #cmd-grid -->
+
+<!-- Bảng so sánh -->
+<section style="margin-top:2.5rem;">
+  <h2>So sánh song song</h2>
+  <div class="comparison-table-wrapper">
+    <table class="comparison-table">
+      <thead><tr>
+        <th>Lệnh</th><th>Nguồn</th><th>Mục đích</th><th>Người mới?</th><th>Cấp nghiên cứu?</th><th>Rủi ro chính</th>
+      </tr></thead>
+      <tbody>
+        <tr><td><code>reg</code></td><td><span class="badge badge-builtin">Có sẵn</span></td><td>Ước lượng OLS</td><td class="good">✓ Có</td><td class="good">✓ Có</td><td>Quên tùy chọn robust</td></tr>
+        <tr><td><code>vce(robust)</code></td><td><span class="badge badge-builtin">Có sẵn</span></td><td>SE đúng</td><td class="good">✓ Có</td><td class="good">✓ Có</td><td>Không cluster khi cần</td></tr>
+        <tr><td><code>estat vif</code></td><td><span class="badge badge-builtin">Có sẵn</span></td><td>Kiểm tra đa cộng tuyến</td><td class="good">✓ Có</td><td class="good">✓ Có</td><td>Loại biến chỉ dựa trên VIF</td></tr>
+        <tr><td><code>hettest</code></td><td><span class="badge badge-builtin">Có sẵn</span></td><td>Kiểm định phương sai sai số không đồng đều</td><td class="good">✓ Có</td><td class="ok">Bổ sung</td><td>Dùng để bỏ qua SE vững</td></tr>
+        <tr><td><code>ovtest</code></td><td><span class="badge badge-builtin">Có sẵn</span></td><td>Kiểm định đặc tả</td><td class="ok">Trung bình</td><td class="ok">Bổ sung</td><td>Lực yếu; không từ chối ≠ đặc tả đúng</td></tr>
+        <tr><td><code>outreg2</code></td><td><span class="badge badge-ssc">SSC</span></td><td>Bảng Word/Excel</td><td class="good">✓ Có</td><td class="ok">Chấp nhận được</td><td>Ít linh hoạt hơn estout cho LaTeX</td></tr>
+        <tr><td><code>estout</code></td><td><span class="badge badge-ssc">SSC</span></td><td>Bảng chuyên nghiệp</td><td class="ok">Cần học</td><td class="good">✓ Có</td><td>Phải học quy trình eststo trước</td></tr>
+        <tr><td><code>binscatter2</code></td><td><span class="badge badge-ssc">SSC</span></td><td>Trực quan hóa</td><td class="good">✓ Có</td><td class="good">✓ Có</td><td>Nhầm độ dốc với hệ số hồi quy</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Thứ tự học -->
+<section style="margin-top:2rem;">
+  <h2>Thứ tự học khuyến nghị</h2>
+  <div class="learning-path">
+    <div class="learning-step"><div class="learning-step-content"><h4><a href="../commands/command.html?cmd=reg">reg</a> — Thành thạo OLS trước</h4><p>Học cú pháp, đọc kết quả và giải thích hệ số trước khi thêm bất kỳ thứ gì khác.</p></div></div>
+    <div class="learning-step"><div class="learning-step-content"><h4>Luôn thêm <a href="../commands/command.html?cmd=robust-se">robust</a> — biến thành thói quen</h4><p>Dùng <code>reg y x, robust</code> làm mặc định từ ngày đầu. Không bao giờ dùng SE cổ điển.</p></div></div>
+    <div class="learning-step"><div class="learning-step-content"><h4><a href="../commands/command.html?cmd=hettest">hettest</a> + <a href="../commands/command.html?cmd=vif">vif</a> — chẩn đoán thường quy</h4><p>Chạy sau mỗi hồi quy. Ghi chép các kiểm định chẩn đoán của bạn.</p></div></div>
+    <div class="learning-step"><div class="learning-step-content"><h4><a href="../commands/command.html?cmd=estout">estout / esttab</a> — kết quả chuyên nghiệp</h4><p>Chuyển từ in ra màn hình sang bảng sẵn sàng công bố sớm trong quy trình làm việc.</p></div></div>
+    <div class="learning-step"><div class="learning-step-content"><h4><a href="../commands/command.html?cmd=binscatter2">binscatter2</a> — luôn trực quan hóa</h4><p>Khám phá mối quan hệ hai chiều trực quan trước khi mô hình hóa. Phát hiện phi tuyến tính OLS sẽ bỏ qua.</p></div></div>
+  </div>
+</section>
+
+<!-- Sai lầm phổ biến -->
+<section style="margin-top:2rem;">
+  <h2>Sai lầm phổ biến trong danh mục này</h2>
+  <div class="callout callout-danger"><div class="callout-title">Sai lầm hàng đầu</div>
+    <ul>
+      <li><strong>Dùng SE cổ điển không có tùy chọn robust</strong> — Dẫn đến kiểm định giả thuyết sai trong hầu hết các bộ dữ liệu thực</li>
+      <li><strong>Giải thích R² như chất lượng mô hình hay tính hợp lệ nhân quả</strong> — R² cao không có nghĩa mô hình đúng hay xác định hiệu ứng nhân quả</li>
+      <li><strong>Không cluster khi đơn vị xử lý ở cấp cao hơn đơn vị quan sát</strong> — Chính sách cấp tỉnh + dữ liệu cá nhân yêu cầu cluster theo cấp tỉnh</li>
+      <li><strong>Sao chép kết quả hồi quy từ màn hình Stata vào bài báo</strong> — Dùng estout cho bảng định dạng có thể tái tạo</li>
+      <li><strong>Cho rằng ovtest không có ý nghĩa thống kê nghĩa là mô hình được đặc tả đúng</strong> — RESET có lực kiểm định rất hạn chế</li>
+    </ul>
+  </div>
+</section>
+
+<!-- Lộ trình nâng cấp -->
+<section style="margin-top:2rem;">
+  <h2>Lộ trình nâng cấp</h2>
+  <div class="upgrade-block">
+    <h4>Khi nào vượt qua OLS</h4>
+    <p><strong>Phát hiện nội sinh?</strong> → Dùng <a href="../commands/command.html?cmd=ivreg2">ivreg2</a> với biến công cụ hợp lệ<br>
+    <strong>Có dữ liệu bảng?</strong> → Dùng <a href="../commands/command.html?cmd=xtreg-fe">xtreg, fe</a> để nhận dạng trong đơn vị<br>
+    <strong>Thời điểm xử lý thay đổi?</strong> → Dùng <a href="../commands/command.html?cmd=csdid">csdid</a> cho DID theo giai đoạn<br>
+    <strong>Nhiều biến kiểm soát (p ≈ n)?</strong> → Dùng <a href="../commands/command.html?cmd=ddml">ddml</a> hoặc <a href="../commands/command.html?cmd=lasso-tools">pdslasso</a></p>
+  </div>
+</section>
+
+</div></main>
+
+<footer class="site-footer"><div class="footer-inner">
+  <div class="footer-col"><h4>Danh mục khác</h4><ul>
+    <li><a href="limited-dependent.html">Biến PT giới hạn</a></li>
+    <li><a href="panel-data.html">Dữ liệu bảng</a></li>
+    <li><a href="iv-endogeneity.html">Biến công cụ &amp; Nội sinh</a></li>
+    <li><a href="causal-inference.html">Suy diễn nhân quả</a></li>
+    <li><a href="staggered-did.html">DID theo giai đoạn</a></li>
+  </ul></div>
+  <div class="footer-col"><h4>Công cụ</h4><ul>
+    <li><a href="../decision-tree.html">Cây quyết định</a></li>
+    <li><a href="../best-packages.html">Gói tốt nhất</a></li>
+    <li><a href="../common-mistakes.html">Sai lầm phổ biến</a></li>
+    <li><a href="../comparison-index.html">Tất cả so sánh</a></li>
+  </ul></div>
+</div><div class="footer-bottom">Stata Kinh Tế Lượng Task View · Tài nguyên học thuật cho kinh tế lượng ứng dụng</div></footer>
+
+<script src="../assets/js/navigation.js"></script>
+<script src="../assets/js/filter.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    StataFilter.initCategoryFilter({ gridId: 'cmd-grid', countId: 'filter-count', clearId: 'filter-clear' });
+  });
+</script>
+</body>
+</html>

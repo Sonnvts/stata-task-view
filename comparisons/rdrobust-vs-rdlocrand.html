@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>rdrobust vs rdlocrand — Stata Kinh Tế Lượng Task View</title>
+  <meta name="description"
+    content="So sánh RD dựa trên tính liên tục (rdrobust) và RD dựa trên ngẫu nhiên hóa cục bộ (rdlocrand).">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+</head>
+
+<body>
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="../index.html">Stata <span>Task View</span></a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../index.html">Trang chủ</a></li>
+        <li><a href="../categories/causal-inference.html">Suy luận nhân quả</a></li>
+        <li><a href="../comparison-index.html">Tất cả so sánh</a></li>
+      </ul>
+      <button class="nav-hamburger" id="nav-hamburger">☰</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-container" style="max-width:960px;">
+      <nav class="breadcrumb"><a href="../index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><a
+          href="../comparison-index.html">So sánh</a><span class="breadcrumb-sep">›</span><span
+          class="breadcrumb-current">rdrobust vs rdlocrand</span></nav>
+
+      <div class="page-title-block">
+        <h1><code>rdrobust</code> vs <code>rdlocrand</code></h1>
+        <p class="page-subtitle">Giả định tính liên tục vs giả định ngẫu nhiên hóa cục bộ trong RD</p>
+      </div>
+
+      <div class="comparison-table-wrapper">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Tiêu chí</th>
+              <th>rdrobust</th>
+              <th>rdlocrand</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Logic định danh</td>
+              <td>Tính liên tục của kết quả tiềm năng tại điểm cắt</td>
+              <td>Gần như phân bổ ngẫu nhiên trong cửa sổ hẹp</td>
+            </tr>
+            <tr>
+              <td>Đầu ra điển hình</td>
+              <td>Ước lượng đa thức cục bộ đã hiệu chệch</td>
+              <td>Giá trị p dựa trên ngẫu nhiên hóa trong cửa sổ đã chọn</td>
+            </tr>
+            <tr>
+              <td>Độ nhạy chính</td>
+              <td>Lựa chọn băng thông và bậc đa thức</td>
+              <td>Lựa chọn cửa sổ và tính hợp lý của sự cân bằng</td>
+            </tr>
+            <tr>
+              <td>Vai trò đề xuất</td>
+              <td>Ước lượng RD chính</td>
+              <td>Kiểm tra độ vững</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 style="margin-top:1.25rem;">Sử dụng cả hai trong các bài báo RD nghiêm túc</h2>
+      <div class="code-wrapper">
+        <pre class="language-stata"><code>* Ước lượng chính dựa trên tính liên tục
+rddensity runvar, c(0)
+rdrobust y runvar, c(0) bwselect(mserd)
+
+* Độ vững dựa trên ngẫu nhiên hóa cục bộ
+rdwinselect y runvar, c(0)
+rdlocrand y runvar, c(0) wl(5) wr(5)</code></pre><button class="copy-btn">Sao chép</button>
+      </div>
+
+      <div class="verdict-box" style="margin-top:1rem;">
+        <div class="verdict-label">Kết luận</div>
+        <p>Sử dụng <strong>rdrobust</strong> làm trình ước lượng RD chính của bạn. Thêm <strong>rdlocrand</strong> để
+          chứng minh rằng các phát hiện là vững dưới góc nhìn ngẫu nhiên hóa cục bộ.</p>
+      </div>
+
+      <div style="margin-top:1rem;display:flex;gap:.75rem;flex-wrap:wrap;">
+        <a href="../commands/command.html?cmd=rdrobust" class="btn-primary">Hướng dẫn rdrobust →</a>
+        <a href="../commands/command.html?cmd=rdlocrand" class="btn-secondary">Hướng dẫn rdlocrand →</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <h4>Liên quan</h4>
+        <ul>
+          <li><a href="../commands/command.html?cmd=rdrobust-advanced">Quy trình RD nâng cao</a></li>
+          <li><a href="../categories/causal-inference.html">Danh mục nhân quả</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">Stata Kinh Tế Lượng Task View · Tài nguyên học thuật cho kinh tế lượng ứng dụng</div>
+  </footer>
+
+  <script src="../assets/js/navigation.js"></script>
+</body>
+
+</html>

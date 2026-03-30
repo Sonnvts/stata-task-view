@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>csdid vs drdid — Stata Kinh Tế Lượng Task View</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+</head>
+<body>
+<nav class="site-nav"><div class="nav-inner">
+  <a class="nav-brand" href="../index.html">Stata <span>Task View</span></a>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="../index.html">Trang chủ</a></li>
+    <li><a href="../categories/staggered-did.html">DID theo giai đoạn</a></li>
+    <li><a href="../comparison-index.html">Tất cả so sánh</a></li>
+  </ul>
+  <button class="nav-hamburger" id="nav-hamburger">☰</button>
+</div></nav>
+
+<main><div class="page-container" style="max-width:960px;">
+<nav class="breadcrumb"><a href="../index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><a href="../comparison-index.html">So sánh</a><span class="breadcrumb-sep">›</span><span class="breadcrumb-current">csdid vs drdid</span></nav>
+<div class="page-title-block">
+  <h1><code>csdid</code> vs. <code>drdid</code></h1>
+  <p class="page-subtitle">Khung DID theo giai đoạn và động cơ ước lượng kép vững của nó</p>
+</div>
+
+<div class="callout callout-info"><div class="callout-title">Mối quan hệ</div>
+  <p><strong>csdid là khung; drdid là ước lượng.</strong> csdid gọi drdid nội bộ cho mỗi tính toán ATT nhóm-thời gian. Trong hầu hết các ứng dụng, bạn sẽ dùng csdid và chỉ định phương pháp ước lượng (drdid là mặc định qua method(dripw)).</p>
+</div>
+
+<div class="vs-cards">
+  <div class="vs-card vs-recommended">
+    <div class="vs-card-header"><span class="vs-card-name">csdid</span><span class="badge badge-ssc">SSC</span></div>
+    <p style="font-size:.875rem;color:var(--muted-fg);">Callaway &amp; Sant'Anna (2021) — khung DID theo giai đoạn</p>
+    <ul class="vs-pro">
+      <li>Xử lý áp dụng can thiệp theo giai đoạn</li>
+      <li>Ước lượng ATT nhóm-thời gian: ATT(g,t)</li>
+      <li>Tổng hợp thành các tóm tắt dễ giải thích</li>
+      <li>Biểu đồ nghiên cứu sự kiện tích hợp (csdid_plot)</li>
+      <li>Gọi drdid nội bộ cho mỗi so sánh 2×2</li>
+    </ul>
+  </div>
+  <div class="vs-card">
+    <div class="vs-card-header"><span class="vs-card-name">drdid</span><span class="badge badge-ssc">SSC</span></div>
+    <p style="font-size:.875rem;color:var(--muted-fg);">Sant'Anna &amp; Zhao (2020) — DID 2 giai đoạn kép vững</p>
+    <ul class="vs-pro">
+      <li>Nhất quán nếu mô hình điểm xu hướng hoặc kết quả đúng</li>
+      <li>Có thể dùng trực tiếp cho bảng 2 giai đoạn hoặc mặt cắt ngang lặp lại</li>
+      <li>Nhiều lựa chọn ước lượng (dripw, drimp, ipwra...)</li>
+    </ul>
+    <ul class="vs-con" style="margin-top:.5rem;"><li>Chỉ xử lý thiết kế 2 giai đoạn trực tiếp</li><li>Cho thiết kế theo giai đoạn, dùng qua csdid</li></ul>
+  </div>
+</div>
+
+<div class="code-wrapper">
+  <pre class="language-stata"><code>* Cài đặt tất cả gói
+ssc install csdid
+ssc install drdid
+ssc install event_plot
+
+* ── Quy trình csdid điển hình ──────────────────────────────
+* gvar = năm can thiệp lần đầu (0 = không bao giờ được can thiệp)
+csdid outcome, ivar(unitid) tvar(year) gvar(gvar)
+
+* Với ước lượng kép vững (động cơ drdid, khuyến nghị)
+csdid outcome age educ, ivar(unitid) tvar(year) gvar(gvar) ///
+  method(dripw) wboot reps(999)
+
+* Biểu đồ nghiên cứu sự kiện
+csdid_plot, title("Hiệu ứng can thiệp động")
+
+* Ước lượng tổng hợp
+estat simple    // ATT trung bình đơn giản
+estat event     // ATT nghiên cứu sự kiện (động)
+estat group     // ATT theo nhóm
+estat calendar  // ATT theo thời gian lịch
+
+* ── drdid trực tiếp cho thiết kế 2 giai đoạn ───────────────
+drdid outcome age educ, ivar(unitid) tvar(year) ///
+  time(post) treatment(treated) estimator(dripw)</code></pre>
+  <button class="copy-btn">Sao chép</button>
+</div>
+
+<div class="comparison-table-wrapper">
+  <table class="comparison-table">
+    <thead><tr><th class="feature-name">Tiêu chí</th><th>csdid</th><th>drdid (trực tiếp)</th></tr></thead>
+    <tbody>
+      <tr><td class="feature-name">Can thiệp theo giai đoạn</td><td class="good">✓ Có — được thiết kế cho điều này</td><td>Chỉ 2 giai đoạn (bảng hoặc RCS)</td></tr>
+      <tr><td class="feature-name">Nghiên cứu sự kiện</td><td class="good">✓ Tích hợp qua csdid_plot</td><td>Thủ công</td></tr>
+      <tr><td class="feature-name">Kép vững</td><td class="good">✓ Qua method(dripw)</td><td class="good">✓ Nhiều ước lượng</td></tr>
+      <tr><td class="feature-name">Mặt cắt ngang lặp lại</td><td>Chỉ bảng</td><td class="good">✓ Cả bảng lẫn RCS</td></tr>
+      <tr><td class="feature-name">Khuyến nghị cho</td><td>Thiết kế theo giai đoạn (mặc định nghiên cứu)</td><td>Thiết kế 2 giai đoạn hoặc gọi qua csdid</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="verdict-box">
+  <div class="verdict-label">Kết luận</div>
+  <p><strong>Cho DID theo giai đoạn, dùng csdid làm điểm bắt đầu.</strong> Chỉ định method(dripw) để dùng ước lượng drdid kép vững nội bộ. Chỉ dùng drdid trực tiếp cho thiết kế 2 giai đoạn hoặc khi bạn cần làm việc với mặt cắt ngang lặp lại. Hiểu drdid quan trọng cho công việc ở cấp chuyên gia, nhưng với hầu hết ứng dụng, csdid với method(dripw) mang lại lợi ích của ước lượng kép vững mà không thêm phức tạp.</p>
+</div>
+<div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:1.5rem;">
+  <a href="../commands/command.html?cmd=csdid" class="btn-primary">Hướng dẫn đầy đủ csdid →</a>
+  <a href="../commands/command.html?cmd=drdid" class="btn-secondary">Hướng dẫn drdid</a>
+  <a href="did-simple-vs-csdid.html" class="btn-secondary">DID đơn giản vs csdid →</a>
+</div>
+</div></main>
+<footer class="site-footer"><div class="footer-inner"><div class="footer-col"><h4>Liên quan</h4><ul>
+  <li><a href="did-simple-vs-csdid.html">DID đơn giản vs csdid</a></li>
+  <li><a href="../categories/staggered-did.html">DID theo giai đoạn</a></li>
+</ul></div></div><div class="footer-bottom">Stata Kinh Tế Lượng Task View · Tài nguyên học thuật cho kinh tế lượng ứng dụng</div></footer>
+<script src="../assets/js/navigation.js"></script>
+</body></html>

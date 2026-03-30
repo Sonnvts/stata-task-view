@@ -1,0 +1,48 @@
+# ── Stata Task View .gitignore ───────────────────────────
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python cache
+*.pyc
+*.pyo
+.Python
+__pycache__/
+
+# Temp
+*.tmp
+*.temp
+.cache/
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# Local dev secrets
+.env
+.env.local
+
+# Build output (none for static site, but just in case)
+dist/
+build/
+out/
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+
+# External media — host on CDN or GitHub LFS
+video_background.mp4
+
+# Logo & branding images (keep in assets/images/ for local dev)
+assets/images/hero-video-poster.jpg
+assets/images/ueh-fb-logo.png
+
+# Do NOT track project scaffold folders
+__ref_antigravity/
+.sixth/
+.opencode/
+"Comprehensive Stata Documentation [IMPROVED]"/

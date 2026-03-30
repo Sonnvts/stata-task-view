@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>boottest vs cluster SE — Stata Kinh Tế Lượng Task View</title>
+  <meta name="description"
+    content="Khi nào nên sử dụng wild-cluster bootstrap (boottest) so với sai số chuẩn cụm thông thường.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+</head>
+
+<body>
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="../index.html">Stata <span>Task View</span></a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../index.html">Trang chủ</a></li>
+        <li><a href="../categories/panel-data.html">Dữ liệu bảng</a></li>
+        <li><a href="../comparison-index.html">Tất cả so sánh</a></li>
+      </ul>
+      <button class="nav-hamburger" id="nav-hamburger">☰</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-container" style="max-width:960px;">
+      <nav class="breadcrumb"><a href="../index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><a
+          href="../comparison-index.html">So sánh</a><span class="breadcrumb-sep">›</span><span
+          class="breadcrumb-current">boottest vs cluster SE</span></nav>
+
+      <div class="page-title-block">
+        <h1><code>boottest</code> vs <code>vce(cluster ...)</code> thông thường</h1>
+        <p class="page-subtitle">Suy luận khi có ít cụm là điểm yếu của nhiều bài báo thực nghiệm</p>
+      </div>
+
+      <div class="comparison-table-wrapper">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Trường hợp</th>
+              <th>SE cụm thông thường</th>
+              <th>boottest</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Nhiều cụm (vd: > 50)</td>
+              <td>Thường chấp nhận được</td>
+              <td>Kiểm tra độ vững bổ sung</td>
+            </tr>
+            <tr>
+              <td>Số cụm trung bình (20-50)</td>
+              <td>Có thể không ổn định</td>
+              <td>Đề xuất kiểm tra</td>
+            </tr>
+            <tr>
+              <td>Ít cụm (< 30)</td>
+              <td>Thường bác bỏ quá mức</td>
+              <td>Suy luận được ưu tiên</td>
+            </tr>
+            <tr>
+              <td>Rất ít cụm (< 10)</td>
+              <td>Rủi ro cao về dương tính giả</td>
+              <td>Được khuyến nghị mạnh mẽ</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 style="margin-top:1.5rem;">Cấu trúc mã</h2>
+      <div class="code-wrapper">
+        <pre class="language-stata"><code>* Mô hình chính với SE phân cụm
+reghdfe y treat x1, absorb(id year) vce(cluster state)
+
+* Giá trị p wild-cluster bootstrap
+boottest treat, cluster(state) reps(9999) seed(42)</code></pre><button class="copy-btn">Sao chép</button>
+      </div>
+
+      <div class="callout callout-warning" style="margin-top:1rem;">
+        <div class="callout-title">Quy tắc báo cáo</div>
+        <p>Nếu số lượng cụm ít, hãy báo cáo giá trị p của boottest trong bảng chính và giá trị p của SE cụm thông thường
+          trong ghi chú phụ lục.</p>
+      </div>
+
+      <div style="margin-top:1rem;display:flex;gap:.75rem;flex-wrap:wrap;">
+        <a href="../commands/command.html?cmd=boottest" class="btn-primary">Hướng dẫn boottest →</a>
+        <a href="../commands/command.html?cmd=robust-se" class="btn-secondary">Hướng dẫn SE phân cụm →</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <h4>Liên quan</h4>
+        <ul>
+          <li><a href="../commands/command.html?cmd=ivreg2">ivreg2</a></li>
+          <li><a href="../commands/command.html?cmd=reghdfe">reghdfe</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">Stata Kinh Tế Lượng Task View · Tài nguyên học thuật cho kinh tế lượng ứng dụng</div>
+  </footer>
+
+  <script src="../assets/js/navigation.js"></script>
+</body>
+
+</html>

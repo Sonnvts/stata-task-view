@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suy diễn nhân quả — Stata Kinh Tế Lượng Task View</title>
+  <meta name="description"
+    content="DID, ghép điểm xu hướng và gián đoạn hồi quy trong Stata. diff, psmatch2, rdrobust — khi nào dùng từng phương pháp.">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/print.css" media="print">
+</head>
+
+<body>
+  <div class="noise-overlay" aria-hidden="true"></div>
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="../index.html">Stata <span>Task View</span></a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../index.html">Trang chủ</a></li>
+        <li class="nav-dropdown"><button class="nav-dropdown-btn">Danh mục ▾</button>
+          <div class="nav-dropdown-menu">
+            <a href="ols-diagnostics.html">OLS &amp; Kiểm định</a>
+            <a href="limited-dependent.html">Biến phụ thuộc giới hạn</a>
+            <a href="panel-data.html">Dữ liệu bảng</a>
+            <a href="iv-endogeneity.html">Biến công cụ &amp; Nội sinh</a>
+            <a href="time-series.html">Chuỗi thời gian</a>
+            <a href="causal-inference.html" class="active">Suy diễn nhân quả</a>
+            <a href="staggered-did.html">DID theo giai đoạn</a>
+            <a href="ml-econometrics.html">Kinh tế lượng ML</a>
+          </div>
+        </li>
+        <li><a href="../decision-tree.html">Cây quyết định</a></li>
+        <li><a href="../best-packages.html">Gói tốt nhất</a></li>
+      </ul>
+      <button class="nav-search-btn" id="nav-search-btn">🔍 Tìm kiếm</button>
+      <button class="nav-hamburger" id="nav-hamburger" aria-label="Bật/tắt menu">☰</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-container">
+      <nav class="breadcrumb"><a href="../index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><span
+          class="breadcrumb-current">Suy diễn nhân quả</span></nav>
+
+      <div class="page-title-block">
+        <h1>⚡ Phương pháp suy diễn nhân quả</h1>
+        <p class="page-subtitle">DID, ghép điểm xu hướng và gián đoạn hồi quy — tìm hiệu ứng nhân quả trong dữ liệu quan sát</p>
+      </div>
+
+      <!-- Tổng quan -->
+      <section style="margin-bottom:2rem;">
+        <h2>Tổng quan</h2>
+        <p>Suy diễn nhân quả là về ước lượng <em>điều gì đã xảy ra</em> với các đơn vị được xử lý nếu họ không được xử lý — vấn đề phản thực cơ bản. Dữ liệu quan sát đòi hỏi <strong>chiến lược nhận dạng đáng tin cậy</strong> để so sánh này hợp lệ.</p>
+        <p>Ba thiết kế bán thực nghiệm chính được đề cập ở đây:</p>
+        <ul>
+          <li><strong>Sai phân kép (DID):</strong> So sánh nhóm xử lý và nhóm kiểm soát trước và sau xử lý. Yêu cầu giả định xu hướng song song.</li>
+          <li><strong>Ghép điểm xu hướng (PSM):</strong> Ghép các đơn vị xử lý với các đơn vị kiểm soát quan sát được tương tự. Chỉ hợp lệ khi lựa chọn theo biến quan sát được.</li>
+          <li><strong>Gián đoạn hồi quy (RD):</strong> Khai thác ngưỡng trong biến chạy. Hợp lệ nội bộ gần điểm cắt.</li>
+        </ul>
+        <div class="callout callout-warning">
+          <div class="callout-title">⚠ DID theo giai đoạn là khác biệt</div>
+          <p>Nếu thời điểm xử lý thay đổi giữa các đơn vị (áp dụng theo giai đoạn), KHÔNG dùng DID 2×2 cổ điển hoặc hồi quy TWFE. Ước lượng cổ điển bị chệch khi có hiệu ứng điều trị không đồng nhất. Xem <a href="staggered-did.html">DID theo giai đoạn</a> để dùng <code>csdid</code> và <code>drdid</code>.</p>
+        </div>
+      </section>
+
+      <!-- Lọc -->
+      <div class="filter-bar">
+        <label>Lọc theo:</label>
+        <select class="filter-select" data-filter-key="difficulty">
+          <option value="all">Tất cả cấp độ</option>
+          <option value="beginner">Cơ bản</option>
+          <option value="intermediate">Trung cấp</option>
+          <option value="advanced">Nâng cao</option>
+        </select>
+        <button class="filter-clear" id="filter-clear">Xóa</button>
+        <span class="filter-count" id="filter-count"></span>
+      </div>
+
+      <!-- Thẻ lệnh -->
+      <div class="cmd-grid" id="cmd-grid">
+
+        <a class="cmd-card" href="../commands/command.html?cmd=diff"
+          data-tags='{"difficulty":"intermediate","install":"ssc"}'>
+          <div class="cmd-card-header">
+            <div>
+              <div class="cmd-card-name">diff</div>
+              <div class="cmd-card-title">Sai phân kép (DID)</div>
+            </div>
+            <span class="badge badge-ssc">SSC</span>
+          </div>
+          <div class="cmd-card-desc">DID 2×2 cổ điển cho thiết kế sạch hai giai đoạn, hai nhóm. Yêu cầu giả định xu hướng song song trước xử lý. Với thời điểm xử lý theo giai đoạn, dùng csdid thay thế.</div>
+          <div class="cmd-card-footer"><span class="badge badge-intermediate">Trung cấp</span><span
+              class="tag-pill">DID</span><span class="tag-pill">xu hướng song song</span><span class="tag-pill">thí nghiệm tự nhiên</span></div>
+        </a>
+
+        <a class="cmd-card" href="../commands/command.html?cmd=psmatch2"
+          data-tags='{"difficulty":"intermediate","install":"ssc"}'>
+          <div class="cmd-card-header">
+            <div>
+              <div class="cmd-card-name">psmatch2</div>
+              <div class="cmd-card-title">Ghép điểm xu hướng</div>
+            </div>
+            <span class="badge badge-ssc">SSC</span>
+          </div>
+          <div class="cmd-card-desc">Ước lượng ATT bằng cách ghép các đơn vị xử lý với các đơn vị kiểm soát quan sát được tương tự. Chỉ hợp lệ khi có giả định lựa chọn theo biến quan sát được mạnh. Luôn kiểm tra cân bằng biến đồng biến sau ghép.</div>
+          <div class="cmd-card-footer"><span class="badge badge-intermediate">Trung cấp</span><span
+              class="tag-pill">ghép</span><span class="tag-pill">ATT</span><span class="tag-pill">điểm xu hướng</span></div>
+        </a>
+
+        <a class="cmd-card" href="../commands/command.html?cmd=rdrobust"
+          data-tags='{"difficulty":"intermediate","install":"ssc"}'>
+          <div class="cmd-card-header">
+            <div>
+              <div class="cmd-card-name">rdrobust</div>
+              <div class="cmd-card-title">Gián đoạn hồi quy</div>
+            </div>
+            <span class="badge badge-ssc">SSC</span>
+          </div>
+          <div class="cmd-card-desc">Tiêu chuẩn vàng cho thiết kế RD. Ước lượng hiệu ứng nhân quả tại ngưỡng dùng hồi quy đa thức cục bộ. Luôn chạy rddensity (kiểm định can thiệp) và rdplot đồng thời.</div>
+          <div class="cmd-card-footer"><span class="badge badge-intermediate">Trung cấp</span><span
+              class="tag-pill">RD</span><span class="tag-pill">điểm cắt</span><span class="tag-pill">đa thức cục bộ</span></div>
+        </a>
+
+      </div>
+
+      <!-- Bảng so sánh chiến lược -->
+      <section style="margin-top:2.5rem;">
+        <h2>Lựa chọn chiến lược nhận dạng</h2>
+        <div class="comparison-table-wrapper">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Phương pháp</th>
+                <th>Lệnh</th>
+                <th>Giả định chính</th>
+                <th>Có thể kiểm định?</th>
+                <th>Mối đe dọa</th>
+                <th>Gói Stata</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Sai phân kép</td>
+                <td><code>diff</code></td>
+                <td>Xu hướng song song (giai đoạn trước)</td>
+                <td class="ok">Một phần (kiểm định xu hướng trước)</td>
+                <td>Cú sốc chung, dự đoán trước</td>
+                <td><span class="badge badge-ssc">SSC</span></td>
+              </tr>
+              <tr>
+                <td>Ghép điểm xu hướng</td>
+                <td><code>psmatch2</code></td>
+                <td>Lựa chọn theo biến quan sát được (CIA)</td>
+                <td class="bad">Không trực tiếp</td>
+                <td>Yếu tố gây nhiễu không quan sát được</td>
+                <td><span class="badge badge-ssc">SSC</span></td>
+              </tr>
+              <tr>
+                <td>Gián đoạn hồi quy (sắc nét)</td>
+                <td><code>rdrobust</code></td>
+                <td>Liên tục tại điểm cắt; không can thiệp</td>
+                <td class="good">Hầu hết (kiểm định mật độ)</td>
+                <td>Can thiệp, gián đoạn điểm cắt khác</td>
+                <td><span class="badge badge-ssc">SSC</span></td>
+              </tr>
+              <tr>
+                <td>DID theo giai đoạn</td>
+                <td><code>csdid</code></td>
+                <td>Xu hướng song song có điều kiện; không dự đoán trước</td>
+                <td class="ok">Event study xu hướng trước</td>
+                <td>Như DID + không đồng nhất hiệu ứng điều trị</td>
+                <td><span class="badge badge-ssc">SSC</span></td>
+              </tr>
+              <tr>
+                <td>Kiểm soát tổng hợp</td>
+                <td><code>synth</code></td>
+                <td>Phù hợp trước xử lý; không gây nhiễu</td>
+                <td class="ok">Chất lượng phù hợp trước (RMSPE)</td>
+                <td>Phù hợp kém, gây nhiễu</td>
+                <td><span class="badge badge-ssc">SSC</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Quy trình DID -->
+      <section style="margin-top:2rem;">
+        <h2>DID: Quy trình event study chuẩn</h2>
+        <p>Với DID 2×2 sạch, luôn trình bày đồ thị event study hiển thị xu hướng trước xử lý và động thái sau xử lý. Điều này xác nhận giả định xu hướng song song và tiết lộ liệu hiệu ứng có bền vững hay tạm thời.</p>
+        <div class="code-wrapper">
+          <pre class="language-stata"><code>* Hai cách tiếp cận DID:
+
+* 1. Dùng gói diff (giao diện đơn giản)
+ssc install diff
+diff outcome, treated(treat_dummy) period(post_dummy) ///
+  vce(cluster groupid)
+
+* 2. Cách tiếp cận hồi quy (linh hoạt hơn)
+reg outcome i.treated##i.post controls, vce(cluster groupid)
+
+* Event study: kiểm định xu hướng trước + trực quan hóa động thái
+reg outcome i.year##i.treated controls, vce(cluster groupid)
+
+* Đồ thị: so sánh hệ số với t=-1 (mốc cơ sở bị bỏ qua)
+coefplot, keep(*year*1.treated) omitted drop(0.year*) ///
+  yline(0) vertical xline(4.5, lp(dash)) ///
+  title("Event study: Hiệu ứng điều trị theo thời gian")</code></pre>
+          <button class="copy-btn">Sao chép</button>
+        </div>
+      </section>
+
+      <!-- Quy trình RD -->
+      <section style="margin-top:2rem;">
+        <h2>RD: Bộ công cụ rdrobust đầy đủ</h2>
+        <div class="code-wrapper">
+          <pre class="language-stata"><code>* Cài đặt bộ rdrobust
+ssc install rdrobust
+ssc install rddensity
+ssc install rdplot
+
+* Bước 1: Kiểm tra trực quan — luôn bắt đầu tại đây
+rdplot outcome running_var, c(0)
+
+* Bước 2: Kiểm định can thiệp (gián đoạn mật độ tại điểm cắt)
+rddensity running_var, c(0)
+* Không có ý nghĩa thống kê → không có bằng chứng can thiệp
+
+* Bước 3: Ước lượng RD chính với băng thông tối ưu
+rdrobust outcome running_var, c(0) robust
+
+* Bước 4: Kiểm tra độ nhạy với băng thông (kiểm tra sự vững không chính thức)
+rdrobust outcome running_var, c(0) h(3 6 9)
+
+* Bước 5: Kiểm định biến kết quả giả
+rdrobust pre_period_outcome running_var, c(0)
+* Phải không có ý nghĩa thống kê — xác nhận tính hợp lệ RD
+
+* Bước 6: Báo cáo CI vững đã sửa chệch, không phải CI thông thường</code></pre>
+          <button class="copy-btn">Sao chép</button>
+        </div>
+      </section>
+
+      <!-- Hạn chế của ghép -->
+      <section style="margin-top:2rem;">
+        <h2>Tại sao ghép thường không đủ</h2>
+        <div class="callout callout-danger">
+          <div class="callout-title">Hạn chế cơ bản của psmatch2</div>
+          <p>Ghép điểm xu hướng chỉ loại bỏ chệch lựa chọn do các biến <strong>quan sát được</strong>. Trong hầu hết các bối cảnh kinh tế và chính sách, các yếu tố quan trọng nhất dẫn đến lựa chọn vào điều trị là <strong>không quan sát được</strong> (động lực, năng lực, mạng xã hội, kỳ vọng). Ghép không thể giải quyết những điều này.</p>
+          <p>Quy tắc kinh nghiệm: <strong>Nếu bạn có thí nghiệm tự nhiên hợp lệ, bạn sẽ không cần ghép.</strong> Chỉ dùng ghép khi có lý do lý thuyết mạnh để tin rằng lựa chọn hoàn toàn được điều khiển bởi các biến quan sát được trong bộ dữ liệu của bạn — và luôn thực hiện phân tích độ nhạy giới hạn Rosenbaum.</p>
+        </div>
+      </section>
+
+      <!-- Sai lầm phổ biến -->
+      <section style="margin-top:2rem;">
+        <h2>Sai lầm phổ biến</h2>
+        <div class="callout callout-danger">
+          <div class="callout-title">Sai lầm hàng đầu</div>
+          <ul>
+            <li><strong>Dùng DID cổ điển cho xử lý theo giai đoạn</strong> — Lỗi hiện đại phổ biến nhất. Nếu các đơn vị khác nhau nhận xử lý vào các thời điểm khác nhau, dùng <a href="staggered-did.html">csdid</a>, không phải TWFE</li>
+            <li><strong>Không vẽ đồ thị event study cho DID</strong> — Kiểm định xu hướng song song trực quan trước xử lý là bắt buộc; chỉ có bảng là không đủ</li>
+            <li><strong>Dùng psmatch2 không kiểm tra cân bằng</strong> — Mẫu sau ghép với cân bằng biến đồng biến kém tệ hơn OLS</li>
+            <li><strong>Không chạy rddensity trước rdrobust</strong> — Gián đoạn mật độ tại điểm cắt làm vô hiệu thiết kế RD</li>
+            <li><strong>Ngoại suy ước lượng RD ra ngoài điểm cắt</strong> — RD chỉ nhận dạng hiệu ứng điều trị trung bình cục bộ gần ngưỡng</li>
+          </ul>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <h4>So sánh</h4>
+        <ul>
+          <li><a href="../comparisons/did-simple-vs-csdid.html">DID đơn giản vs csdid</a></li>
+          <li><a href="../comparisons/psmatch2-vs-rdrobust.html">psmatch2 vs rdrobust</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Liên quan</h4>
+        <ul>
+          <li><a href="staggered-did.html">DID theo giai đoạn</a></li>
+          <li><a href="../decision-tree.html">Cây quyết định</a></li>
+          <li><a href="../common-mistakes.html">Sai lầm phổ biến</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">Stata Kinh Tế Lượng Task View · Tài nguyên học thuật cho kinh tế lượng ứng dụng</div>
+  </footer>
+
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/filter.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      StataFilter.initCategoryFilter({ gridId: 'cmd-grid', countId: 'filter-count', clearId: 'filter-clear' });
+    });
+  </script>
+</body>
+
+</html>

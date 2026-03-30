@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biến phụ thuộc giới hạn — Stata Kinh Tế Lượng Task View</title>
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/print.css" media="print">
+</head>
+<body>
+<nav class="site-nav"><div class="nav-inner">
+  <a class="nav-brand" href="../index.html">Stata <span>Task View</span></a>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="../index.html">Trang chủ</a></li>
+    <li class="nav-dropdown"><button class="nav-dropdown-btn">Danh mục ▾</button>
+      <div class="nav-dropdown-menu">
+        <a href="ols-diagnostics.html">OLS &amp; Kiểm định</a>
+        <a href="limited-dependent.html" class="active">Biến phụ thuộc giới hạn</a>
+        <a href="panel-data.html">Dữ liệu bảng</a>
+        <a href="iv-endogeneity.html">Biến công cụ &amp; Nội sinh</a>
+        <a href="time-series.html">Chuỗi thời gian</a>
+        <a href="causal-inference.html">Suy diễn nhân quả</a>
+        <a href="staggered-did.html">DID theo giai đoạn</a>
+        <a href="ml-econometrics.html">Kinh tế lượng ML</a>
+      </div></li>
+    <li><a href="../decision-tree.html">Cây quyết định</a></li>
+  </ul>
+  <button class="nav-hamburger" id="nav-hamburger">☰</button>
+</div></nav>
+
+<main><div class="page-container">
+<nav class="breadcrumb"><a href="../index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><span class="breadcrumb-current">Biến phụ thuộc giới hạn</span></nav>
+<div class="page-title-block">
+  <h1>🎯 Mô hình biến phụ thuộc giới hạn</h1>
+  <p class="page-subtitle">Biến kết quả nhị phân, kiểm duyệt và rút cụt sử dụng hợp lý cực đại</p>
+</div>
+
+<section style="margin-bottom:2rem;">
+  <h2>Tổng quan</h2>
+  <p>Khi biến kết quả là nhị phân, kiểm duyệt hoặc rút cụt, OLS không phù hợp. Mô hình xác suất tuyến tính (OLS trên biến kết quả 0/1) có thể dự báo xác suất ngoài khoảng [0,1] và phương sai sai số của nó không đồng đều theo cấu trúc.</p>
+  <p>Dùng logit hoặc probit cho biến kết quả nhị phân. Chỉ dùng tobit khi giá trị không (zero) đại diện cho kiểm duyệt thống kê — không phải lựa chọn kinh tế (nghiệm góc).</p>
+  <div class="callout callout-danger"><div class="callout-title">Quy tắc quan trọng</div>
+    <p><strong>Không bao giờ giải thích hệ số logit/probit trực tiếp.</strong> Chúng là tỷ số log-odds hoặc hệ số biến ẩn. Luôn chạy <code>margins, dydx(*)</code> để lấy Hiệu ứng biên trung bình (AME) tính bằng đơn vị xác suất.</p>
+  </div>
+</section>
+
+<div class="cmd-grid" id="cmd-grid">
+  <a class="cmd-card" href="../commands/command.html?cmd=logit" data-tags='{"difficulty":"beginner","install":"builtin"}'>
+    <div class="cmd-card-header"><div><div class="cmd-card-name">logit</div><div class="cmd-card-title">Hồi quy logistic</div></div><span class="badge badge-builtin">Có sẵn</span></div>
+    <div class="cmd-card-desc">Mặc định cho biến kết quả nhị phân (0/1). Dùng hàm phân phối logistic. Luôn theo sau bằng <code>margins, dydx(*)</code> để lấy Hiệu ứng biên trung bình.</div>
+    <div class="cmd-card-footer"><span class="badge badge-beginner">Cơ bản</span><span class="tag-pill">nhị phân</span><span class="tag-pill">MLE</span></div>
+  </a>
+  <a class="cmd-card" href="../commands/command.html?cmd=probit" data-tags='{"difficulty":"beginner","install":"builtin"}'>
+    <div class="cmd-card-header"><div><div class="cmd-card-name">probit</div><div class="cmd-card-title">Hồi quy probit</div></div><span class="badge badge-builtin">Có sẵn</span></div>
+    <div class="cmd-card-desc">Mô hình biến kết quả nhị phân dùng hàm phân phối chuẩn. Chạy để kiểm tra sự vững song song với logit — hiệu ứng biên trong thực tế gần như giống nhau.</div>
+    <div class="cmd-card-footer"><span class="badge badge-beginner">Cơ bản</span><span class="tag-pill">nhị phân</span><span class="tag-pill">MLE</span></div>
+  </a>
+  <a class="cmd-card" href="../commands/command.html?cmd=tobit" data-tags='{"difficulty":"intermediate","install":"builtin"}'>
+    <div class="cmd-card-header"><div><div class="cmd-card-name">tobit</div><div class="cmd-card-title">Hồi quy kiểm duyệt</div></div><span class="badge badge-builtin">Có sẵn</span></div>
+    <div class="cmd-card-desc">Dành cho biến kết quả bị kiểm duyệt tại ranh giới (số giờ làm việc ≥ 0, chi tiêu ≥ 0). Chỉ dùng khi giá trị không đại diện cho kiểm duyệt thống kê, không phải lựa chọn kinh tế.</div>
+    <div class="cmd-card-footer"><span class="badge badge-intermediate">Trung cấp</span><span class="tag-pill">kiểm duyệt</span><span class="tag-pill">nghiệm góc</span></div>
+  </a>
+  <a class="cmd-card" href="../commands/command.html?cmd=margins" data-tags='{"difficulty":"intermediate","install":"builtin"}'>
+    <div class="cmd-card-header"><div><div class="cmd-card-name">margins</div><div class="cmd-card-title">Hiệu ứng biên &amp; Dự báo</div></div><span class="badge badge-builtin">Có sẵn</span></div>
+    <div class="cmd-card-desc">Tính Hiệu ứng biên trung bình (AME), xác suất dự báo và trực quan hóa marginsplot. Cần thiết sau mọi mô hình phi tuyến.</div>
+    <div class="cmd-card-footer"><span class="badge badge-intermediate">Trung cấp</span><span class="tag-pill">AME</span><span class="tag-pill">sau ước lượng</span></div>
+  </a>
+</div>
+
+<section style="margin-top:2.5rem;">
+  <h2>logit vs probit — điểm thực sự khác nhau</h2>
+  <div class="vs-cards">
+    <div class="vs-card vs-recommended">
+      <div class="vs-card-header"><span class="vs-card-name">logit</span><span class="badge badge-builtin">Có sẵn</span></div>
+      <ul class="vs-pro"><li>Mặc định cho biến kết quả nhị phân</li><li>Hệ số có giải thích tự nhiên theo tỷ số odds</li><li>Phổ biến hơn trong tài liệu kinh tế</li></ul>
+    </div>
+    <div class="vs-card">
+      <div class="vs-card-header"><span class="vs-card-name">probit</span><span class="badge badge-builtin">Có sẵn</span></div>
+      <ul class="vs-pro"><li>Hiệu suất tương đương logit trong thực tế</li><li>Cần thiết cho biprobit, heckprobit</li><li>Dùng để kiểm tra sự vững</li></ul>
+    </div>
+  </div>
+  <div class="verdict-box"><div class="verdict-label">Kết luận</div>
+    <p>Dùng <strong>logit làm mặc định</strong>. Chạy probit để kiểm tra sự vững. Nếu AME từ cả hai mô hình gần giống nhau (hầu như luôn vậy), báo cáo logit là kết quả chính. Giả định phân phối (logistic vs. chuẩn) hiếm khi quan trọng đối với hiệu ứng biên trung bình.</p>
+  </div>
+  <p style="margin-top:1rem;"><a href="../comparisons/logit-vs-probit.html" class="btn-secondary">So sánh đầy đủ logit vs probit →</a></p>
+</section>
+
+<section style="margin-top:2rem;">
+  <h2>Sai lầm phổ biến</h2>
+  <div class="callout callout-danger"><div class="callout-title">Sai lầm hàng đầu</div>
+    <ul>
+      <li><strong>Giải thích hệ số logit như hiệu ứng biên</strong> — chúng là log-odds; luôn dùng margins</li>
+      <li><strong>Dùng MEM thay vì AME</strong> — ưu tiên <code>margins, dydx(*)</code> hơn <code>margins, dydx(*) atmeans</code></li>
+      <li><strong>Dùng tobit cho nghiệm góc</strong> — giá trị không là lựa chọn kinh tế cần mô hình hai phần</li>
+      <li><strong>Không kiểm tra phân tách hoàn hảo</strong> — gây ra logit không hội tụ hoặc cho hệ số cực đoan</li>
+    </ul>
+  </div>
+</section>
+</div></main>
+
+<footer class="site-footer"><div class="footer-inner">
+  <div class="footer-col"><h4>Liên quan</h4><ul>
+    <li><a href="../comparisons/logit-vs-probit.html">logit vs probit</a></li>
+    <li><a href="ols-diagnostics.html">OLS &amp; Kiểm định</a></li>
+  </ul></div>
+</div><div class="footer-bottom">Stata Kinh Tế Lượng Task View · Tài nguyên học thuật cho kinh tế lượng ứng dụng</div></footer>
+<script src="../assets/js/navigation.js"></script>
+</body></html>

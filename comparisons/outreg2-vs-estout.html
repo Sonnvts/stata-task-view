@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>outreg2 vs estout — Stata Kinh Tế Lượng Task View</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+</head>
+<body>
+<nav class="site-nav"><div class="nav-inner">
+  <a class="nav-brand" href="../index.html">Stata <span>Task View</span></a>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="../index.html">Trang chủ</a></li>
+    <li><a href="../categories/ols-diagnostics.html">OLS &amp; Kiểm định</a></li>
+    <li><a href="../comparison-index.html">Tất cả so sánh</a></li>
+  </ul>
+  <button class="nav-hamburger" id="nav-hamburger">☰</button>
+</div></nav>
+
+<main><div class="page-container" style="max-width:960px;">
+<nav class="breadcrumb"><a href="../index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><a href="../comparison-index.html">So sánh</a><span class="breadcrumb-sep">›</span><span class="breadcrumb-current">outreg2 vs estout</span></nav>
+<div class="page-title-block">
+  <h1><code>outreg2</code> vs. <code>estout / esttab</code></h1>
+  <p class="page-subtitle">Hai công cụ chính để tạo bảng kết quả hồi quy trong Stata</p>
+</div>
+
+<div class="vs-cards">
+  <div class="vs-card">
+    <div class="vs-card-header"><span class="vs-card-name">outreg2</span><span class="badge badge-ssc">SSC</span></div>
+    <ul class="vs-pro"><li>Cú pháp đơn giản hơn cho người mới bắt đầu</li><li>Tốt cho cộng tác qua Word/Excel</li><li>Tạo bảng nhanh bằng một dòng lệnh</li></ul>
+    <ul class="vs-con" style="margin-top:.5rem;"><li>Kém linh hoạt hơn để tùy chỉnh LaTeX</li><li>Ít được bảo trì tích cực hơn</li><li>Khó kết hợp các loại mô hình rất khác nhau</li></ul>
+  </div>
+  <div class="vs-card vs-recommended">
+    <div class="vs-card-header"><span class="vs-card-name">estout / esttab</span><span class="badge badge-ssc">SSC</span></div>
+    <ul class="vs-pro">
+      <li>Rất linh hoạt cho LaTeX, HTML, CSV, văn bản</li>
+      <li>Kiểm soát chi tiết về thống kê, nhãn, định dạng</li>
+      <li>Xử lý nhiều loại mô hình khác nhau</li>
+      <li>Quy trình tái tạo: eststo → esttab</li>
+      <li>Được bảo trì và ghi chép tích cực hơn</li>
+    </ul>
+    <ul class="vs-con" style="margin-top:.5rem;"><li>Đường cong học tập ban đầu cao hơn</li></ul>
+  </div>
+</div>
+
+<h2 style="margin-top:2rem;">Cú pháp cạnh nhau</h2>
+<div class="code-wrapper">
+  <pre class="language-stata"><code>* ── Cách tiếp cận outreg2 ──────────────────────────────────
+reg lwage educ, robust
+outreg2 using table1.doc, replace ctitle(Mô hình 1)
+
+reg lwage educ exper, robust
+outreg2 using table1.doc, append ctitle(Mô hình 2)
+
+* ── Cách tiếp cận esttab ───────────────────────────────────
+eststo m1: reg lwage educ, robust
+eststo m2: reg lwage educ exper, robust
+eststo m3: reg lwage educ exper tenure, robust
+
+esttab m1 m2 m3, se star(* 0.10 ** 0.05 *** 0.01) ///
+  label title("Hồi quy lương") stats(N r2_a)
+
+* Kết xuất LaTeX (tùy chỉnh cao)
+esttab m1 m2 m3 using table1.tex, replace ///
+  b(3) se(3) star(* 0.10 ** 0.05 *** 0.01) ///
+  label booktabs fragment nonumber ///
+  title("Hồi quy lương") ///
+  mtitles("Cơ sở" "Kinh nghiệm" "Đầy đủ")</code></pre>
+  <button class="copy-btn">Sao chép</button>
+</div>
+
+<div class="choose-when-grid">
+  <div class="choose-when-box cmd-a">
+    <h4>Dùng outreg2 khi…</h4>
+    <ul>
+      <li>Cộng tác với người dùng không dùng LaTeX (Word/Excel)</li>
+      <li>Kết quả nhanh trong giai đoạn phân tích đầu</li>
+      <li>Dạy người mới cần kết quả ngay lập tức</li>
+    </ul>
+  </div>
+  <div class="choose-when-box cmd-b">
+    <h4>Dùng estout/esttab khi…</h4>
+    <ul>
+      <li>Viết bài báo học thuật với LaTeX</li>
+      <li>So sánh nhiều mô hình trong một bảng</li>
+      <li>Cần kiểm soát chi tiết về định dạng</li>
+      <li>Xây dựng bảng tái tạo, tự động cập nhật</li>
+    </ul>
+  </div>
+</div>
+
+<div class="verdict-box">
+  <div class="verdict-label">Kết luận</div>
+  <p><strong>Dùng estout/esttab làm mặc định cho nghiên cứu nghiêm túc.</strong> Quy trình eststo → esttab tái tạo hơn, linh hoạt hơn và phù hợp hơn để xuất bản. Học outreg2 trước nếu cần cộng tác qua Word, rồi chuyển sang estout cho tất cả nghiên cứu LaTeX.</p>
+</div>
+<a href="../commands/command.html?cmd=estout" class="btn-primary" style="margin-top:1rem;display:inline-block;">Hướng dẫn đầy đủ estout →</a>
+</div></main>
+<footer class="site-footer"><div class="footer-inner"><div class="footer-col"><h4>Liên quan</h4><ul>
+  <li><a href="../categories/ols-diagnostics.html">OLS &amp; Kiểm định</a></li>
+</ul></div></div><div class="footer-bottom">Stata Kinh Tế Lượng Task View · Tài nguyên học thuật cho kinh tế lượng ứng dụng</div></footer>
+<script src="../assets/js/navigation.js"></script>
+</body></html>

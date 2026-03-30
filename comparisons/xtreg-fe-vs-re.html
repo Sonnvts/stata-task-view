@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>xtreg, fe vs xtreg, re — Stata Kinh Tế Lượng Task View</title>
+  <meta name="description"
+    content="Khi nào dùng hiệu ứng cố định vs hiệu ứng ngẫu nhiên trong dữ liệu bảng Stata. Kiểm định Hausman, giả định chính và cách tiếp cận Mundlak.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+</head>
+
+<body>
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="../index.html">Stata <span>Task View</span></a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../index.html">Trang chủ</a></li>
+        <li><a href="../categories/panel-data.html">Dữ liệu bảng</a></li>
+        <li><a href="../comparison-index.html">Tất cả so sánh</a></li>
+      </ul>
+      <button class="nav-hamburger" id="nav-hamburger">☰</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-container" style="max-width:960px;">
+      <nav class="breadcrumb"><a href="../index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><a
+          href="../comparison-index.html">So sánh</a><span class="breadcrumb-sep">›</span><span
+          class="breadcrumb-current">FE vs RE</span></nav>
+      <div class="page-title-block">
+        <h1><code>xtreg, fe</code> vs. <code>xtreg, re</code></h1>
+        <p class="page-subtitle">Hiệu ứng cố định vs Hiệu ứng ngẫu nhiên — quyết định quan trọng nhất trong kinh tế lượng bảng</p>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-title">Câu trả lời ngắn</div>
+        <p><strong>Trong hầu hết các ứng dụng kinh tế, dùng Hiệu ứng cố định (xtreg, fe).</strong> Hiệu ứng ngẫu nhiên chỉ phù hợp khi bạn có lý do lý thuyết và thực nghiệm mạnh để tin rằng hiệu ứng đơn vị không tương quan với tất cả biến hồi quy. Kiểm định Hausman là hướng dẫn chuẩn — nhưng hãy coi FE là mặc định.</p>
+      </div>
+
+      <!-- VS Cards -->
+      <div class="vs-cards">
+        <div class="vs-card vs-recommended">
+          <div class="vs-card-header"><span class="vs-card-name">xtreg, fe</span><span
+              class="badge badge-builtin">Có sẵn</span></div>
+          <p style="font-size:.875rem;color:var(--muted-fg);">Phương pháp: Khử giá trị trung bình trong đơn vị (OLS trên dữ liệu đã khử)</p>
+          <ul class="vs-pro">
+            <li>Nhất quán ngay cả khi hiệu ứng đơn vị tương quan với biến hồi quy</li>
+            <li>Mặc định bảo thủ, dễ bảo vệ trong kinh tế ứng dụng</li>
+            <li>Kiểm soát tất cả tính không đồng nhất không quan sát bất biến theo thời gian</li>
+            <li>Không giả định phân phối hiệu ứng đơn vị</li>
+          </ul>
+          <ul class="vs-con">
+            <li>Không thể ước lượng hệ số biến bất biến theo thời gian (bị hấp thụ bởi FE)</li>
+            <li>Kém hiệu quả hơn RE khi giả định RE thỏa mãn</li>
+            <li>Cần biến động trong đơn vị đối với biến hồi quy chính</li>
+          </ul>
+        </div>
+        <div class="vs-card">
+          <div class="vs-card-header"><span class="vs-card-name">xtreg, re</span><span
+              class="badge badge-builtin">Có sẵn</span></div>
+          <p style="font-size:.875rem;color:var(--muted-fg);">Phương pháp: GLS dùng cả biến động trong và giữa</p>
+          <ul class="vs-pro">
+            <li>Hiệu quả hơn FE khi hiệu ứng đơn vị ⊥ biến hồi quy</li>
+            <li>Có thể ước lượng hệ số biến bất biến theo thời gian</li>
+            <li>Dùng cả biến động trong và giữa → SE thấp hơn</li>
+          </ul>
+          <ul class="vs-con">
+            <li>Không nhất quán nếu hiệu ứng đơn vị tương quan với biến hồi quy — điều này là chuẩn trong kinh tế</li>
+            <li>Giả định chính không thể kiểm tra trừ qua kiểm định Hausman</li>
+            <li>Thường cho kết quả gây hiểu nhầm trong kinh tế thực nghiệm</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Core difference -->
+      <h2 style="margin-top:2rem;">Điểm khác biệt cốt lõi là gì?</h2>
+      <p>Cả hai mô hình bao gồm hiệu ứng đặc thù đơn vị αᵢ. Câu hỏi là về mối quan hệ của chúng với biến hồi quy:</p>
+      <div class="comparison-table-wrapper">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Giả định</th>
+              <th>FE (xtreg, fe)</th>
+              <th>RE (xtreg, re)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Cov(αᵢ, Xᵢₜ)</td>
+              <td class="good">Có thể ≠ 0 (không giới hạn)</td>
+              <td class="bad">Phải bằng 0 (giả định chính)</td>
+            </tr>
+            <tr>
+              <td>Tính nhất quán</td>
+              <td class="good">Luôn (dưới tính ngoại sinh nghiêm ngặt)</td>
+              <td class="ok">Chỉ khi Cov(αᵢ, Xᵢₜ) = 0</td>
+            </tr>
+            <tr>
+              <td>Hiệu quả</td>
+              <td class="ok">Kém hiệu quả hơn (chỉ dùng biến động trong)</td>
+              <td class="good">Hiệu quả hơn khi giả định thỏa mãn</td>
+            </tr>
+            <tr>
+              <td>Biến bất biến theo thời gian</td>
+              <td class="bad">Không thể ước lượng (bị hấp thụ)</td>
+              <td class="good">Được ước lượng</td>
+            </tr>
+            <tr>
+              <td>Sai số chuẩn</td>
+              <td colspan="2" style="text-align:center;">Cả hai cần <code>vce(cluster panelvar)</code></td>
+            </tr>
+            <tr>
+              <td>Công cụ quyết định</td>
+              <td colspan="2" style="text-align:center;">Kiểm định Hausman (hoặc cách tiếp cận Mundlak)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Hausman test code -->
+      <h2 style="margin-top:2rem;">Quy trình kiểm định Hausman chuẩn</h2>
+      <div class="code-wrapper">
+        <pre class="language-stata"><code>xtset firmid year
+
+* Ước lượng FE
+xtreg lwage educ exper i.year, fe
+eststo fe_model
+
+* Ước lượng RE
+xtreg lwage educ exper i.year, re
+eststo re_model
+
+* Kiểm định Hausman: H0 = RE nhất quán (ưu tiên RE vì hiệu quả)
+hausman fe_model re_model, sigmamore
+
+* Giải thích kết quả:
+* p < 0,05  → Bác bỏ H0 → Dùng FE (RE không nhất quán)
+* p > 0,05  → Không bác bỏ → RE có thể phù hợp
+*            (nhưng xem xét n, tiên nghiệm lý thuyết)
+
+* LUÔN phân cụm sau khi quyết định mô hình:
+xtreg lwage educ exper i.year, fe vce(cluster firmid)
+* hoặc:
+xtreg lwage educ exper i.year, re vce(cluster firmid)</code></pre>
+        <button class="copy-btn">Sao chép</button>
+      </div>
+
+      <!-- Mundlak approach -->
+      <h2 style="margin-top:1.5rem;">Cách tiếp cận Mundlak (1978)</h2>
+      <p>Cách tiếp cận Mundlak thường được ưu tiên hơn kiểm định Hausman cổ điển, đặc biệt với bảng không cân bằng hoặc khi bạn muốn dùng RE trong khi kiểm tra liệu FE có cần thiết không.</p>
+      <div class="code-wrapper">
+        <pre class="language-stata"><code>* Cách tiếp cận Mundlak: bao gồm trung bình trong nhóm của biến hồi quy thay đổi theo thời gian
+bysort firmid: egen mean_educ = mean(educ)
+bysort firmid: egen mean_exper = mean(exper)
+
+* Ước lượng RE với các số hạng Mundlak
+xtreg lwage educ exper mean_educ mean_exper i.year, re
+
+* Kiểm định ý nghĩa kết hợp của các số hạng Mundlak
+test mean_educ mean_exper
+
+* Giải thích:
+* p < 0,05 → Số hạng Mundlak có ý nghĩa → FE cần thiết (hiệu ứng đơn vị tương quan với biến hồi quy)
+* p > 0,05 → RE phù hợp</code></pre>
+        <button class="copy-btn">Sao chép</button>
+      </div>
+
+      <!-- Choose FE when / Choose RE when -->
+      <div class="vs-cards" style="margin-top:2rem;">
+        <div class="vs-card vs-recommended">
+          <div class="vs-card-header"><span class="vs-card-name">Chọn FE khi…</span></div>
+          <ul class="vs-pro">
+            <li>Kiểm định Hausman bác bỏ RE (p &lt; 0,05)</li>
+            <li>Lý thuyết kinh tế gợi ý hiệu ứng đơn vị tương quan với biến hồi quy (ví dụ: năng lực doanh nghiệp với đầu tư, năng lực lao động với lương)</li>
+            <li>Bạn muốn ước lượng bảo thủ nhất, dễ bảo vệ nhất</li>
+            <li>Nhận dạng nhân quả dựa trên biến động trong đơn vị theo thời gian</li>
+          </ul>
+        </div>
+        <div class="vs-card">
+          <div class="vs-card-header"><span class="vs-card-name">Chọn RE khi…</span></div>
+          <ul class="vs-pro">
+            <li>Kiểm định Hausman không bác bỏ (p &gt; 0,10)</li>
+            <li>Các đơn vị là mẫu ngẫu nhiên từ tổng thể (dữ liệu khảo sát)</li>
+            <li>Cần ước lượng hệ số biến bất biến theo thời gian (giới tính, chủng tộc, đặc điểm địa lý)</li>
+            <li>Lý do lý thuyết mạnh cho Cov(αᵢ, Xᵢₜ) = 0</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="verdict-box" style="margin-top:1.5rem;">
+        <div class="verdict-label">Kết luận</div>
+        <p><strong>Mặc định với Hiệu ứng cố định và phân cụm SE ở cấp đơn vị bảng.</strong> Chạy kiểm định Hausman cho mỗi phân tích bảng và báo cáo kết quả. Chỉ chuyển sang RE nếu cả hai: (1) kiểm định Hausman rõ ràng không bác bỏ ở mức thông thường, và (2) bạn có lý do lý thuyết để ưu tiên RE. Lưu ý: Bản thân kiểm định Hausman có giới hạn — nó có thể bác bỏ RE vì lý do khác ngoài nội sinh hiệu ứng đơn vị. Cách tiếp cận Mundlak thường cung cấp thông tin hơn.</p>
+      </div>
+
+      <div style="margin-top:1.5rem;display:flex;gap:1rem;flex-wrap:wrap;">
+        <a href="../commands/command.html?cmd=xtreg-fe" class="btn-primary">Hướng dẫn đầy đủ xtreg, fe →</a>
+        <a href="../commands/command.html?cmd=xtreg-re" class="btn-secondary">Hướng dẫn xtreg, re →</a>
+        <a href="../comparisons/fe-vs-xtabond2.html" class="btn-secondary">FE vs xtabond2 →</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <h4>Liên quan</h4>
+        <ul>
+          <li><a href="../categories/panel-data.html">Dữ liệu bảng</a></li>
+          <li><a href="fe-vs-xtabond2.html">FE vs xtabond2</a></li>
+          <li><a href="../commands/command.html?cmd=xtabond2">Hướng dẫn xtabond2</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">Stata Kinh Tế Lượng Task View · Tài nguyên học thuật cho kinh tế lượng ứng dụng</div>
+  </footer>
+  <script src="../assets/js/navigation.js"></script>
+</body>
+
+</html>

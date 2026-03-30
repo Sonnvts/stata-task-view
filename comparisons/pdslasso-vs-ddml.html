@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>pdslasso vs ddml — Stata Kinh Tế Lượng Task View</title>
+  <meta name="description"
+    content="So sánh pdslasso và ddml cho việc lựa chọn biến kiểm soát nhân quả chiều cao trong Stata.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+</head>
+
+<body>
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="../index.html">Stata <span>Task View</span></a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../index.html">Trang chủ</a></li>
+        <li><a href="../categories/ml-econometrics.html">Kinh tế lượng ML</a></li>
+        <li><a href="../comparison-index.html">Tất cả so sánh</a></li>
+      </ul>
+      <button class="nav-hamburger" id="nav-hamburger">☰</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-container" style="max-width:960px;">
+      <nav class="breadcrumb"><a href="../index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><a
+          href="../comparison-index.html">So sánh</a><span class="breadcrumb-sep">›</span><span
+          class="breadcrumb-current">pdslasso vs ddml</span></nav>
+
+      <div class="page-title-block">
+        <h1><code>pdslasso</code> vs <code>ddml</code></h1>
+        <p class="page-subtitle">Suy luận tuyến tính thưa thớt chiều cao vs suy luận ML linh hoạt với cross-fitting</p>
+      </div>
+
+      <div class="comparison-table-wrapper">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Tiêu chí</th>
+              <th>pdslasso</th>
+              <th>ddml</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Ý tưởng cốt lõi</td>
+              <td>Lasso hậu lựa chọn kép (post-double-selection)</td>
+              <td>Điểm trực giao (orthogonal score) + cross-fitting</td>
+            </tr>
+            <tr>
+              <td>Mô hình nhiễu (nuisance)</td>
+              <td>Chủ yếu tuyến tính thưa thớt</td>
+              <td>Có thể phi tuyến (RF/boosting/stacking)</td>
+            </tr>
+            <tr>
+              <td>Độ phức tạp</td>
+              <td>Thấp hơn</td>
+              <td>Cao hơn</td>
+            </tr>
+            <tr>
+              <td>Khả năng diễn giải</td>
+              <td>Cao</td>
+              <td>Trung bình</td>
+            </tr>
+            <tr>
+              <td>Trường hợp sử dụng mặc định</td>
+              <td>Bối cảnh chiều cao nhưng chủ yếu tuyến tính</td>
+              <td>Chiều cao với cấu trúc nhiễu phi tuyến</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 style="margin-top:1.5rem;">Mã cạnh nhau</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div class="code-wrapper">
+          <pre class="language-stata"><code>* pdslasso
+pdslasso y d x1-x120, cluster(id)</code></pre><button class="copy-btn">Sao chép</button>
+        </div>
+        <div class="code-wrapper">
+          <pre class="language-stata"><code>* ddml
+ddml init partial, kfolds(5)
+ddml E[y|X]: pystacked y x1-x120
+ddml E[d|X]: pystacked d x1-x120
+ddml crossfit
+ddml estimate, robust</code></pre><button class="copy-btn">Sao chép</button>
+        </div>
+      </div>
+
+      <div class="callout callout-warning" style="margin-top:1rem;">
+        <div class="callout-title">Quy tắc thực tế</div>
+        <p>Bắt đầu với <strong>pdslasso</strong> cho một cơ sở minh bạch. Thêm <strong>ddml</strong> như một lớp kiểm
+          tra độ vững phi tuyến khi dạng hàm không chắc chắn.</p>
+      </div>
+
+      <div class="verdict-box" style="margin-top:1rem;">
+        <div class="verdict-label">Kết luận</div>
+        <p>Đối với hầu hết các bài báo ứng dụng, hãy báo cáo cả hai: pdslasso cho khả năng diễn giải và ddml cho tính
+          linh hoạt. Kết quả hội tụ làm cho lập luận định danh chiều cao của bạn mạnh mẽ hơn nhiều.</p>
+      </div>
+
+      <div style="margin-top:1rem;display:flex;gap:.75rem;flex-wrap:wrap;">
+        <a href="../commands/command.html?cmd=pdslasso" class="btn-primary">Hướng dẫn pdslasso →</a>
+        <a href="../commands/command.html?cmd=ddml" class="btn-secondary">Hướng dẫn ddml →</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <h4>Liên quan</h4>
+        <ul>
+          <li><a href="../commands/command.html?cmd=lasso-tools">các công cụ lasso</a></li>
+          <li><a href="../categories/ml-econometrics.html">Danh mục ML</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">Stata Kinh Tế Lượng Task View · Tài nguyên học thuật cho kinh tế lượng ứng dụng</div>
+  </footer>
+
+  <script src="../assets/js/navigation.js"></script>
+</body>
+
+</html>

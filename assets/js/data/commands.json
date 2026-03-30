@@ -1,0 +1,3802 @@
+{
+  "version": "1.0",
+  "commands": [
+    {
+      "id": "reg",
+      "name": "reg",
+      "full_name": "OLS Linear Regression",
+      "stata_version_introduced": "Stata 1",
+      "install": "builtin",
+      "category": "ols-diagnostics",
+      "difficulty": "beginner",
+      "tags": {
+        "data_structure": [
+          "cross-section",
+          "panel"
+        ],
+        "estimator_type": [
+          "OLS"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "OLS",
+          "regression",
+          "linear",
+          "least squares",
+          "beginner",
+          "baseline"
+        ]
+      },
+      "related_commands": [
+        "robust-se",
+        "vif",
+        "hettest",
+        "ovtest",
+        "ivreg2"
+      ],
+      "comparison_pages": [
+        "reg-vs-robust"
+      ],
+      "content": {
+        "what_it_does": "Ước lượng mối quan hệ giữa một biến kết quả liên tục và một hoặc nhiều biến giải thích bằng phương pháp Bình phương tối thiểu thông thường (OLS). Nó tìm đường thẳng (hoặc siêu phẳng) có tổng bình phương các phần dư là nhỏ nhất.",
+        "problem_it_solves": "Định lượng mức độ thay đổi trung bình của biến phụ thuộc khi một biến độc lập thay đổi một đơn vị, trong khi giữ nguyên các biến khác.",
+        "algorithm": "OLS giảm thiểu tổng bình phương phần dư: β = (X'X)⁻¹X'y. Theo các giả định Gauss-Markov, OLS là ước lượng BLUE (Ước lượng tuyến tính không chệch tốt nhất).",
+        "when_to_use": [
+          "Biến kết quả là liên tục (tiền lương, GDP, điểm số)",
+          "Ước lượng tương quan hoặc nhân quả dưới giả định OLS chuẩn",
+          "Làm điểm bắt đầu trước khi dùng các mô hình chuyên sâu",
+          "Cần một ước lượng cơ sở đơn giản, dễ diễn giải"
+        ],
+        "when_not_to_use": [
+          "Biến kết quả là nhị phân, thứ tự, đếm hoặc bị chặn — dùng logit/probit/tobit",
+          "Có biến độc lập nội sinh (dùng ivreg2)",
+          "Dữ liệu bảng có yếu tố không quan sát được (dùng xtreg, fe)",
+          "Sai số có phương sai thay đổi (luôn thêm tùy chọn robust)"
+        ],
+        "key_assumptions": [
+          "Tính tuyến tính trong các tham số",
+          "Tính ngoại sinh: các biến giải thích không tương quan với sai số",
+          "Không có đa cộng tuyến hoàn hảo",
+          "Phương sai sai số đồng nhất (nên dùng SE vững trong thực tế)",
+          "Lấy mẫu ngẫu nhiên từ quần thể quan tâm"
+        ],
+        "output_read_first": "Bắt đầu với hệ số của biến quan tâm, sai số chuẩn và giá trị p. Kiểm tra thống kê F cho ý nghĩa chung. Xem R-squared nhưng đừng diễn giải quá đà.",
+        "beginner_mistake": "Coi hệ số là tác động nhân quả mà chưa xử lý nội sinh. Sử dụng SE cổ điển thay vì SE vững — hãy luôn dùng 'reg y x, robust' làm mặc định.",
+        "basic_syntax": {
+          "code": "* OLS cơ bản\nreg depvar indepvar1 indepvar2\n\n* Với sai số chuẩn vững (mặc định nên dùng)\nreg depvar indepvar1 indepvar2, robust\n\n* Với biến kiểm soát và hậu ước lượng\nreg lwage educ exper tenure, robust\nestat vif\npredict residuals, residuals",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Với SE cụm, lưu kết quả và các chẩn đoán đầy đủ",
+          "code": "* SE cụm khi quan sát trong nhóm có tương quan\nreg lwage educ exper i.industry, vce(cluster firmid)\n\n* Lưu để so sánh\neststo model1\n\n* Các kiểm định chẩn đoán\nhettest           // Kiểm định phương sai sai số thay đổi\novtest            // Kiểm định Ramsey RESET cho biến bị bỏ sót\nvif               // Kiểm định đa cộng tuyến\nrvfplot, yline(0) // Đồ thị phần dư",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "ivreg2 / reghdfe",
+          "reason": "Nếu có nội sinh, dùng ivreg2. Nếu dữ liệu lớn với nhiều hiệu ứng cố định, dùng reghdfe (SSC). Cho nhân quả với thực nghiệm giả, dùng diff, rdrobust, hoặc csdid.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Luôn dùng 'reg depvar indepvars, robust' làm mặc định. Chạy hettest và ovtest sau mỗi hồi quy. Diễn giải hệ số là tương quan trừ khi có chiến lược định danh tin cậy."
+      }
+    },
+    {
+      "id": "robust-se",
+      "name": "vce(robust) / vce(cluster)",
+      "full_name": "Robust and Clustered Standard Errors",
+      "stata_version_introduced": "Stata 7",
+      "install": "builtin",
+      "category": "ols-diagnostics",
+      "difficulty": "beginner",
+      "tags": {
+        "data_structure": [
+          "cross-section",
+          "panel"
+        ],
+        "estimator_type": [
+          "OLS",
+          "diagnostics"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "robust",
+          "heteroskedasticity",
+          "clustered SE",
+          "sandwich estimator",
+          "inference"
+        ]
+      },
+      "related_commands": [
+        "reg",
+        "hettest",
+        "boottest"
+      ],
+      "comparison_pages": [
+        "reg-vs-robust",
+        "boottest-vs-cluster-se"
+      ],
+      "content": {
+        "what_it_does": "Hiệu chỉnh sai số chuẩn để đảm bảo tính hợp lệ ngay cả khi giả định OLS về phương sai đồng nhất và độc lập bị vi phạm. 'robust' xử lý phương sai sai số thay đổi; 'cluster' xử lý thêm tương quan trong nội bộ nhóm.",
+        "problem_it_solves": "Dưới hiện tượng phương sai thay đổi hoặc tương quan cụm, sai số chuẩn OLS cổ điển bị chệch (thường là quá nhỏ), dẫn đến các kiểm định giả thuyết sai và giá trị p thấp giả tạo.",
+        "algorithm": "Sử dụng ước lượng 'sandwich' Huber-White. SE cụm tính tổng các phần dư trong cụm trước khi tính toán, cho phép tương quan tùy ý trong nội bộ cụm.",
+        "when_to_use": [
+          "Luôn dùng 'robust' mặc định trong hồi quy dữ liệu chéo",
+          "Dùng 'vce(cluster groupvar)' khi: (1) dữ liệu bảng với xtreg, (2) quan sát trong đơn vị địa lý có tương quan, (3) can thiệp ở cấp độ nhóm",
+          "Dùng cụm hai chiều (cgmreg, SSC) khi sai số tương quan theo hai chiều"
+        ],
+        "when_not_to_use": [
+          "Đừng dùng cụm khi số lượng cụm quá ít (< 30–50) — SE cụm sẽ không đáng tin cậy",
+          "Nên dùng Wild cluster bootstrap (boottest, SSC) khi có ít cụm"
+        ],
+        "key_assumptions": [
+          "Với SE cụm: số lượng cụm phải đủ lớn (kết quả tiệm cận)",
+          "Các cụm phải độc lập với nhau",
+          "Các quan sát trong cụm có thể tương quan tùy ý"
+        ],
+        "output_read_first": "Xem SE thay đổi thế nào so với SE cổ điển. Nếu SE vững lớn hơn nhiều, suy diễn cổ điển của bạn đã gây nhầm lẫn. Với SE cụm, hãy lưu ý số lượng cụm được báo cáo.",
+        "beginner_mistake": "Quên cụm SE khi can thiệp ở cấp độ nhóm (ví dụ: chính sách cấp tỉnh nhưng dữ liệu cấp cá nhân). Điều này dẫn đến kết quả có ý nghĩa thống kê giả tạo.",
+        "basic_syntax": {
+          "code": "* SE vững với phương sai thay đổi\nreg lwage educ exper, robust\n\n* SE cụm (theo ID công ty)\nreg lwage educ exper, vce(cluster firmid)\n\n* Hoạt động với các ước lượng khác\nlogit employed educ, robust\nxtreg lwage educ, fe vce(cluster firmid)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Wild cluster bootstrap khi có ít cụm",
+          "code": "* Cài đặt boottest\nssc install boottest\n\n* Wild cluster bootstrap (khuyên dùng khi < 30 cụm)\nreg lwage educ i.state, vce(cluster state)\nboottest educ, cluster(state) reps(999)",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "boottest (SSC)",
+          "reason": "Khi số cụm nhỏ (< 30), SE cụm tiệm cận không đáng tin. Hãy dùng wild cluster bootstrap qua gói 'boottest' để suy diễn chính xác.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Hãy để 'robust' làm mặc định cho mọi hồi quy dữ liệu chéo. Dùng 'vce(cluster)' bất cứ khi nào can thiệp ở cấp độ cao hơn đơn vị quan sát."
+      }
+    },
+    {
+      "id": "vif",
+      "name": "estat vif",
+      "full_name": "Variance Inflation Factor",
+      "stata_version_introduced": "Stata 8",
+      "install": "builtin",
+      "category": "ols-diagnostics",
+      "difficulty": "beginner",
+      "tags": {
+        "data_structure": [
+          "cross-section"
+        ],
+        "estimator_type": [
+          "diagnostics"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "multicollinearity",
+          "VIF",
+          "diagnostics",
+          "collinearity"
+        ]
+      },
+      "related_commands": [
+        "reg",
+        "hettest",
+        "ovtest"
+      ],
+      "comparison_pages": [],
+      "content": {
+        "what_it_does": "Đo lường mức độ phương sai của hệ số hồi quy bị thổi phồng do đa cộng tuyến — hiện tượng các biến độc lập tương quan tuyến tính với nhau.",
+        "problem_it_solves": "Đa cộng tuyến cao làm khó việc tách biệt tác động riêng lẻ của từng biến, làm tăng sai số chuẩn và khiến hệ số không ổn định.",
+        "algorithm": "Với mỗi biến k, hồi quy nó theo các biến còn lại và tính VIF = 1/(1 - R²ₖ). VIF = 1 nghĩa là không có đa cộng tuyến; VIF > 10 là ngưỡng cảnh báo phổ biến.",
+        "when_to_use": [
+          "Sau khi chạy hồi quy OLS nếu nghi ngờ đa cộng tuyến",
+          "Khi hệ số thay đổi mạnh khi thay đổi nhỏ về mẫu",
+          "Khi sai số chuẩn dường như lớn bất thường"
+        ],
+        "when_not_to_use": [
+          "VIF không cho biết đa cộng tuyến có là vấn đề với câu hỏi nghiên cứu của bạn không — nó chỉ cho biết có thổi phồng SE không",
+          "Đừng bỏ biến chỉ dựa trên VIF cao nếu biến đó cần thiết về mặt lý thuyết"
+        ],
+        "key_assumptions": [
+          "Chỉ chạy sau OLS (reg). Không áp dụng trực tiếp sau logit/probit."
+        ],
+        "output_read_first": "Xem các giá trị VIF trên 10 (hoặc ngưỡng thận trọng là 5). Mean VIF tóm tắt mức độ cộng tuyến chung.",
+        "beginner_mistake": "Tự động bỏ biến có VIF cao mà không cân nhắc lý thuyết. VIF cao có nghĩa là ước lượng kém chính xác, không nhất thiết là bị chệch.",
+        "basic_syntax": {
+          "code": "reg lwage educ exper tenure married\nestat vif",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Với VIF không căn tâm cho các mô hình không có hằng số",
+          "code": "reg lwage educ exper tenure, noconstant\nestat vif, uncentered",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "coldiag2 (SSC)",
+          "reason": "Để chẩn đoán cộng tuyến chi tiết hơn bao gồm chỉ số điều kiện và phân rã phương sai.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Chạy 'estat vif' sau mỗi mô hình OLS như một bước kiểm tra định kỳ. VIF > 10 cần điều tra thêm, nhưng đừng bỏ biến một cách máy móc."
+      }
+    },
+    {
+      "id": "hettest",
+      "name": "hettest / estat hettest",
+      "full_name": "Breusch-Pagan Test for Heteroskedasticity",
+      "stata_version_introduced": "Stata 8",
+      "install": "builtin",
+      "category": "ols-diagnostics",
+      "difficulty": "beginner",
+      "tags": {
+        "data_structure": [
+          "cross-section"
+        ],
+        "estimator_type": [
+          "diagnostics"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "heteroskedasticity",
+          "Breusch-Pagan",
+          "diagnostics",
+          "variance",
+          "robust"
+        ]
+      },
+      "related_commands": [
+        "reg",
+        "robust-se",
+        "ovtest"
+      ],
+      "comparison_pages": [],
+      "content": {
+        "what_it_does": "Kiểm tra xem phương sai của phần dư hồi quy là hằng số (phương sai đồng nhất) hay thay đổi có hệ thống (phương sai thay đổi).",
+        "problem_it_solves": "Phương sai sai số thay đổi không làm chệch hệ số OLS, nhưng nó làm vô hiệu các sai số chuẩn cổ điển, khiến các kiểm định giả thuyết không đáng tin.",
+        "algorithm": "Hồi quy bình phương phần dư theo các giá trị dự báo. Thống kê kiểm định là n × R² từ hồi quy phụ này, có phân phối khi bình phương.",
+        "when_to_use": [
+          "Sau mỗi hồi quy OLS như một chẩn đoán định kỳ",
+          "Khi muốn kiểm định chính thức xem SE vững có cần thiết không"
+        ],
+        "when_not_to_use": [
+          "Kiểm định này không thay thế cho việc luôn dùng SE vững — hãy luôn dùng SE vững trong thực tế bất kể kết quả kiểm định"
+        ],
+        "key_assumptions": [
+          "Sử dụng phần dư từ hồi quy OLS chính",
+          "Đòi hỏi mẫu lớn để xấp xỉ khi bình phương chính xác"
+        ],
+        "output_read_first": "Giá trị p của thống kê khi bình phương. Bác bỏ H₀ (phương sai đồng nhất) nếu p < 0.05. Nhưng trong thực tế, nên luôn dùng SE vững.",
+        "beginner_mistake": "Dùng SE cổ điển vì hettest không có ý nghĩa. Việc không bác bỏ được phương sai đồng nhất không có nghĩa là nó không tồn tại — kiểm định có lực lượng thấp trong mẫu nhỏ.",
+        "basic_syntax": {
+          "code": "reg lwage educ exper, robust\nhettest\n\n* Hoặc tương đương:\nreg lwage educ exper\nestat hettest",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Kiểm định White (kiểm tra mọi dạng phương sai thay đổi)",
+          "code": "reg lwage educ exper\nimtest, white   // Kiểm định White tổng quát",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "imtest (Kiểm định White)",
+          "reason": "Kiểm định White tổng quát hơn — nó kiểm tra mọi dạng phương sai thay đổi, không chỉ dạng tuyến tính. Tuy nhiên, khuyến nghị thực tế luôn là: hãy dùng SE vững.",
+          "install": "builtin"
+        },
+        "practical_recommendation": "Chạy hettest như một phần hồ sơ chẩn đoán. Nhưng bất kể kết quả thế nào, hãy dùng 'reg y x, robust' làm mặc định."
+      }
+    },
+    {
+      "id": "ovtest",
+      "name": "ovtest / estat ovtest",
+      "full_name": "Ramsey RESET Test for Omitted Variables",
+      "stata_version_introduced": "Stata 8",
+      "install": "builtin",
+      "category": "ols-diagnostics",
+      "difficulty": "intermediate",
+      "tags": {
+        "data_structure": [
+          "cross-section"
+        ],
+        "estimator_type": [
+          "diagnostics"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "RESET",
+          "omitted variables",
+          "functional form",
+          "specification",
+          "misspecification"
+        ]
+      },
+      "related_commands": [
+        "reg",
+        "hettest",
+        "vif"
+      ],
+      "comparison_pages": [],
+      "content": {
+        "what_it_does": "Kiểm tra xem mô hình hồi quy OLS có được xác định đúng hay không bằng cách xem liệu các lũy thừa của giá trị dự báo có thêm khả năng giải thích hay không — gợi ý các tính phi tuyến hoặc biến bị thiếu.",
+        "problem_it_solves": "Phát hiện sai dạng hàm của mô hình: nếu bạn lẽ ra nên đưa vào X², X³, hoặc các thuật ngữ tương tác, ovtest thường sẽ cảnh báo điều này.",
+        "algorithm": "Thêm các lũy thừa của giá trị dự báo (ŷ², ŷ³, ŷ⁴) vào hồi quy và kiểm thử ý nghĩa chung bằng kiểm định F. Kết quả có ý nghĩa gợi ý mô hình xác định sai.",
+        "when_to_use": [
+          "Kiểm tra đặc điểm mô hình sau OLS",
+          "Khi nghi ngờ có hiệu ứng phi tuyến hoặc tương tác bị bỏ sót"
+        ],
+        "when_not_to_use": [
+          "Kết quả có ý nghĩa không cho biết cụ thể điều gì sai",
+          "Lực lượng thấp đối với nhiều dạng xác định sai",
+          "Kết quả không có ý nghĩa không đảm bảo mô hình đã đúng hoàn toàn"
+        ],
+        "key_assumptions": [
+          "Kiểm định chỉ có lực lượng với một số dạng xác định sai cụ thể",
+          "Lực lượng thấp trong mẫu nhỏ"
+        ],
+        "output_read_first": "Thống kê F và giá trị p. Bác bỏ giả thuyết gợi ý vấn đề về đặc điểm mô hình nhưng không chẩn đoán cụ thể.",
+        "beginner_mistake": "Coi kết quả không có ý nghĩa là bằng chứng mô hình hoàn hảo. RESET có lực lượng hạn chế và không phải kiểm định tổng quát cho mọi sai sót.",
+        "basic_syntax": {
+          "code": "reg lwage educ exper\novtest\n\n* Hoặc:\nreg lwage educ exper\nestat ovtest",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Kiểm định với các biến giải thích thay vì giá trị dự báo",
+          "code": "reg lwage educ exper\novtest, rhs   // Dùng biến giải thích thay vì giá trị dự báo",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "linktest",
+          "reason": "Lệnh linktest cung cấp một bước kiểm tra đặc điểm mô hình khác bằng cách hồi quy theo dự báo tuyến tính và bình phương của nó.",
+          "install": "builtin"
+        },
+        "practical_recommendation": "Chạy ovtest như một chẩn đoán bổ sung. Nếu có ý nghĩa, hãy cân nhắc thêm các thuật ngữ đa thức hoặc biến tương tác."
+      }
+    },
+    {
+      "id": "outreg2",
+      "name": "outreg2",
+      "full_name": "Regression Output to Word/Excel/LaTeX",
+      "stata_version_introduced": "Stata 9",
+      "install": "ssc",
+      "category": "ols-diagnostics",
+      "difficulty": "beginner",
+      "tags": {
+        "data_structure": [
+          "cross-section",
+          "panel"
+        ],
+        "estimator_type": [
+          "reporting"
+        ],
+        "dependency_type": [
+          "continuous",
+          "binary"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "output",
+          "tables",
+          "Word",
+          "Excel",
+          "LaTeX",
+          "reporting",
+          "publication"
+        ]
+      },
+      "related_commands": [
+        "estout",
+        "reg"
+      ],
+      "comparison_pages": [
+        "outreg2-vs-estout"
+      ],
+      "content": {
+        "what_it_does": "Xuất kết quả hồi quy (hệ số, sai số chuẩn, dấu sao ý nghĩa, độ phù hợp) sang Word (.doc), Excel (.xls), hoặc LaTeX (.tex) theo định dạng sẵn sàng cho xuất bản.",
+        "problem_it_solves": "Loại bỏ việc sao chép thủ công kết quả vào bảng, giảm lỗi đánh máy và tiết kiệm thời gian.",
+        "algorithm": "Không phải lệnh ước lượng — nó hậu xử lý các kết quả e_class đã lưu và định dạng chúng để xuất.",
+        "when_to_use": [
+          "Khi cần chia sẻ bảng hồi quy với người không dùng Stata (Word/Excel)",
+          "Khi làm việc với cộng tác viên thích bảng dạng .doc",
+          "Tạo bảng nhanh chóng, thân thiện cho người mới"
+        ],
+        "when_not_to_use": [
+          "Cho bảng LaTeX tùy chỉnh cao — estout/esttab tốt hơn",
+          "Cho quy trình hiện đại với quản lý phiên bản — nên dùng estout",
+          "Khi cần kết hợp các loại mô hữu rất khác nhau trong một bảng"
+        ],
+        "key_assumptions": [
+          "Phải chạy ngay sau một lệnh ước lượng",
+          "Sử dụng các kết quả lưu trong e()"
+        ],
+        "output_read_first": "Bảng đã định dạng hiển thị hệ số và sai số chuẩn trong định dạng đã chọn.",
+        "beginner_mistake": "Chạy outreg2 sau khi đã chạy các lệnh khác làm mất nội dung e(). Luôn chạy outreg2 ngay lập tức sau ước lượng.",
+        "basic_syntax": {
+          "code": "* Cài đặt\nssc install outreg2\n\n* Sử dụng cơ bản\nreg lwage educ\noutreg2 using results.doc, replace\n\nreg lwage educ exper\noutreg2 using results.doc, append\n\n* Với các tùy chọn\noutreg2 using table1.doc, replace word ctitle(Model 1) ///\n  addstat(F-stat, e(F)) dec(3)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Xuất LaTeX với các thống kê tùy chỉnh",
+          "code": "reg lwage educ exper tenure, robust\noutreg2 using table1.tex, replace tex(frag) ///\n  label nocons addtext(Robust SE, Yes) ///\n  keeps(educ exper) sortvar(educ exper tenure)",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "estout / esttab (SSC)",
+          "reason": "estout/esttab linh hoạt hơn, tương thích tốt hơn với quy trình LaTeX hiện đại và hỗ trợ nhiều tùy chỉnh hơn.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Dùng outreg2 cho bảng Word/Excel nhanh. Cho LaTeX hoặc tùy chỉnh sâu, hãy chuyển sang estout/esttab."
+      }
+    },
+    {
+      "id": "estout",
+      "name": "estout / esttab",
+      "full_name": "Flexible Regression Output Tables",
+      "stata_version_introduced": "Stata 9",
+      "install": "ssc",
+      "category": "ols-diagnostics",
+      "difficulty": "intermediate",
+      "tags": {
+        "data_structure": [
+          "cross-section",
+          "panel"
+        ],
+        "estimator_type": [
+          "reporting"
+        ],
+        "dependency_type": [
+          "continuous",
+          "binary"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "output",
+          "tables",
+          "LaTeX",
+          "reporting",
+          "esttab",
+          "eststo",
+          "publication",
+          "regression tables"
+        ]
+      },
+      "related_commands": [
+        "outreg2",
+        "reg"
+      ],
+      "comparison_pages": [
+        "outreg2-vs-estout"
+      ],
+      "content": {
+        "what_it_does": "Lưu trữ và định dạng kết quả hồi quy thành các bảng sẵn sàng cho xuất bản trong LaTeX, HTML, CSV hoặc văn bản. Lệnh esttab cung cấp cú pháp đơn giản hơn trên nền tảng estout.",
+        "problem_it_solves": "Tạo bảng hồi quy tùy chỉnh cao, tự động cập nhật khi mô hình thay đổi, hỗ trợ định dạng phức tạp cho công bố khoa học.",
+        "algorithm": "Dùng eststo để lưu kết quả e() vào bộ nhớ, sau đó esttab/estout định dạng và xuất chúng.",
+        "when_to_use": [
+          "Cho bài báo học thuật yêu cầu bảng LaTeX",
+          "Khi so sánh nhiều mô hình cạnh nhau",
+          "Khi cần kiểm soát chi tiết về định dạng, thống kê và nhãn",
+          "Lựa chọn mặc định tốt nhất cho kết quả hồi quy chuyên nghiệp trong Stata"
+        ],
+        "when_not_to_use": [
+          "Khi cộng tác viên chỉ dùng Word — outreg2 có thể đơn giản hơn",
+          "Cho các kết quả khám phá cực nhanh — dùng outreg2 hoặc in trực tiếp"
+        ],
+        "key_assumptions": [
+          "Mô hình phải được lưu bằng eststo trước khi gọi esttab"
+        ],
+        "output_read_first": "Bảng đã định dạng. Kiểm tra nhãn mô hình, nhãn biến và thống kê có khớp ý định không. Luôn xác minh số quan sát và R-squared.",
+        "beginner_mistake": "Không dùng eststo để lưu mô hình trước. Quên đặt nhãn biến (label var) để có kết quả đẹp.",
+        "basic_syntax": {
+          "code": "* Cài đặt\nssc install estout\n\n* Lưu mô hình với eststo, sau đó lập bảng\neststo m1: reg lwage educ\neststo m2: reg lwage educ exper\neststo m3: reg lwage educ exper tenure, robust\n\nesttab m1 m2 m3, se star(* 0.10 ** 0.05 *** 0.01) ///\n  title(Kết quả OLS) label",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Xuất LaTeX đầy đủ với thống kê tùy chỉnh",
+          "code": "eststo clear\neststo m1: reg lwage educ, robust\neststo m2: reg lwage educ exper, robust\neststo m3: xtreg lwage educ exper, fe\n\nesttab m1 m2 m3 using table1.tex, replace ///\n  b(3) se(3) star(* 0.10 ** 0.05 *** 0.01) ///\n  label booktabs fragment nonumber ///\n  title(Hồi quy tiền lương) ///\n  mtitles(\"Cơ sở\" \"Có kinh nghiệm\" \"FE\") ///\n  stats(N r2 r2_a, labels(\"N\" \"R²\" \"R² hiệu chỉnh\"))",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "regtable (SSC)",
+          "reason": "regtable là một lựa chọn mới hơn với cú pháp khác. Tuy nhiên estout/esttab vẫn là phổ biến nhất.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Nên dùng estout/esttab làm mặc định. Dùng eststo xuyên suốt quá trình phân tích, sau đó tạo bảng ở cuối."
+      }
+    },
+    {
+      "id": "binscatter2",
+      "name": "binscatter2",
+      "full_name": "Binned Scatter Plot",
+      "stata_version_introduced": "N/A (user-written)",
+      "install": "ssc",
+      "category": "ols-diagnostics",
+      "difficulty": "beginner",
+      "tags": {
+        "data_structure": [
+          "cross-section",
+          "panel"
+        ],
+        "estimator_type": [
+          "visualization"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "binscatter",
+          "visualization",
+          "scatter plot",
+          "nonparametric",
+          "conditional mean",
+          "graph"
+        ]
+      },
+      "related_commands": [
+        "reg"
+      ],
+      "comparison_pages": [],
+      "content": {
+        "what_it_does": "Tạo đồ thị phân tán phân nhóm hiển thị trung bình có điều kiện của Y theo các nhóm của X, có thể kiểm soát các biến khác bằng cách loại bỏ ảnh hưởng của chúng.",
+        "problem_it_solves": "Đồ thị phân tán tiêu chuẩn khó đọc với dữ liệu lớn. binscatter2 tóm tắt mối quan hệ X-Y rõ ràng, cho phép loại bỏ phần dư cho các biến kiểm soát.",
+        "algorithm": "Chia x thành các nhóm lượng phân, tính trung bình y (hoặc phần dư y) trong mỗi nhóm. Với biến kiểm soát, lấy phần dư cả x và y trước khi phân nhóm.",
+        "when_to_use": [
+          "Trực quan hóa mối quan hệ hai biến khi kiểm soát biến khác",
+          "Với dữ liệu lớn nơi đồ thị phân tán quá dày đặc",
+          "Chẩn đoán tính tuyến tính trước khi chạy OLS",
+          "Cho hình ảnh chất lượng xuất bản"
+        ],
+        "when_not_to_use": [
+          "Đừng diễn giải như ước lượng nhân quả — đây là công cụ trực quan",
+          "Không phù hợp khi X có quá ít giá trị duy nhất"
+        ],
+        "key_assumptions": [
+          "Giả định trung bình điều kiện của Y trên X sau khi loại bỏ biến kiểm soát",
+          "Biến X nên là liên tục hoặc gần liên tục"
+        ],
+        "output_read_first": "Xem độ dốc và độ cong của đường phù hợp qua các nhóm. Tính phi tuyến gợi ý nên dùng thuật ngữ đa thức.",
+        "beginner_mistake": "Nhầm độ dốc trực quan với hệ số hồi quy. Không hiểu rằng tùy chọn 'controls' thực hiện lấy phần dư chứ không phải giữ biến ở giá trị cố định.",
+        "basic_syntax": {
+          "code": "* Cài đặt\nssc install binscatter2\n\n* Phân tán phân nhóm cơ bản\nbinscatter2 lwage educ\n\n* Với biến kiểm soát\nbinscatter2 lwage educ, controls(exper tenure)\n\n* Với đường phù hợp tuyến tính\nbinscatter2 lwage educ, controls(exper tenure) line(lfit)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Với khoảng tin cậy 95% và định dạng xuất bản",
+          "code": "binscatter2 lwage educ, controls(exper tenure i.year) ///\n  ci(2) line(lfit) ///\n  xtitle(Năm học vấn) ytitle(Log lương) ///\n  title(Mối quan hệ Lương - Học vấn) ///\n  scheme(s1color) mcolor(navy) lcolor(maroon)",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "lpoly",
+          "reason": "Cho đường cong hồi quy phi tham số, dùng 'lpoly' hoặc 'lowess'.",
+          "install": "builtin"
+        },
+        "practical_recommendation": "Dùng binscatter2 làm công cụ trực quan mặc định khi khám phá quan hệ hai biến với dữ liệu lớn."
+      }
+    },
+    {
+      "id": "logit",
+      "name": "logit",
+      "full_name": "Logistic Regression",
+      "stata_version_introduced": "Stata 1",
+      "install": "builtin",
+      "category": "limited-dependent",
+      "difficulty": "beginner",
+      "tags": {
+        "data_structure": [
+          "cross-section"
+        ],
+        "estimator_type": [
+          "MLE",
+          "discrete-choice"
+        ],
+        "dependency_type": [
+          "binary"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "logit",
+          "binary",
+          "logistic",
+          "MLE",
+          "odds ratio",
+          "discrete choice",
+          "binary outcome"
+        ]
+      },
+      "related_commands": [
+        "probit",
+        "margins",
+        "tobit"
+      ],
+      "comparison_pages": [
+        "logit-vs-probit"
+      ],
+      "content": {
+        "what_it_does": "Ước lượng xác suất để một biến kết quả nhị phân (0/1) bằng 1 theo các biến giải thích, dùng phân phối logistic để giới hạn xác suất dự báo từ 0 đến 1.",
+        "problem_it_solves": "OLS với biến nhị phân (Mô hình xác suất tuyến tính) có thể dự báo xác suất ngoài khoảng [0,1] và có sai số phương sai thay đổi. Logit áp đặt cấu trúc xác suất đúng.",
+        "algorithm": "Tối đa hóa hàm hợp lý: L = Σ[yᵢlog(Λ(Xβ)) + (1-yᵢ)log(1-Λ(Xβ))], với Λ(·) là CDF logistic. Tạo ra các hệ số log-odds.",
+        "when_to_use": [
+          "Biến kết quả là nhị phân (có việc/thất nghiệp, vỡ nợ/không, thắng/thua)",
+          "Muốn xác suất dự báo nằm trong [0,1]",
+          "Lựa chọn hàng đầu cho biến nhị phân"
+        ],
+        "when_not_to_use": [
+          "Biến kết quả liên tục — dùng reg",
+          "Biến kết quả bị chặn — dùng tobit",
+          "Biến kết quả có thứ tự — dùng ologit",
+          "Kết quả hiếm (< 5%) — cân nhắc dùng rare events logit (relogit, SSC)"
+        ],
+        "key_assumptions": [
+          "Quan sát độc lập (không cụm nếu chưa hiệu chỉnh)",
+          "Không có sự phân tách hoàn hảo (ví dụ: mọi Y=1 khi X cao)",
+          "Xác định đúng hàm log-odds",
+          "Mẫu đủ lớn cho ước lượng hợp lý cực đại (MLE)"
+        ],
+        "output_read_first": "ĐỪNG diễn giải hệ số logit trực tiếp là tác động cận biên. Hãy chạy 'margins, dydx(*)' ngay sau logit để có Tác động cận biên trung bình (AME) theo xác suất.",
+        "beginner_mistake": "Coi hệ số là 'tăng X làm tăng xác suất Y thêm β'. Hệ số logit là tỷ số log-odds, không phải xác suất trực tiếp.",
+        "basic_syntax": {
+          "code": "* Logit cơ bản\nlogit employed educ exper married\n\n* Với SE vững\nlogit employed educ exper married, robust\n\n* LUÔN tính tác động cận biên\nmargins, dydx(*)\n\n* Xác suất dự báo\npredict phat\nsummarize phat",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Với lưu kết quả và tác động cận biên tại giá trị trung bình",
+          "code": "logit employed educ exper i.industry, robust\neststo logit1\n\n* Tác động cận biên trung bình (AME) — khuyên dùng\nmargins, dydx(*)\n\n* Tác động cận biên tại trung bình (MEM)\nmargins, dydx(*) atmeans\n\n* Xác suất dự báo tại giá trị cụ thể\nmargins, at(educ=(8 12 16)) atmeans",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "probit / ivprobit",
+          "reason": "Dùng probit để kiểm tra độ bền vững. Nếu có biến nội sinh, dùng ivprobit.",
+          "install": "builtin"
+        },
+        "practical_recommendation": "Logit là mặc định cho biến nhị phân. Luôn dùng kèm 'margins, dydx(*)' để có kết quả AME dễ hiểu cho báo cáo."
+      }
+    },
+    {
+      "id": "probit",
+      "name": "probit",
+      "full_name": "Probit Regression",
+      "stata_version_introduced": "Stata 1",
+      "install": "builtin",
+      "category": "limited-dependent",
+      "difficulty": "beginner",
+      "tags": {
+        "data_structure": [
+          "cross-section"
+        ],
+        "estimator_type": [
+          "MLE",
+          "discrete-choice"
+        ],
+        "dependency_type": [
+          "binary"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "probit",
+          "binary",
+          "MLE",
+          "normal",
+          "discrete choice",
+          "binary outcome"
+        ]
+      },
+      "related_commands": [
+        "logit",
+        "margins",
+        "tobit"
+      ],
+      "comparison_pages": [
+        "logit-vs-probit"
+      ],
+      "content": {
+        "what_it_does": "Ước lượng xác suất biến kết quả nhị phân bằng 1 dùng CDF chuẩn tắc để mô hình hóa hàm chỉ số, thay vì CDF logistic.",
+        "problem_it_solves": "Tương tự logit — cung cấp ước lượng nhất quán cho kết quả nhị phân. Probit xuất phát từ khung biến tiềm ẩn: y*=Xβ+ε, y=1 nếu y*>0, ε~N(0,1).",
+        "algorithm": "MLE với CDF chuẩn: P(Y=1|X) = Φ(Xβ). Hệ số không có diễn giải trực tiếp; phải tính tác động cận biên.",
+        "when_to_use": [
+          "Kiểm tra độ bền vững bên cạnh logit cho biến nhị phân",
+          "Khi lý thuyết hỗ trợ biến tiềm ẩn tuân theo phân phối chuẩn",
+          "Yêu cầu cho các mô hình như biprobit, heckprobit"
+        ],
+        "when_not_to_use": [
+          "Không có lý do thực chất để chọn probit thay cho logit trong hầu hết các bài toán — AME thường gần như nhau",
+          "Tránh nếu khán giả của bạn thích tỷ số odds (logit có diễn giải odds tự nhiên hơn)"
+        ],
+        "key_assumptions": [
+          "Tương tự logit. Khác biệt chính là giả định phân phối (chuẩn vs logistic), điều này hiếm khi quan trọng đối với AME trong thực tế."
+        ],
+        "output_read_first": "Tương tự logit: tính tác động cận biên ngay lập tức. So sánh AME của logit và probit.",
+        "beginner_mistake": "Chọn giữa logit và probit chỉ dựa trên AIC, BIC. Thực tế cả hai cho AME gần như định danh.",
+        "basic_syntax": {
+          "code": "probit employed educ exper married, robust\nmargins, dydx(*)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Bivariate probit cho hai kết quả nhị phân có tương quan",
+          "code": "* Bivariate probit khi hai biến nhị phân tương quan\nbiprobit (employed = educ exper) (married = educ age), robust",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "logit (mặc định ưu tiên)",
+          "reason": "Logit phổ biến hơn trong kinh tế học. Dùng probit chỉ cho các lý do lý thuyết cụ thể hoặc kiểm tra độ bền vững.",
+          "install": "builtin"
+        },
+        "practical_recommendation": "Dùng probit như bước kiểm tra độ bền vững sau logit. Nếu AME tương đương (thường là vậy), hãy báo cáo kết quả logit chính."
+      }
+    },
+    {
+      "id": "tobit",
+      "name": "tobit",
+      "full_name": "Tobit Censored Regression",
+      "stata_version_introduced": "Stata 1",
+      "install": "builtin",
+      "category": "limited-dependent",
+      "difficulty": "intermediate",
+      "tags": {
+        "data_structure": [
+          "cross-section"
+        ],
+        "estimator_type": [
+          "MLE",
+          "censored"
+        ],
+        "dependency_type": [
+          "censored",
+          "continuous"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "tobit",
+          "censored",
+          "truncated",
+          "corner solution",
+          "hours worked",
+          "censoring"
+        ]
+      },
+      "related_commands": [
+        "logit",
+        "probit",
+        "margins"
+      ],
+      "comparison_pages": [],
+      "content": {
+        "what_it_does": "Ước lượng mô hình khi biến kết quả bị chặn — chỉ quan sát được trên hoặc dưới một ngưỡng. Ví dụ: số giờ làm việc (chặn tại 0), chi tiêu, thu nhập bị chặn trên.",
+        "problem_it_solves": "OLS trên dữ liệu bị chặn cho ước lượng chệch và không nhất quán do phân phối bị cắt cụt tại ranh giới.",
+        "algorithm": "MLE kết hợp thành phần probit (P(y>0)) và thành phần hồi quy (E[y|y>0, X]). Giả định cùng một quá trình quyết định cả hai phần.",
+        "when_to_use": [
+          "Kết quả bị chặn tại ranh giới tự nhiên (0 cho chi tiêu, số giờ, ủng hộ)",
+          "Cần phân biệt biên độ rộng (tham gia) và biên độ sâu (bao nhiêu)"
+        ],
+        "when_not_to_use": [
+          "Khi số 0 đại diện cho lựa chọn thực sự, không phải bị chặn — dùng Heckman hoặc mô hình hai phần",
+          "Tobit chuẩn giả định chung một quá trình cho cả hai quyết định — thường không thực tế"
+        ],
+        "key_assumptions": [
+          "Sai số phân phối chuẩn và phương sai đồng nhất — rất khắt khe",
+          "Cùng một quá trình cho cả việc bị chặn và cấp độ kết quả",
+          "Giả định phân phối sai làm Tobit không nhất quán"
+        ],
+        "output_read_first": "Báo cáo tác động cận biên (margins, dydx(*)). Hệ số Tobit đại diện tác động lên biến tiềm ẩn, không phải kết quả quan sát.",
+        "beginner_mistake": "Dùng Tobit mỗi khi thấy số 0. Nếu số 0 là lựa chọn thực sự (corner solution), hãy dùng mô hình hai phần hoặc Heckman.",
+        "basic_syntax": {
+          "code": "* Chặn tại 0 (chặn trái)\ntobit hours_worked wage educ married, ll(0)\n\n* Tính tác động cận biên lên kết quả quan sát\nmargins, dydx(*)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Mô hình hai phần thay thế cho Tobit",
+          "code": "* Mô hình hai phần: tách biệt quyết định tham gia và cường độ\n* Phần 1: Probit\nprobit participate wage educ, robust\nmargins, dydx(*)\n\n* Phần 2: OLS cho cường độ (trong nhóm tham gia)\nreg hours_worked wage educ if participate==1, robust",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "heckman",
+          "reason": "Khi việc lọt vào mẫu quan sát do quá trình khác với cấp độ kết quả, dùng Heckman để hiệu chỉnh chệch lựa chọn.",
+          "install": "builtin"
+        },
+        "practical_recommendation": "Dùng Tobit cho việc chặn do thống kê. Với các vấn đề về lựa chọn kinh tế (như làm việc hay không), hãy dùng mô hình hai phần hoặc Heckman. Luôn dùng kèm margins."
+      }
+    },
+    {
+      "id": "margins",
+      "name": "margins",
+      "full_name": "Marginal Effects and Predictions",
+      "stata_version_introduced": "Stata 11",
+      "install": "builtin",
+      "category": "limited-dependent",
+      "difficulty": "intermediate",
+      "tags": {
+        "data_structure": [
+          "cross-section",
+          "panel"
+        ],
+        "estimator_type": [
+          "post-estimation"
+        ],
+        "dependency_type": [
+          "binary",
+          "continuous",
+          "censored"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "marginal effects",
+          "AME",
+          "MEM",
+          "predicted probability",
+          "post-estimation",
+          "interpretation"
+        ]
+      },
+      "related_commands": [
+        "logit",
+        "probit",
+        "tobit"
+      ],
+      "comparison_pages": [],
+      "content": {
+        "what_it_does": "Tính toán các tác động cận biên, dự báo trung bình và biên độ dự báo sau các lệnh ước lượng. Đây là công cụ thiết yếu để diễn giải các mô hình phi tuyến (logit, probit, tobit, mô hình có thứ tự).",
+        "problem_it_solves": "Các hệ số từ mô hình phi tuyến (logit, probit) không có diễn giải cận biên trực tiếp. 'margins' chuyển đổi chúng thành các thay đổi về xác suất dự báo hoặc kết quả — những đại lượng thực sự quan trọng cho chính sách và diễn giải.",
+        "algorithm": "Tính dy/dx tại từng quan sát và lấy trung bình trên toàn bộ mẫu (AME), hoặc đánh giá tại giá trị trung bình của tất cả các biến (MEM). Sai số chuẩn phương pháp Delta được tính tự động.",
+        "when_to_use": [
+          "Ngay sau mỗi ước lượng logit, probit, tobit, oprobit, mlogit",
+          "Để tính xác suất dự báo tại các giá trị biến cụ thể",
+          "Để kiểm định giả thuyết về tác động cận biên dùng contrast và pwcompare"
+        ],
+        "when_not_to_use": [
+          "Không cần diễn giải đặc biệt cho kết quả margins từ các mô hình tuyến tính (OLS) — nó chỉ trả về chính hệ số hồi quy theo đơn vị xác suất"
+        ],
+        "key_assumptions": [
+          "Mô hình nền tảng phải được xác định đúng để tác động cận biên có ý nghĩa",
+          "AME lấy trung bình trên phân phối quan sát được của các biến — tốt hơn MEM cho các quần thể không đồng nhất"
+        ],
+        "output_read_first": "Cột 'dy/dx' cho biết tác động cận biên trung bình. Khoảng tin cậy và giá trị p kiểm tra xem tác động cận biên có khác biệt có ý nghĩa với 0 hay không. Với biến rời rạc, margins hiển thị sự thay đổi xác suất khi chuyển từ 0 sang 1.",
+        "beginner_mistake": "Sử dụng 'margins, dydx(*) atmeans' (MEM) thay vì 'margins, dydx(*)' (AME). Trong hầu hết các nghiên cứu ứng dụng, AME là đại lượng được ưa chuộng và dễ diễn giải hơn.",
+        "basic_syntax": {
+          "code": "logit employed educ exper married, robust\n\n* Tác động cận biên trung bình (AME) — Ưu tiên\nmargins, dydx(*)\n\n* Xác suất dự báo tại các giá trị cụ thể\nmargins, at(educ=(8 12 16))\n\n* Tác động cận biên của giáo dục tại các mức kinh nghiệm khác nhau\nmargins, dydx(educ) at(exper=(0 5 10 15))",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Marginsplot để trực quan hóa biên độ",
+          "code": "logit employed educ exper i.industry, robust\n\n* AME theo ngành nghiệp\nmargins industry, dydx(educ)\nmarginsplot, title(Tác động cận biên của giáo dục theo ngành)",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "marginscontplot (SSC) cho biểu đồ biến liên tục",
+          "reason": "marginscontplot cung cấp các trực quan hóa tinh chỉnh về tác động cận biên dọc theo phân phối của một biến liên tục.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Đừng bao giờ diễn giải trực tiếp hệ số logit/probit/tobit. Luôn chạy kèm 'margins, dydx(*)' để có AME. Bước duy nhất này giúp biến các hệ số khó hiểu thành các thay đổi xác suất có ý nghĩa."
+      }
+    },
+    {
+      "id": "xtreg-fe",
+      "name": "xtreg, fe",
+      "full_name": "Fixed Effects Panel Regression",
+      "stata_version_introduced": "Stata 7",
+      "install": "builtin",
+      "category": "panel-data",
+      "difficulty": "intermediate",
+      "tags": {
+        "data_structure": [
+          "panel",
+          "longitudinal"
+        ],
+        "estimator_type": [
+          "within",
+          "fixed-effects",
+          "OLS"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "panel",
+          "fixed effects",
+          "within estimator",
+          "individual heterogeneity",
+          "unobserved heterogeneity",
+          "demeaning"
+        ]
+      },
+      "related_commands": [
+        "xtreg-re",
+        "xtabond2",
+        "robust-se",
+        "reghdfe",
+        "xtscc",
+        "xtcd2"
+      ],
+      "comparison_pages": [
+        "xtreg-fe-vs-re",
+        "fe-vs-xtabond2",
+        "reghdfe-vs-xtreg"
+      ],
+      "content": {
+        "what_it_does": "Ước lượng hồi quy tuyến tính trên dữ liệu bảng bằng cách loại bỏ các đặc điểm đơn vị không đổi theo thời gian (demeaning). Kiểm soát tất cả sai số không quan sát được ở cấp độ đơn vị mà hằng số theo thời gian.",
+        "problem_it_solves": "Trong OLS dữ liệu chéo, đặc điểm cá nhân không quan sát được (khả năng, văn hóa công ty) có tương quan với X và Y gây chệch biến bị bỏ sót. FE loại bỏ điều này bằng cách sử dụng biến động 'trong' đơn vị theo thời gian.",
+        "algorithm": "Biến đổi tất cả các biến bằng cách trừ đi trung bình theo thời gian của chính đơn vị đó. OLS sau đó áp dụng cho dữ liệu đã biến đổi. Tương đương với việc thêm biến giả cho từng đơn vị (LSDV) nhưng nhanh hơn.",
+        "when_to_use": [
+          "Có dữ liệu bảng (cùng một đơn vị được quan sát qua nhiều thời kỳ)",
+          "Nghi ngờ có yếu tố không quan sát được không đổi theo thời gian tương quan với biến giải thích",
+          "Định danh nhân quả từ biến động nội bộ đơn vị theo thời gian",
+          "Kiểm định Hausman bác bỏ hiệu ứng ngẫu nhiên"
+        ],
+        "when_not_to_use": [
+          "Biến quan tâm không thay đổi theo thời gian (ví dụ: giới tính trong bảng ngắn — FE sẽ loại bỏ nó)",
+          "Bảng rất ngắn với nhiều đơn vị và hiệu ứng động (dùng xtabond2)",
+          "Cần ước lượng hệ số của các biến không đổi theo thời gian"
+        ],
+        "key_assumptions": [
+          "Ngoại sinh nghiêm ngặt: sai số không tương quan với các biến giải thích ở mọi thời điểm",
+          "Không có đa cộng tuyến hoàn hảo sau biến đổi",
+          "Đủ biến động nội bộ đơn vị trong biến giải thích chính"
+        ],
+        "output_read_first": "Báo cáo R-squared 'within' (không dùng 'overall' hay 'between'). Kiểm tra kiểm định F cho ý nghĩa chung. Lưu ý số thực thể và số quan sát trung bình.",
+        "beginner_mistake": "Dùng R-squared 'overall' hoặc 'between' thay vì 'within'. Quên cụm sai số chuẩn ở cấp độ thực thể bảng — luôn dùng 'vce(cluster panelvar)'.",
+        "basic_syntax": {
+          "code": "* Khai báo dữ liệu bảng\nxtset firmid year\n\n* Hồi quy hiệu ứng cố định\nxtreg lwage educ exper, fe\n\n* Với SE cụm (luôn dùng cách này)\nxtreg lwage educ exper, fe vce(cluster firmid)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Với hiệu ứng cố định thời gian và kiểm định Hausman",
+          "code": "xtset firmid year\n\n* FE với biến giả thời gian và SE cụm\nxtreg lwage educ exper i.year, fe vce(cluster firmid)\neststo fe_model\n\n* RE để so sánh\nxtreg lwage educ exper i.year, re\neststo re_model\n\n* Kiểm định Hausman\nhausman fe_model re_model, sigmamore",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "reghdfe (SSC)",
+          "reason": "Cho dữ liệu lớn với nhiều cấp độ hiệu ứng cố định đồng thời (Cá nhân + Công ty + Năm), reghdfe nhanh và linh hoạt hơn nhiều.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Mặc định dùng 'xtreg, fe vce(cluster panelvar)' cho dữ liệu bảng. Luôn cụm ở cấp độ thực thể. Chạy Hausman nhưng coi FE là kết quả cơ sở thận trọng."
+      }
+    },
+    {
+      "id": "xtreg-re",
+      "name": "xtreg, re",
+      "full_name": "Random Effects Panel Regression",
+      "stata_version_introduced": "Stata 7",
+      "install": "builtin",
+      "category": "panel-data",
+      "difficulty": "intermediate",
+      "tags": {
+        "data_structure": [
+          "panel",
+          "longitudinal"
+        ],
+        "estimator_type": [
+          "GLS",
+          "random-effects"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "panel",
+          "random effects",
+          "GLS",
+          "Hausman",
+          "between variation",
+          "time-invariant"
+        ]
+      },
+      "related_commands": [
+        "xtreg-fe",
+        "xtabond2"
+      ],
+      "comparison_pages": [
+        "xtreg-fe-vs-re"
+      ],
+      "content": {
+        "what_it_does": "Ước lượng mô hình dữ liệu bảng coi các hiệu ứng đơn vị là ngẫu nhiên (không tương quan với các biến giải thích). Cho phép ước lượng hệ số của biến không đổi theo thời gian.",
+        "problem_it_solves": "Khi hiệu ứng cá thể thực sự không tương quan với các biến giải thích, RE hiệu quả hơn FE và cho phép ước lượng các biến hằng số (ví dụ: giới tính, chủng tộc).",
+        "algorithm": "Sử dụng GLS khả thi (FGLS) kết hợp biến động 'trong' và 'giữa' đơn vị. Trọng số phụ thuộc tỷ lệ phương sai nội bộ so với phương sai giữa các đơn vị.",
+        "when_to_use": [
+          "Kiểm định Hausman không bác bỏ giả thuyết không (RE nhất quán và hiệu quả hơn FE)",
+          "Cần ước lượng hệ số cho các biến không đổi theo thời gian",
+          "Các đơn vị của bạn là mẫu ngẫu nhiên từ một quần thể lớn hơn"
+        ],
+        "when_not_to_use": [
+          "Khi hiệu ứng cá thể tương quan với các biến giải thích (hầu hết các ứng dụng kinh tế) — lúc này FE là ước lượng nhất quán",
+          "Khi kiểm định Hausman bác bỏ RE để chọn FE"
+        ],
+        "key_assumptions": [
+          "Hiệu ứng ngẫu nhiên không tương quan với tất cả các biến giải thích: Cov(αᵢ, Xᵢₜ) = 0 — đây là giả định then chốt thường bị vi phạm trong kinh tế học",
+          "Lấy mẫu ngẫu nhiên từ quần thể các đơn vị"
+        ],
+        "output_read_first": "Thống kê kiểm định Hausman (chạy riêng). Nếu kiểm định bác bỏ, hãy dùng FE. Đồng thời kiểm tra các thành phần phương sai ước lượng (sigma_u, sigma_e) và thống kê rho.",
+        "beginner_mistake": "Dùng hiệu ứng ngẫu nhiên theo mặc định mà không chạy kiểm định Hausman. Trong hầu hết các ứng dụng kinh tế, hiệu ứng cá thể tương quan với các biến giải thích, làm cho RE không nhất quán. Luôn luôn kiểm định.",
+        "basic_syntax": {
+          "code": "xtset firmid year\n\n* Random effects\nxtreg lwage educ exper tenure, re\neststo re_model\n\n* Fixed effects for comparison\nxtreg lwage educ exper tenure, fe\neststo fe_model\n\n* Hausman test: H0 = RE is consistent (prefer RE)\nhausman fe_model re_model, sigmamore\n* Reject H0 → use FE",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Tiếp cận Mundlak như một thay thế cho kiểm định Hausman",
+          "code": "* Hiệu chỉnh Mundlak (1978): bao gồm trung bình nhóm của các biến giải thích thay đổi theo thời gian\nbysort firmid: egen mean_educ = mean(educ)\nbysort firmid: egen mean_exper = mean(exper)\n\n* RE với các số hạng Mundlak (kiểm định: nếu các trung bình có ý nghĩa, FE là cần thiết)\nxtreg lwage educ exper mean_educ mean_exper, re\ntest mean_educ mean_exper",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "xtreg, fe (Kiểm định Hausman dẫn dắt việc lựa chọn)",
+          "reason": "Nếu kiểm định Hausman bác bỏ, hãy dùng xtreg, fe. Phương pháp Mundlak là một thay thế hữu ích cho kiểm định Hausman khi RE là đặc điểm mô hình bạn ưu tiên.",
+          "install": "builtin"
+        },
+        "practical_recommendation": "Luôn chạy cả FE và RE, sau đó tiến hành kiểm định Hausman. Ưu tiên FE làm mặc định thận trọng trong hầu hết các bối cảnh kinh tế học ứng dụng. Chỉ dùng RE khi kiểm định Hausman rõ ràng không bác bỏ và bạn có lý do lý thuyết để ưu tiên nó."
+      }
+    },
+    {
+      "id": "xtabond2",
+      "name": "xtabond2",
+      "full_name": "Arellano-Bond / Arellano-Bover Dynamic Panel GMM",
+      "stata_version_introduced": "Stata 9 (SSC)",
+      "install": "ssc",
+      "category": "panel-data",
+      "difficulty": "advanced",
+      "tags": {
+        "data_structure": [
+          "panel",
+          "longitudinal"
+        ],
+        "estimator_type": [
+          "GMM",
+          "dynamic-panel"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": true,
+        "keywords": [
+          "dynamic panel",
+          "GMM",
+          "Arellano-Bond",
+          "lagged dependent variable",
+          "system GMM",
+          "instruments"
+        ]
+      },
+      "related_commands": [
+        "xtreg-fe",
+        "xtreg-re",
+        "xtabond2-advanced"
+      ],
+      "comparison_pages": [
+        "fe-vs-xtabond2"
+      ],
+      "content": {
+        "what_it_does": "Ước lượng các mô hình bảng nơi biến phụ thuộc có độ trễ (dynamic panel) bằng phương pháp GMM để xử lý vấn đề nội sinh. Bao gồm Difference GMM (Arellano-Bond) và System GMM (Arellano-Bover/Blundell-Bond).",
+        "problem_it_solves": "Việc đưa biến phụ thuộc trễ vào mô hình hiệu ứng cố định (FE) tạo ra mối tương quan cơ học giữa biến trễ đã lấy trung bình và sai số (chệch Nickell). GMM sử dụng các mức trễ làm biến công cụ để hiệu chỉnh sai lệch này.",
+        "algorithm": "Difference GMM mẫu: lấy sai phân bậc một để loại bỏ hiệu ứng cố định, sau đó dùng các mức trễ của biến làm công cụ. System GMM thêm các phương trình mức với các sai phân trễ làm công cụ bổ sung, giúp tăng hiệu quả cho các chuỗi có tính dai dẳng cao.",
+        "when_to_use": [
+          "Mô hình bảng động: yᵢₜ = ρyᵢₜ₋₁ + Xᵢₜβ + αᵢ + εᵢₜ",
+          "Khi kết quả có tính dai dẳng (tự tương quan mạnh)",
+          "Khi nghi ngờ các biến giải thích khác là nội sinh",
+          "Khi N lớn và T nhỏ (Quy tắc: N > T)"
+        ],
+        "when_not_to_use": [
+          "Khi T lớn và N nhỏ (bối cảnh chuỗi thời gian — chệch Nickell là không đáng kể)",
+          "Khi không có lý do lý thuyết để đưa biến trễ vào mô hình",
+          "Tránh System GMM khi các công cụ cho phương trình mức bị yếu",
+          "Đừng dùng xtabond2 một cách máy móc — nó đòi hỏi việc lựa chọn biến công cụ cẩn thận"
+        ],
+        "key_assumptions": [
+          "Không có tự tương quan trong εᵢₜ ngoài AR(1) — kiểm định bằng AR(2) của Arellano-Bond",
+          "Các biến công cụ là hợp lệ — kiểm định bằng Hansen J-test",
+          "N >> T để các tính chất tiệm cận phù hợp"
+        ],
+        "output_read_first": "Giá trị p của kiểm định AR(2) (nên > 0.05 — nếu có ý nghĩa, mô hình bị tự tương quan), giá trị p của kiểm định Hansen J (nên > 0.05 — kiểm tra tính hợp lệ của công cụ), và hệ số của biến phụ thuộc trễ.",
+        "beginner_mistake": "Bỏ qua các kết quả kiểm định AR(2) hoặc Hansen. Kiểm định AR(2) có ý nghĩa làm mất hiệu lực của các ước lượng Difference GMM. Giá trị p của kiểm định Hansen quá cao (p > 0.25) có thể là dấu hiệu của sự bùng nổ biến công cụ — hãy dùng tùy chọn 'collapse' để giới hạn số lượng công cụ.",
+        "basic_syntax": {
+          "code": "* Install first\nssc install xtabond2\n\n* Difference GMM\nxtset firmid year\nxtabond2 lwage L.lwage educ exper, ///\n  gmm(L.lwage, lag(2 .)) iv(educ exper) ///\n  robust nodiffsargan\n\n* System GMM\nxtabond2 lwage L.lwage educ exper, ///\n  gmm(L.lwage, lag(2 .) eq(both)) iv(educ exper, eq(level)) ///\n  robust nodiffsargan",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "System GMM với các biến công cụ được gom cụm (collapse) và chẩn đoán đầy đủ",
+          "code": "xtabond2 lwage L.lwage educ exper i.year, ///\n  gmm(L.lwage educ, lag(2 4) collapse eq(both)) ///\n  iv(exper i.year, eq(level)) ///\n  robust small twostep\n\n* Kiểm tra: AR(1) nên có ý nghĩa, AR(2) KHÔNG nên có ý nghĩa\n* Kiểm định Hansen J: p > 0.05 là cần thiết cho tính hợp lệ của biến công cụ\n* Số lượng công cụ nên < số lượng nhóm",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "xtdpdsys (System GMM tích hợp sẵn của Stata, đơn giản hơn nhưng ít linh hoạt hơn)",
+          "reason": "xtdpdsys đơn giản hơn nhưng ít quyền kiểm soát hơn đối với tập hợp biến công cụ. xtabond2 được ưu tiên trong nghiên cứu vì các kết quả chẩn đoán và tính linh hoạt của nó.",
+          "install": "builtin"
+        },
+        "practical_recommendation": "xtabond2 mạnh mẽ nhưng dễ bị lạm dụng. Chỉ dùng khi mô hình thực sự yêu cầu biến phụ thuộc trễ. Luôn báo cáo và diễn giải các kiểm định AR(2) và Hansen. Dùng tùy chọn 'collapse' để ngăn chặn bùng nổ biến công cụ. Tham khảo Roodman (2009) trước khi sử dụng."
+      }
+    },
+    {
+      "id": "ivregress",
+      "name": "ivregress 2sls",
+      "full_name": "Official Stata IV / 2SLS",
+      "stata_version_introduced": "Stata 10",
+      "install": "builtin",
+      "category": "iv-endogeneity",
+      "difficulty": "intermediate",
+      "tags": {
+        "data_structure": [
+          "cross-section"
+        ],
+        "estimator_type": [
+          "IV",
+          "2SLS"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": true,
+        "keywords": [
+          "instrumental variables",
+          "2SLS",
+          "IV",
+          "endogeneity",
+          "first stage",
+          "instruments"
+        ]
+      },
+      "related_commands": [
+        "ivreg2"
+      ],
+      "comparison_pages": [
+        "ivregress-vs-ivreg2"
+      ],
+      "content": {
+        "what_it_does": "Ước lượng hồi quy biến công cụ (IV) thông qua 2SLS (hoặc LIML/GMM), giúp hiệu chỉnh vấn đề nội sinh khi một hoặc nhiều biến giải thích tương quan với sai số.",
+        "problem_it_solves": "Khi một biến giải thích X là nội sinh (tương quan với sai số — do biến bị bỏ sót, sai số đo lường, hoặc quan hệ nhân quả ngược), OLS sẽ bị chệch và không nhất quán. IV sử dụng một biến công cụ Z có ảnh hưởng đến X nhưng không liên quan trực tiếp đến kết quả Y.",
+        "algorithm": "2SLS: Giai đoạn 1 hồi quy biến nội sinh theo các biến công cụ và biến kiểm soát. Giai đoạn 2 hồi quy kết quả theo các giá trị dự báo từ giai đoạn 1 và các biến kiểm soát. Ước lượng IV là β_IV = (Z'X)⁻¹Z'y.",
+        "when_to_use": [
+          "Bạn có một biến công cụ hợp lệ: (1) có liên quan — Z tương quan mạnh với X, (2) ngoại sinh — Z chỉ ảnh hưởng đến Y thông qua X",
+          "Các ứng dụng kinh điển: lượng mưa làm IV cho hoạt động kinh tế, khoảng cách đến trường đại học làm IV cho giáo dục"
+        ],
+        "when_not_to_use": [
+          "Biến công cụ yếu (thống kê F giai đoạn 1 < 10) — các ước lượng bị chệch nghiêm trọng về phía OLS",
+          "Biến công cụ không hợp lệ (vi phạm điều kiện ngoại sinh) — trong trường hợp này IV còn tệ hơn cả OLS",
+          "Luôn ưu tiên ivreg2 hơn ivregress để có các kết quả chẩn đoán tốt hơn"
+        ],
+        "key_assumptions": [
+          "Tính liên quan: Cov(Z, X) ≠ 0 — biến công cụ phải tương quan với biến nội sinh",
+          "Điều kiện ngoại sinh: Cov(Z, ε) = 0 — biến công cụ chỉ ảnh hưởng đến Y thông qua X",
+          "Tính đơn điệu (đối với diễn giải LATE với biến công cụ nhị phân)"
+        ],
+        "output_read_first": "Thống kê F giai đoạn 1 (phải > 10, tốt nhất là > 20 để suy luận đáng tin cậy). Hệ số của biến nội sinh. Đối với nhiều biến công cụ, hãy kiểm tra kiểm định quá định danh Sargan-Hansen.",
+        "beginner_mistake": "Không báo cáo hồi quy giai đoạn 1 hoặc thống kê F giai đoạn 1. Biến công cụ yếu làm cho các ước lượng IV cực kỳ không đáng tin cậy. Ngoài ra: nhầm lẫn giữa điều kiện ngoại sinh và điều kiện liên quan — bạn có thể kiểm định tính liên quan nhưng không thể kiểm định trực tiếp điều kiện ngoại sinh.",
+        "basic_syntax": {
+          "code": "* 2SLS cơ bản: educ là nội sinh, dùng college_proximity làm công cụ\nivregress 2sls lwage (educ = college_proximity) exper, robust\n\n* Xem kết quả giai đoạn 1\nivregress 2sls lwage (educ = college_proximity) exper, robust first",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Nhiều biến nội sinh và kiểm định quá định danh",
+          "code": "ivregress 2sls lwage (educ tenure = prox_college prox_employer) exper, robust\n\n* Kiểm định nội sinh Durbin-Wu-Hausman\nestat endogenous\n\n* Kiểm định quá định danh (Hansen J)\nestat overid",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "ivreg2 (SSC)",
+          "reason": "ivreg2 cung cấp các kết quả chẩn đoán phong phú hơn nhiều: kiểm định biến công cụ yếu Kleibergen-Paap, Hansen J, thống kê Cragg-Donald, và các ước lượng LIML/Fuller. Luôn ưu tiên ivreg2 cho các công trình nghiên cứu.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Dùng ivregress để ước lượng 2SLS nhanh. Đối với các công việc đòi hỏi chất lượng công bố, hãy chuyển sang ivreg2 để có đầu ra chẩn đoán phong phú hơn. Luôn luôn báo cáo thống kê F giai đoạn 1 bất kể bạn dùng lệnh nào."
+      }
+    },
+    {
+      "id": "ivreg2",
+      "name": "ivreg2",
+      "full_name": "Extended IV/2SLS/GMM Estimation",
+      "stata_version_introduced": "Stata 9 (SSC)",
+      "install": "ssc",
+      "category": "iv-endogeneity",
+      "difficulty": "intermediate",
+      "tags": {
+        "data_structure": [
+          "cross-section",
+          "panel"
+        ],
+        "estimator_type": [
+          "IV",
+          "2SLS",
+          "GMM",
+          "LIML"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": true,
+        "keywords": [
+          "instrumental variables",
+          "2SLS",
+          "GMM",
+          "LIML",
+          "weak instruments",
+          "Kleibergen-Paap",
+          "Hansen",
+          "endogeneity",
+          "first stage"
+        ]
+      },
+      "related_commands": [
+        "ivregress",
+        "ivreghdfe",
+        "boottest"
+      ],
+      "comparison_pages": [
+        "ivregress-vs-ivreg2"
+      ],
+      "content": {
+        "what_it_does": "Lệnh ước lượng IV tiêu chuẩn vàng trong Stata. Mở rộng ivregress với các kiểm định toàn diện về biến công cụ yếu, kiểm định quá định danh, kiểm định nội sinh, LIML, và khả năng hồi quy bảng IV.",
+        "problem_it_solves": "Cung cấp tất cả các chẩn đoán cần thiết để đánh giá xem chiến lược IV của bạn có đáng tin cậy hay không — điều mà lệnh ivregress chính thức còn thiếu.",
+        "algorithm": "Các ước lượng 2SLS, LIML, GMM và CUE. Các bổ sung chính so với ivregress: thống kê Kleibergen-Paap rk (kiểm định biến công cụ yếu vững với phương sai thay đổi/cụm), thống kê Hansen J, thống kê C (kiểm định sai phân Sargan).",
+        "when_to_use": [
+          "Cho bất kỳ hồi quy IV nào trong các công trình nghiên cứu chất lượng",
+          "Khi cần thống kê biến công cụ yếu Kleibergen-Paap (bắt buộc khi dùng sai số chuẩn cụm)",
+          "Khi kiểm định nhiều biến nội sinh",
+          "Cho ước lượng LIML (vững hơn 2SLS trước vấn đề biến công cụ yếu)"
+        ],
+        "when_not_to_use": [
+          "Không cần thiết cho các bước thăm dò IV nhanh — ivregress là đủ",
+          "Đối với IV chuỗi thời gian, hãy xem xét các cách tiếp cận thay thế"
+        ],
+        "key_assumptions": [
+          "Tương tự 2SLS/IV. Biến công cụ phải có liên quan và thỏa mãn điều kiện ngoại sinh."
+        ],
+        "output_read_first": "Thống kê F của Kleibergen-Paap rk Wald (kiểm định biến công cụ yếu — nên > 10-16 theo giá trị tới hạn Stock-Yogo). Giá trị p của Hansen J (nên > 0.05 — tính hợp lệ của công cụ). Tập tin cậy Anderson-Rubin khi biến công cụ yếu.",
+        "beginner_mistake": "Sử dụng thống kê F của Cragg-Donald với sai số chuẩn cụm — điều này là không chính xác. Luôn sử dụng thống kê Kleibergen-Paap rk khi sử dụng sai số chuẩn vững-cụm. ivreg2 báo cáo cả hai nên rất dễ gây nhầm lẫn.",
+        "basic_syntax": {
+          "code": "* Cài đặt\nssc install ivreg2\n\n* 2SLS cơ bản với SE vững\nivreg2 lwage (educ = college_proximity) exper, robust\n\n* Với SE cụm (dùng thống kê KP rk, không dùng CD)\nivreg2 lwage (educ = college_proximity) exper, robust cluster(county)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "LIML với đầy đủ các chẩn đoán",
+          "code": "* LIML (vững hơn 2SLS khi biến công cụ yếu)\nivreg2 lwage (educ = prox1 prox2) exper, liml robust\n\n* Kết quả hiển thị:\n* - Kleibergen-Paap rk Wald F-stat (kiểm định công cụ yếu với cụm)\n* - Thống kê Hansen J (quá định danh)\n* - Thống kê C (kiểm định nội sinh cho tập con các công cụ)\n* - R-squared riêng phần của các biến công cụ bị loại trừ\n\n* Xem kết quả giai đoạn 1 khi có yêu cầu\nivreg2 lwage (educ = prox1 prox2) exper, robust ffirst",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "weakiv (SSC) cho suy luận vững với biến công cụ yếu",
+          "reason": "Khi thống kê Kleibergen-Paap F dưới 10, suy luận 2SLS tiêu chuẩn là không đáng tin cậy ngay cả với ivreg2. Dùng weakiv cho các tập tin cậy Anderson-Rubin có giá trị dưới điều kiện biến công cụ yếu.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "ivreg2 là lệnh IV dứt khoát cho nghiên cứu ứng dụng. Luôn báo cáo: (1) thống kê Kleibergen-Paap rk Wald F, (2) giá trị p của Hansen J nếu quá định danh, (3) kết quả giai đoạn 1. Nếu thống kê F giai đoạn 1 của bạn < 10, chiến lược IV của bạn đang gặp rắc rối nghiêm trọng."
+      }
+    },
+    {
+      "id": "dfuller",
+      "name": "dfuller",
+      "full_name": "Augmented Dickey-Fuller Unit Root Test",
+      "stata_version_introduced": "Stata 6",
+      "install": "builtin",
+      "category": "time-series",
+      "difficulty": "intermediate",
+      "tags": {
+        "data_structure": [
+          "time-series"
+        ],
+        "estimator_type": [
+          "diagnostics",
+          "stationarity"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "unit root",
+          "ADF",
+          "stationarity",
+          "Dickey-Fuller",
+          "time series",
+          "integration"
+        ]
+      },
+      "related_commands": [
+        "arima",
+        "var"
+      ],
+      "comparison_pages": [],
+      "content": {
+        "what_it_does": "Kiểm tra xem một chuỗi thời gian có nghiệm đơn vị (không dừng, I(1)) hay dừng (I(0)). Đây là điều kiện tiên quyết để quyết định xem có nên lấy sai phân hay loại bỏ xu hướng của chuỗi trước khi lập mô hình.",
+        "problem_it_solves": "Hồi quy các chuỗi không dừng với nhau tạo ra hồi quy giả — R-squared cao và các thống kê t có vẻ có ý nghĩa nhưng thực chất là những kết quả vô nghĩa do các xu hướng chung gây ra.",
+        "algorithm": "Kiểm định H₀: chuỗi có nghiệm đơn vị (không dừng) thông qua một hồi quy mở rộng bao gồm các trễ của sai phân. Thống kê ADF tuân theo các giá trị tới hạn Dickey-Fuller (không chuẩn), không phải phân phối chuẩn.",
+        "when_to_use": [
+          "Trước khi thực hiện bất kỳ hồi quy chuỗi thời gian nào — kiểm tra tính dừng cho tất cả các biến",
+          "Trước khi quyết định sử dụng mức, sai phân bậc một, hoặc các mô hình đồng liên kết",
+          "Là điều kiện tiên quyết cho việc lập mô hình ARIMA, VAR, hoặc VECM"
+        ],
+        "when_not_to_use": [
+          "Đừng chỉ dựa vào dfuller — nó có lực kiểm định thấp đối với các quá trình gần có nghiệm đơn vị. Hãy bổ sung bằng KPSS (kpss, SSC) hoặc Phillips-Perron (pperron, tích hợp sẵn)",
+          "Các điểm gãy cấu trúc làm giảm lực kiểm định — dùng zandrews (SSC) cho các kiểm định vững với điểm gãy"
+        ],
+        "key_assumptions": [
+          "Kiểm định có lực thấp trong các mẫu nhỏ và đối với các phương án gần nghiệm đơn vị",
+          "Giả thuyết không là không dừng — việc không bác bỏ KHÔNG phải là bằng chứng của tính dừng"
+        ],
+        "output_read_first": "Thống kê kiểm định ADF và các giá trị tới hạn của nó tại 1%, 5%, 10%. Bác bỏ H₀ (nghiệm đơn vị) nếu thống kê kiểm định âm hơn giá trị tới hạn. Đừng dùng các giá trị tới hạn phân phối chuẩn tiêu chuẩn — chúng sai cho kiểm định này.",
+        "beginner_mistake": "Chấp nhận tính không dừng (không bác bỏ H₀) như là bằng chứng của một nghiệm đơn vị. Kiểm định ADF có giả thuyết không là có nghiệm đơn vị — việc không bác bỏ nghĩa là bạn không thể loại trừ khả năng có nghiệm đơn vị, chứ không phải nghiệm đơn vị chắc chắn tồn tại. Ngoài ra: sử dụng giá trị p mà không kiểm tra xem chúng có đến từ bảng ADF hay không.",
+        "basic_syntax": {
+          "code": "* Khai báo chuỗi thời gian\ntsset year\n\n* Kiểm định ADF với việc tự động lựa chọn trễ\ndfuller gdp, trend lags(4)\n\n* Không có xu hướng (phù hợp nếu chuỗi không có xu hướng tiền định)\ndfuller gdp, lags(4)\n\n* Chỉ có drift\ndfuller gdp, drift lags(4)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Nhiều kiểm định để đảm bảo tính vững",
+          "code": "tsset year\n\n* ADF\ndfuller gdp, trend lags(4)\n\n* Phillips-Perron (hiệu chỉnh tự tương quan phi tham số)\npperron gdp, trend lags(4)\n\n* KPSS (giả thuyết không là tính dừng — ngược lại với ADF)\nssc install kpss\nkpss gdp, trend\n\n* Nếu cả ADF và PP đều bác bỏ nghiệm đơn vị, chuỗi có khả năng cao là I(0)\n* Nếu KPSS cũng chấp nhận H0, đó là bằng chứng mạnh mẽ cho tính dừng",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "zandrews (SSC) cho kiểm định nghiệm đơn vị có gãy cấu trúc",
+          "reason": "ADF tiêu chuẩn có lực kiểm định thấp khi có sự hiện diện của gãy cấu trúc. Kiểm định zandrews (Zivot-Andrews) cho phép xác định ngày gãy cấu trúc một cách nội sinh.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Luôn chạy dfuller trước khi lập bất kỳ mô hình chuỗi thời gian nào. Sử dụng nhiều kiểm định (dfuller, pperron, kpss) để đảm bảo tính vững. Nếu các kiểm định không thống nhất, hãy xem xét liệu có sự hiện diện của gãy cấu trúc hay không. Đừng bao giờ lập mô hình các chuỗi không dừng ở dạng mức mà không có kiểm định đồng liên kết."
+      }
+    },
+    {
+      "id": "arima",
+      "name": "arima",
+      "full_name": "ARIMA Time Series Estimation",
+      "stata_version_introduced": "Stata 8",
+      "install": "builtin",
+      "category": "time-series",
+      "difficulty": "intermediate",
+      "tags": {
+        "data_structure": [
+          "time-series"
+        ],
+        "estimator_type": [
+          "MLE",
+          "time-series"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "ARIMA",
+          "AR",
+          "MA",
+          "time series",
+          "autocorrelation",
+          "Box-Jenkins",
+          "forecasting"
+        ]
+      },
+      "related_commands": [
+        "dfuller",
+        "var"
+      ],
+      "comparison_pages": [
+        "arima-vs-var"
+      ],
+      "content": {
+        "what_it_does": "Ước lượng các mô hình trung bình trượt tích hợp tự hồi quy (ARIMA) cho chuỗi thời gian đơn biến. Chỉnh thể hóa động lực của một chuỗi duy nhất dưới dạng hàm của các giá trị quá khứ của chính nó (AR), các sai số quá khứ (MA) và việc lấy sai phân (I).",
+        "problem_it_solves": "Sau khi xác nhận chuỗi là dừng (hoặc làm cho chuỗi dừng thông qua lấy sai phân), ARIMA lập mô hình cấu trúc tự tương quan thời gian của nó để suy diễn và dự báo.",
+        "algorithm": "Ước lượng MLE của: Φ(L)Δᵈyₜ = c + Θ(L)εₜ trong đó Φ là đa thức AR, Θ là đa thức MA, d là bậc sai phân. Phương pháp luận Box-Jenkins dẫn dắt việc lựa chọn p, d, q thông qua ACF/PACF.",
+        "when_to_use": [
+          "Lập mô hình và dự báo chuỗi thời gian đơn biến",
+          "Sau khi xác nhận tính dừng (d=0) hoặc sử dụng lấy sai phân (d=1, 2)",
+          "Khi ACF/PACF hiển thị các cấu trúc tự tương quan có hệ thống"
+        ],
+        "when_not_to_use": [
+          "Nhiều chuỗi thời gian có liên quan — hãy sử dụng VAR thay thế",
+          "Chuỗi rất ngắn (T < 50) — MLE ước lượng kém",
+          "Khi cần kết hợp các gãy cấu trúc — hãy sử dụng các cách tiếp cận khác"
+        ],
+        "key_assumptions": [
+          "Tính dừng sau khi lấy sai phân bậc d",
+          "Động lực tuyến tính trong thành phần ARMA",
+          "Không có gãy cấu trúc trong khoảng thời gian mẫu"
+        ],
+        "output_read_first": "AIC/BIC để lựa chọn mô hình giữa các tổ hợp (p, q) khác nhau. Kiểm định Ljung-Box Q trên phần dư (nên hiển thị không còn tự tương quan). Ý nghĩa của các hệ số AR và MA.",
+        "beginner_mistake": "Chọn p, d và q một cách tùy tiện mà không xem xét các đồ thị ACF/PACF. Ngoài ra: không kiểm tra phần dư để xem còn tự tương quan hay không sau khi ước lượng — một kiểm định Ljung-Box có ý nghĩa có nghĩa là bậc ARIMA của bạn đã sai.",
+        "basic_syntax": {
+          "code": "tsset year\n\n* Xem xét ACF/PACF để dẫn dắt đặc điểm mô hình\ncorrgram gdp_growth\nac gdp_growth   // Hàm tự tương quan\npac gdp_growth  // Hàm tự tương quan riêng phần\n\n* ARIMA(1,0,1): AR(1) + MA(1), không lấy sai phân (chuỗi dừng)\narima gdp_growth, arima(1,0,1)\n\n* ARIMA(1,1,1): lấy sai phân một lần sau đó là AR(1)+MA(1)\narima gdp, arima(1,1,1)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Với các biến giải thích ngoại sinh (ARIMAX) và dự báo",
+          "code": "* ARIMAX: ARIMA với biến giải thích ngoại sinh\narima gdp_growth trade_openness, arima(2,0,1)\n\n* Dự báo ngoài mẫu\npredict yhat, dynamic(tq(2020q1))\n\n* Chẩn đoán phần dư\npredict resid, residuals\nactest resid, lags(10)  // Kiểm định Ljung-Box Q",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "arch (cho các mô hình GARCH/biến động) / var (cho đa biến)",
+          "reason": "ARIMA chỉ dành cho chuỗi đơn biến với phương sai không đổi. Dùng ARCH/GARCH cho chuỗi có phương sai thay đổi và VAR cho các hệ thống nhiều chuỗi tương quan.",
+          "install": "builtin"
+        },
+        "practical_recommendation": "Luôn chạy dfuller trước khi lập mô hình ARIMA. Theo dõi phương pháp luận Box-Jenkins: Nhận dạng (Identify), Ước lượng (Estimate), Chẩn đoán (Diagnose). AIC/BIC là những hướng dẫn hữu ích nhưng việc chẩn đoán phần dư là tối quan trọng để có một mô hình hợp lệ."
+      }
+    },
+    {
+      "id": "var",
+      "name": "var",
+      "full_name": "Vector Autoregression",
+      "stata_version_introduced": "Stata 8",
+      "install": "builtin",
+      "category": "time-series",
+      "difficulty": "advanced",
+      "tags": {
+        "data_structure": [
+          "time-series"
+        ],
+        "estimator_type": [
+          "OLS",
+          "time-series",
+          "multivariate"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "VAR",
+          "vector autoregression",
+          "IRF",
+          "impulse response",
+          "Granger causality",
+          "macroeconomics",
+          "SVAR"
+        ]
+      },
+      "related_commands": [
+        "dfuller",
+        "arima"
+      ],
+      "comparison_pages": [
+        "arima-vs-var"
+      ],
+      "content": {
+        "what_it_does": "Ước lượng một hệ thống các phương trình trong đó mỗi biến được lập mô hình như một hàm của các giá trị quá khứ của chính nó và các giá trị quá khứ của tất cả các biến khác trong hệ thống. Được sử dụng cho phân tích chuỗi thời gian kinh tế vĩ mô và tài chính.",
+        "problem_it_solves": "Khi nhiều chuỗi thời gian được xác định đồng thời và phụ thuộc lẫn nhau, mô hình VAR nắm bắt toàn bộ hệ thống động thay vì lập mô hình riêng lẻ từng chuỗi.",
+        "algorithm": "Ước lượng p phương trình bằng OLS (mỗi phương trình cho một biến), mỗi phương trình bao gồm L trễ của tất cả các biến. Hệ thống VAR(p) là Yₜ = A₁Yₜ₋₁ + ... + AₚYₜ₋ₚ + εₜ. Các hàm IRF theo dõi phản ứng của từng biến đối với các cú sốc cấu trúc.",
+        "when_to_use": [
+          "Nhiều chuỗi thời gian dừng có khả năng phụ thuộc lẫn nhau",
+          "Phân tích các tác động động của cú sốc lên các biến (hàm phản ứng xung - IRF)",
+          "Kiểm định quan hệ nhân quả Granger giữa các biến",
+          "Phân tích kinh tế vĩ mô về tương tác giữa chính sách tiền tệ, GDP và lạm phát"
+        ],
+        "when_not_to_use": [
+          "Các chuỗi không dừng mà không có đồng liên kết — hãy sử dụng VECM thay thế",
+          "Khi bạn có một lý thuyết cấu trúc đặt ra các ràng buộc — hãy sử dụng SVAR",
+          "Các hệ thống rất lớn (nhiều biến) với T nhỏ — các bậc tự do bị cạn kiệt nhanh chóng"
+        ],
+        "key_assumptions": [
+          "Tính dừng của tất cả các chuỗi đưa vào (hoặc đồng liên kết nếu ở dạng mức)",
+          "Lựa chọn độ dài trễ chính xác (sử dụng AIC, BIC, HQIC)",
+          "Sơ đồ định danh để diễn giải cấu trúc của các IRF"
+        ],
+        "output_read_first": "Tiêu chí lựa chọn trễ (lệnh varsoc trước var). Sau đó là các đồ thị IRF (irf create + irf graph). Kiểm định nhân quả Granger (vargranger). Và kiểm tra tính ổn định (varstable — tất cả các giá trị riêng phải nằm trong vòng tròn đơn vị).",
+        "beginner_mistake": "Không kiểm tra tính dừng trước khi chạy VAR và không kiểm tra tính ổn định bằng varstable. Một VAR không dừng tạo ra các động lực giả. Ngoài ra: diễn giải các IRF của VAR dạng thu gọn như là quan hệ nhân quả mà không có sơ đồ định danh.",
+        "basic_syntax": {
+          "code": "tsset year\n\n* Lựa chọn độ dài trễ\nvarsoc gdp inflation interest, maxlag(8)\n\n* Ước lượng VAR với 2 trễ\nvar gdp inflation interest, lags(1/2)\n\n* Kiểm tra tính ổn định (giá trị riêng nằm trong vòng tròn đơn vị)\nvarstable\n\n* Kiểm định nhân quả Granger\nvargranger",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Hàm phản ứng xung và VAR cấu trúc (SVAR)",
+          "code": "var gdp inflation interest, lags(1/2)\n\n* Tạo và vẽ đồ thị IRF (định danh Cholesky)\nirf create main_irf, set(myirf) replace\nirf graph oirf, impulse(interest) response(gdp inflation) ///\n  ci(95) yline(0)\n\n* SVAR cấu trúc với các ràng buộc ngắn hạn\nmatrix A = (1,0,0 \\ .,1,0 \\ .,.,1)  // Ma trận tam giác dưới\nmatrix B = I(3)\nsvar gdp inflation interest, aeq(A) beq(B) lags(1/2)",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "vec (VECM cho các hệ thống đồng liên kết)",
+          "reason": "Nếu các chuỗi của bạn là không dừng nhưng có đồng liên kết (chia sẻ một mối quan hệ dài hạn), hãy sử dụng vec (Mô hình hiệu chỉnh sai số vector) thay vì VAR lấy sai phân.",
+          "install": "builtin"
+        },
+        "practical_recommendation": "Luôn luôn: (1) kiểm tra tính dừng bằng dfuller, (2) chọn độ dài trễ bằng varsoc, (3) kiểm tra tính ổn định bằng varstable, (4) kiểm định nhân quả Granger bằng vargranger. IRFs đòi hỏi một giả định định danh — hãy nêu rõ sơ đồ định danh của bạn."
+      }
+    },
+    {
+      "id": "diff",
+      "name": "diff",
+      "full_name": "Difference-in-Differences Estimation",
+      "stata_version_introduced": "N/A (SSC)",
+      "install": "ssc",
+      "category": "causal-inference",
+      "difficulty": "intermediate",
+      "tags": {
+        "data_structure": [
+          "panel",
+          "repeated-cross-section"
+        ],
+        "estimator_type": [
+          "DID",
+          "causal-inference"
+        ],
+        "dependency_type": [
+          "continuous",
+          "binary"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "difference-in-differences",
+          "DID",
+          "policy evaluation",
+          "treatment effect",
+          "parallel trends",
+          "natural experiment"
+        ]
+      },
+      "related_commands": [
+        "csdid",
+        "psmatch2",
+        "rdrobust"
+      ],
+      "comparison_pages": [
+        "did-simple-vs-csdid"
+      ],
+      "content": {
+        "what_it_does": "Triển khai ước lượng Sai phân trong Sai phân (DID) cổ điển hai giai đoạn, hai nhóm. So sánh sự thay đổi kết quả theo thời gian của nhóm được can thiệp với sự thay đổi của nhóm đối chứng không được can thiệp.",
+        "problem_it_solves": "Xác định tác động nhân quả của một chính sách hoặc can thiệp khi việc gán can thiệp không mang tính ngẫu nhiên, bằng cách sử dụng các xu hướng trước can thiệp để triệt tiêu các khác biệt không đổi theo thời gian và các cú sốc thời gian chung.",
+        "algorithm": "ATT = (Ȳ_treated,post - Ȳ_treated,pre) - (Ȳ_control,post - Ȳ_control,pre). Dưới dạng hồi quy: yᵢₜ = α + βtreated + γpost + δ(treated×post) + εᵢₜ, trong đó δ là ước lượng DID.",
+        "when_to_use": [
+          "Thiết kế hai giai đoạn, hai nhóm rõ ràng với một thí nghiệm tự nhiên",
+          "Khi bạn có thể lập luận một cách thuyết phục về xu hướng song song trước can thiệp giữa nhóm can thiệp và nhóm đối chứng",
+          "Cần ước lượng nhân quả nhanh chóng và dễ diễn giải để đánh giá chính sách"
+        ],
+        "when_not_to_use": [
+          "Thời điểm can thiệp so le (can thiệp được triển khai tại các thời điểm khác nhau) — hãy sử dụng csdid",
+          "Nhiều hơn hai nhóm hoặc giai đoạn với tác động can thiệp không đồng nhất — hãy sử dụng csdid/drdid",
+          "Khi giả định xu hướng song song không hợp lý"
+        ],
+        "key_assumptions": [
+          "Xu hướng song song (Parallel trends): nếu không có can thiệp, kết quả của nhóm can thiệp và nhóm đối chứng sẽ đi theo các quỹ đạo song song",
+          "Không có sự dự liệu (No anticipation): tác động can thiệp không ảnh hưởng đến kết quả trước khi can thiệp bắt đầu",
+          "Giả định giá trị can thiệp đơn vị ổn định (SUTVA): không có tác động lan tỏa giữa các đơn vị"
+        ],
+        "output_read_first": "Hệ số DID (δ) và sai số chuẩn của nó. Đồng thời kiểm tra bất kỳ kiểm định xu hướng trước nào (nghiên cứu sự kiện). Giả định xu hướng song song là không thể kiểm định trực tiếp nhưng có thể được điều tra thông qua các kiểm định placebo giai đoạn trước.",
+        "beginner_mistake": "Sử dụng công thức DID cổ điển trong bối cảnh can thiệp so le (khi các đơn vị khác nhau nhận can thiệp tại các thời điểm khác nhau). Với can thiệp so le và tác động không đồng nhất, ước lượng DID 2x2 cổ điển có thể bị chệch nghiêm trọng — hãy dùng csdid thay thế.",
+        "basic_syntax": {
+          "code": "* Cài đặt diff\nssc install diff\n\n* DID cơ bản\ndiff outcome, treated(treatment_dummy) period(post_dummy)\n\n* Thông qua hồi quy (tương đương)\nreg outcome i.treated##i.post, robust\n\n* Với các biến kiểm soát và SE cụm\nreg outcome i.treated##i.post educ exper, vce(cluster groupid)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Nghiên cứu sự kiện (Event study) kiểm định xu hướng trước",
+          "code": "* Event study: kiểm định xu hướng trước và trực quan hóa động lực\nreg outcome i.year##i.treated controls, vce(cluster groupid)\n\n* Vẽ đồ thị các hệ số so với giai đoạn trước can thiệp\ncoefplot, keep(*.year#1.treated) omitted ///\n  coeflabels(2015.year#1.treated = \"-3\" ///\n             2016.year#1.treated = \"-2\" ///\n             2017.year#1.treated = \"-1\" ///\n             2019.year#1.treated = \"+1\") ///\n  yline(0) vertical xline(3.5)",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "csdid (SSC) cho DID so le (staggered)",
+          "reason": "Nếu thời điểm can thiệp thay đổi giữa các đơn vị, DID cổ điển bị chệch dưới sự không đồng nhất của tác động can thiệp. Dùng csdid (Callaway-Sant'Anna) để ước lượng DID so le vững.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Đối với DID 2x2 rõ ràng, hồi quy đơn giản với các số hạng tương tác là đủ và minh bạch. Luôn vẽ đồ thị nghiên cứu sự kiện để điều tra các xu hướng trước. Đối với can thiệp so le, ĐỪNG sử dụng DID cổ điển — hãy dùng csdid thay thế."
+      }
+    },
+    {
+      "id": "psmatch2",
+      "name": "psmatch2",
+      "full_name": "Propensity Score Matching",
+      "stata_version_introduced": "Stata 8 (SSC)",
+      "install": "ssc",
+      "category": "causal-inference",
+      "difficulty": "intermediate",
+      "tags": {
+        "data_structure": [
+          "cross-section"
+        ],
+        "estimator_type": [
+          "matching",
+          "propensity-score"
+        ],
+        "dependency_type": [
+          "continuous",
+          "binary"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "propensity score",
+          "matching",
+          "ATT",
+          "ATE",
+          "selection on observables",
+          "counterfactual"
+        ]
+      },
+      "related_commands": [
+        "diff",
+        "rdrobust"
+      ],
+      "comparison_pages": [
+        "psmatch2-vs-rdrobust"
+      ],
+      "content": {
+        "what_it_does": "Ước lượng tác động can thiệp bằng cách ghép cặp các đơn vị được can thiệp với các đơn vị đối chứng tương tự dựa trên điểm số xu hướng ước lượng (xác suất dự báo được can thiệp), sau đó so sánh kết quả giữa các cặp đã được ghép.",
+        "problem_it_solves": "Khi việc gán can thiệp không ngẫu nhiên mà phụ thuộc vào các đặc điểm quan sát được, việc ghép cặp dựa trên các đặc điểm đó sẽ loại bỏ chệch lựa chọn (dưới giả định lựa chọn dựa trên các biến quan sát được).",
+        "algorithm": "Bước 1: ước lượng điểm số xu hướng (thường qua logit). Bước 2: ghép các đơn vị can thiệp với các đơn vị đối chứng có điểm số xu hướng tương tự (láng giềng gần nhất, kernel, caliper, v.v.). Bước 3: tính ATT là chênh lệch kết quả trung bình trong các cặp đã ghép.",
+        "when_to_use": [
+          "Việc lựa chọn can thiệp được thúc đẩy hoàn toàn bởi các đặc điểm quan sát được (giả định selection-on-observables / unconfoundedness)",
+          "Khi bạn không thể thực hiện một thí nghiệm hoặc tìm thấy một thí nghiệm tự nhiên",
+          "Khi vùng hỗ trợ chung (common support) giữa nhóm can thiệp và đối chứng là tốt"
+        ],
+        "when_not_to_use": [
+          "Nếu việc lựa chọn được thúc đẩy bởi các yếu tố không quan sát được không có trong dữ liệu (hầu hết các trường hợp trong kinh tế học) — việc ghép cặp không thể hiệu chỉnh điều này",
+          "Đừng dùng ghép cặp như một sự thay thế cho một thí nghiệm tự nhiên hợp lệ",
+          "Khi vùng hỗ trợ chung kém (nhóm can thiệp và đối chứng quá khác biệt)"
+        ],
+        "key_assumptions": [
+          "Độc lập có điều kiện (Conditional independence): các kết quả tiềm năng độc lập với việc can thiệp khi đã kiểm soát các biến quan sát được",
+          "Vùng hỗ trợ chung (Common support): với mỗi đơn vị can thiệp, có ít nhất một đơn vị đối chứng có thể so sánh được",
+          "Các giả định này là KHÔNG THỂ KIỂM ĐỊNH — và lựa chọn dựa trên các biến không quan sát được là định mức trong kinh tế học"
+        ],
+        "output_read_first": "Chỉ số ATT (Tác động can thiệp trung bình đối với nhóm được can thiệp). Sau đó kiểm tra: (1) đồ thị vùng hỗ trợ chung của điểm số xu hướng, (2) bảng cân bằng so sánh trung bình các biến hiệp biến trước và sau khi ghép cặp. Một kết quả ghép cặp tồi còn tệ hơn OLS.",
+        "beginner_mistake": "Không kiểm tra sự cân bằng hiệp biến sau khi ghép cặp. Một mẫu đã ghép cặp với sự cân bằng kém còn tệ hơn OLS chưa ghép cặp. Ngoài ra: sử dụng psmatch2 mà không hiểu rằng nó chỉ giải quyết lựa chọn dựa trên các biến quan sát được — các yếu tố gây nhiễu không quan sát được vẫn là một vấn đề.",
+        "basic_syntax": {
+          "code": "* Cài đặt\nssc install psmatch2\n\n* Bước 1: Ước lượng điểm số xu hướng và ghép cặp\npsmatch2 treated educ exper age married, out(wage) ate\n\n* Kiểm tra sự cân bằng\npstest educ exper age married, both graph\n\n* Trực quan hóa vùng hỗ trợ chung\npsgraph",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Ghép cặp với caliper và phân tích độ nhạy",
+          "code": "* Ghép cặp Caliper (giới hạn ghép cặp trong các điểm số xu hướng gần nhau)\npsmatch2 treated educ exper, out(wage) caliper(0.01) noreplacement\n\n* Kiểm định sự cân bằng\npstest educ exper, both\n\n* Rosenbaum bounds (độ nhạy với chệch ẩn)\nssc install rbounds\nrbounds outcome_treated outcome_control, gamma(1.5)",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "teffects psmatch (tích hợp sẵn) / csdid cho ghép cặp dữ liệu bảng",
+          "reason": "Bộ lệnh 'teffects' tích hợp sẵn của Stata xử lý việc ghép cặp với ước lượng phương sai chính xác. Để ước lượng vững kép kết hợp điểm số xu hướng và hồi quy, hãy dùng 'teffects ipwra'.",
+          "install": "builtin"
+        },
+        "practical_recommendation": "Chỉ sử dụng psmatch2 khi bạn có lý do lý thuyết mạnh mẽ để tin rằng giả định selection-on-observables được thỏa mãn. Luôn kiểm tra sự cân bằng sau khi ghép cặp, vẽ đồ thị vùng hỗ trợ chung và thực hiện phân tích độ nhạy (Rosenbaum bounds). Nếu không có một chiến lược định danh đáng tin cậy, ghép cặp không phải là sự thay thế cho định danh nhân quả."
+      }
+    },
+    {
+      "id": "rdrobust",
+      "name": "rdrobust",
+      "full_name": "Regression Discontinuity Estimation",
+      "stata_version_introduced": "Stata 12 (SSC)",
+      "install": "ssc",
+      "category": "causal-inference",
+      "difficulty": "intermediate",
+      "tags": {
+        "data_structure": [
+          "cross-section"
+        ],
+        "estimator_type": [
+          "RD",
+          "local-polynomial",
+          "causal-inference"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "RD",
+          "regression discontinuity",
+          "sharp RD",
+          "fuzzy RD",
+          "bandwidth",
+          "local polynomial",
+          "running variable",
+          "cutoff"
+        ]
+      },
+      "related_commands": [
+        "diff",
+        "psmatch2",
+        "rdrobust-advanced",
+        "rdlocrand"
+      ],
+      "comparison_pages": [
+        "psmatch2-vs-rdrobust",
+        "rdrobust-vs-rdlocrand"
+      ],
+      "content": {
+        "what_it_does": "Ước lượng tác động nhân quả tại một ngưỡng (cutoff) trong một biến chạy bằng cách sử dụng hồi quy đa thức cục bộ ở cả hai phía của ngưỡng. Bước nhảy của kết quả tại ngưỡng xác định tác động nhân quả.",
+        "problem_it_solves": "Khi việc can thiệp được xác định bởi việc một biến chạy có vượt qua ngưỡng hay không (ví dụ: nhận học bổng khi điểm thi > 70, trợ cấp khi thu nhập < ngưỡng), RD ước lượng tác động nhân quả tại ngưỡng bằng cách sử dụng các đơn vị ngay trên và dưới ngưỡng làm các kịch bản đối chứng (counterfactuals).",
+        "algorithm": "Hồi quy đa thức cục bộ ở mỗi phía của ngưỡng. Lựa chọn băng thông tối ưu thông qua tối thiểu hóa MSE (Imbens-Kalyanaraman/Calonico-Cattaneo-Titiunik). Suy luận vững, có hiệu chỉnh sai lệch thông qua băng thông CER-tối ưu.",
+        "when_to_use": [
+          "Một ngưỡng (cutoff) trong một biến chạy xác định việc gán can thiệp",
+          "RD sắc nét (Sharp RD): can thiệp được gán một cách chắc chắn trên/dưới ngưỡng",
+          "RD nhòe (Fuzzy RD): xác suất can thiệp thay đổi gián đoạn tại ngưỡng (sử dụng tùy chọn fuzzy)",
+          "Biến chạy không bị thao túng xung quanh ngưỡng"
+        ],
+        "when_not_to_use": [
+          "Sự thao túng biến chạy xung quanh ngưỡng làm mất hiệu lực của thiết kế (kiểm định bằng rddensity, SSC)",
+          "Quá ít quan sát gần ngưỡng (băng thông nhỏ)",
+          "Nếu có các sự gián đoạn khác xảy ra tại cùng một ngưỡng đó",
+          "Giá trị ngoại ứng bị hạn chế: các ước lượng chỉ áp dụng gần ngưỡng"
+        ],
+        "key_assumptions": [
+          "Không có sự thao túng biến chạy tại ngưỡng (kiểm định bằng density test)",
+          "Tính liên tục của các kết quả tiềm năng đối với biến chạy tại ngưỡng",
+          "Tác động can thiệp trung bình cục bộ tại ngưỡng (LATE tại ngưỡng)"
+        ],
+        "output_read_first": "Ước lượng tác động can thiệp RD (đa thức cục bộ dựa trên băng thông). Các khoảng tin cậy thông thường và khoảng tin cậy vững. Băng thông tối ưu được chọn. Sau đó kiểm tra kiểm định mật độ (rddensity) và vẽ đồ thị RD (rdplot).",
+        "beginner_mistake": "Không kiểm định sự thao túng của biến chạy. Nếu các đơn vị có thể kiểm soát chính xác vị trí của họ so với ngưỡng, RD sẽ không hợp lệ. Hãy chạy rddensity (SSC) như một chẩn đoán tiêu chuẩn. Ngoài ra: sử dụng băng thông quá rộng bao gồm cả các đơn vị nằm xa ngưỡng.",
+        "basic_syntax": {
+          "code": "* Cài đặt\nssc install rdrobust\nssc install rddensity\nssc install rdplot\n\n* RD cơ bản\nrdrobust outcome running_var, c(0) robust\n\n* Kiểm định mật độ cho sự thao túng\nrddensity running_var, c(0)\n\n* Kiểm tra bằng hình ảnh\nrdplot outcome running_var, c(0)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "RD nhòe và độ nhạy của băng thông",
+          "code": "* RD nhòe (xác suất can thiệp nhảy tại ngưỡng, không chắc chắn)\nrdrobust outcome running_var, c(0) fuzzy(treatment_received)\n\n* Độ nhạy: các băng thông thay thế\nrdrobust outcome running_var, c(0) h(5 10 15)\n\n* RD có điều chỉnh hiệp biến\nrdrobust outcome running_var, c(0) covs(age educ married) robust\n\n* Kiểm định Placebo: dùng kết quả trước can thiệp làm biến phụ thuộc\nrdrobust pre_outcome running_var, c(0)",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "bộ lệnh rdrobust với rdplot/rddensity (SSC)",
+          "reason": "rdrobust, rdplot và rddensity tạo thành một bộ công cụ RD hoàn chỉnh. Cả ba nên được sử dụng cùng nhau để có một phân tích RD đáng tin cậy.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "rdrobust hiện là tiêu chuẩn vàng cho ước lượng RD. Luôn chạy rdplot (trực quan), rddensity (kiểm định thao túng) và các kiểm định placebo tại các ngưỡng giả định. Báo cáo các khoảng tin cậy vững có hiệu chỉnh sai lệch, thay vì các khoảng tin cậy thông thường."
+      }
+    },
+    {
+      "id": "csdid",
+      "name": "csdid",
+      "full_name": "Callaway-Sant'Anna Staggered DID",
+      "stata_version_introduced": "N/A (SSC)",
+      "install": "ssc",
+      "category": "staggered-did",
+      "difficulty": "advanced",
+      "tags": {
+        "data_structure": [
+          "panel"
+        ],
+        "estimator_type": [
+          "DID",
+          "staggered",
+          "causal-inference"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "staggered DID",
+          "Callaway-Sant'Anna",
+          "heterogeneous treatment effects",
+          "CSDID",
+          "group-time ATT",
+          "event study",
+          "modern DID"
+        ]
+      },
+      "related_commands": [
+        "drdid",
+        "diff",
+        "eventstudyinteract",
+        "honestdid",
+        "did-multiplegt-dyn"
+      ],
+      "comparison_pages": [
+        "did-simple-vs-csdid",
+        "csdid-vs-drdid",
+        "csdid-vs-eventstudyinteract"
+      ],
+      "content": {
+        "what_it_does": "Ước lượng các tác động nhân quả trong các thiết kế DID so le (staggered), nơi các đơn vị khác nhau nhận can thiệp tại các thời điểm khác nhau và tác động can thiệp có thể không đồng nhất giữa các nhóm và thời gian. Triển khai phương pháp của Callaway và Sant'Anna (2021).",
+        "problem_it_solves": "Mô hình DID 2x2 cổ điển (hồi quy TWFE với biến giả can thiệp) bị chệch nghiêm trọng dưới thời điểm can thiệp so le khi các tác động không đồng nhất. Các đơn vị được can thiệp sớm đóng vai trò là 'nhóm đối chứng tồi' cho các đơn vị được can thiệp muộn hơn. csdid khắc phục điều này bằng cách xây dựng các so sánh 2x2 sạch.",
+        "algorithm": "Ước lượng các ATT nhóm-thời gian: ATT(g,t) — tác động can thiệp trung bình cho các đơn vị được can thiệp lần đầu vào giai đoạn g, được đo lường tại thời điểm t. Sử dụng các nhóm đối chứng 'sạch' (các đơn vị chưa được can thiệp hoặc không bao giờ được can thiệp). Gộp các giá trị này vào các bản tóm tắt có ý nghĩa về mặt kinh tế.",
+        "when_to_use": [
+          "Áp dụng can thiệp theo kiểu so le (các đơn vị bắt đầu can thiệp tại các thời điểm khác nhau)",
+          "Khi bạn nghi ngờ tác động can thiệp không đồng nhất giữa các nhóm (cohort) hoặc thời gian",
+          "Bất kỳ phân tích panel DiD hiện đại nào mà thời điểm can thiệp thay đổi",
+          "Đây hiện là cách tiếp cận tiêu chuẩn cho DID so le trong kinh tế học ứng dụng"
+        ],
+        "when_not_to_use": [
+          "Thiết kế 2x2 sạch — sử dụng DID hoặc TWFE đơn giản là đủ",
+          "Khi nhóm 'không bao giờ được can thiệp' quá nhỏ hoặc không tồn tại — độ nhạy tăng lên",
+          "Không được thiết kế cho các biến can thiệp liên tục"
+        ],
+        "key_assumptions": [
+          "Xu hướng song song có điều kiện: có điều kiện dựa trên các hiệp biến quan sát được, các kết quả tiềm năng không được can thiệp đi theo các xu hướng song song",
+          "Không có sự dự liệu (No anticipation): tác động can thiệp chỉ bắt đầu tại ngày can thiệp",
+          "Áp dụng so le: một khi đã được can thiệp, luôn được can thiệp (không có việc rút khỏi can thiệp)"
+        ],
+        "output_read_first": "Các ước lượng ATT đã được gộp (đơn giản, động, theo nhóm cụ thể, theo lịch). Đồ thị event-study hiển thị các tác động động. Kiểm định xu hướng trước: các ước lượng ATT(g,t) cho t < g nên gần bằng không.",
+        "beginner_mistake": "Tiếp tục sử dụng hồi quy TWFE cổ điển (i.treatment##i.time) cho DID so le. Dưới sự không đồng nhất của tác động can thiệp, điều này có thể tạo ra sai lệch về dấu, độ lớn và thậm chí bác bỏ H₀ cho các can thiệp không có tác động. Luôn sử dụng csdid cho các thiết kế so le.",
+        "basic_syntax": {
+          "code": "* Cài đặt\nssc install csdid\nssc install drdid\nssc install event_plot\n\n* csdid cơ bản\ncsdid outcome, ivar(unitid) tvar(year) gvar(first_treatment_year)\n\n* Đồ thị tóm tắt các ước lượng ATT\ncsdid_plot   // Đồ thị Event study\n\n* Các tác động gộp\nestat simple   // ATT đơn giản\nestat calendar // ATT theo thời gian lịch\nestat group    // ATT theo nhóm cụ thể\nestat event    // ATT động/event-study",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Với các biến hiệp biến và ước lượng vững kép (doubly-robust)",
+          "code": "* Với các hiệp biến (vững kép thông qua drdid nội bộ)\ncsdid outcome age educ, ivar(unitid) tvar(year) gvar(gvar) ///\n  method(dripw) wboot reps(999)\n\n* Vẽ đồ thị event study\ncsdid_plot, title(Event Study: Treatment Effect) ///\n  note(Ước lượng Callaway-Sant'Anna (2021))\n\n* Kiểm định xu hướng trước\nestat pretrend",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "drdid (DID vững kép, thường được gọi qua csdid) / did_imputation (SSC)",
+          "reason": "Đối với một cách tiếp cận khác cho DID so le, hãy thử did_imputation (Borusyak-Jaravel-Spiess) hoặc stacked DID. Mỗi phương pháp có các giả định khác nhau và cung cấp các kiểm tra tính vững.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "csdid nên là lựa chọn mặc định của bạn cho bất kỳ phân tích DID so le nào. Luôn vẽ đồ thị event study, kiểm định xu hướng trước và báo cáo cả ước lượng ATT đơn giản và động. Hồi quy TWFE cổ điển không còn giá trị cho các thiết kế so le với tác động không đồng nhất."
+      }
+    },
+    {
+      "id": "drdid",
+      "name": "drdid",
+      "full_name": "Doubly-Robust Difference-in-Differences",
+      "stata_version_introduced": "N/A (SSC)",
+      "install": "ssc",
+      "category": "staggered-did",
+      "difficulty": "advanced",
+      "tags": {
+        "data_structure": [
+          "panel",
+          "repeated-cross-section"
+        ],
+        "estimator_type": [
+          "DID",
+          "doubly-robust",
+          "IPW",
+          "causal-inference"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "doubly robust",
+          "DID",
+          "IPW",
+          "Sant'Anna-Zhao",
+          "DRDID",
+          "semiparametric",
+          "selection on observables"
+        ]
+      },
+      "related_commands": [
+        "csdid",
+        "diff"
+      ],
+      "comparison_pages": [
+        "csdid-vs-drdid"
+      ],
+      "content": {
+        "what_it_does": "Ước lượng các trình ước lượng DID vững kép (doubly-robust) nhất quán nếu mô hình điểm số xu hướng hoặc mô hình hồi quy kết quả được xác định chính xác (nhưng không nhất thiết phải cả hai). Triển khai phương pháp của Sant'Anna và Zhao (2020).",
+        "problem_it_solves": "Mô hình DID tiêu chuẩn với các hiệp biến có thể bị sai lệch trong cả mô hình điểm số xu hướng hoặc mô hình kết quả. Trình ước lượng vững kép cung cấp một mạng lưới an toàn — nhất quán nếu ít nhất một mô hình là chính xác.",
+        "algorithm": "Kết hợp trọng số xác suất nghịch đảo (IPW) và hồi quy kết quả (OR) trong một sự kết hợp vững kép. Nếu mô hình điểm số xu hướng sai nhưng mô hình kết quả đúng (hoặc ngược lại), trình ước lượng vẫn nhất quán.",
+        "when_to_use": [
+          "Khi giả định xu hướng song song có điều kiện yêu cầu phải kiểm soát các hiệp biến",
+          "Khi bạn muốn tính vững trước các sai lỗi đặc điểm mô hình trong thiết lập DID",
+          "Được gọi nội bộ bởi csdid khi bạn chỉ định method(dripw) — drdid là động cơ bên dưới",
+          "Phân tích DID chất lượng nghiên cứu với các hiệp biến"
+        ],
+        "when_not_to_use": [
+          "Cho các xu hướng song song không điều kiện đơn giản — sử dụng DID hoặc TWFE cơ bản",
+          "Đặc tính vững kép không loại bỏ nhu cầu về phán đoán lập mô hình tốt"
+        ],
+        "key_assumptions": [
+          "Xu hướng song song có điều kiện dựa trên các hiệp biến quan sát được",
+          "Hoặc mô hình điểm số xu hướng hoặc mô hình hồi quy kết quả được xác định chính xác (không cần cả hai)",
+          "Không có sự dự liệu, áp dụng so le"
+        ],
+        "output_read_first": "Ước lượng ATT và sai số chuẩn của nó. Việc lựa chọn trình ước lượng (dripw được ưu tiên cho hầu hết các trường hợp). So sánh với các ước lượng DID đơn giản hơn như một kiểm tra tính vững.",
+        "beginner_mistake": "Nghĩ rằng 'vững kép' có nghĩa là trình ước lượng luôn đúng bất kể lựa chọn mô hình. 'Vững kép' có nghĩa là nhất quán nếu MỘT TRONG HAI mô hình được xác định chính xác — nó vẫn đòi hỏi việc lập mô hình cẩn thận.",
+        "basic_syntax": {
+          "code": "* Cài đặt\nssc install drdid\n\n* DID dữ liệu bảng (hai giai đoạn)\ndrdid outcome educ exper, ivar(unitid) tvar(year) time(post) treatment(treated)\n\n* Phiên bản dữ liệu cắt ngang lặp lại\ndrdid outcome educ exper, time(post) treatment(treated) ///\n  estimator(dripw)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Được gọi qua csdid cho thiết kế so le",
+          "code": "* drdid là công cụ ước lượng cho csdid\n* Gọi qua csdid với phương pháp(dripw):\ncsdid outcome age educ, ivar(uid) tvar(year) gvar(gvar) ///\n  method(dripw) wboot reps(999)\n\n* Gọi trực tiếp drdid cho trường hợp 2 giai đoạn\ndrdid outcome controls, ivar(uid) tvar(year) ///\n  time(post2020) treatment(treated) estimator(dripw) stub(dr_)",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "csdid (cho thiết kế so le, sử dụng drdid nội bộ) / teffects ipwra (cho cắt ngang đơn giản)",
+          "reason": "Đối với DID so le, drdid tốt nhất nên được sử dụng như một phần của khung làm việc csdid. Đối với ước lượng vững kép dữ liệu cắt ngang, 'teffects ipwra' tích hợp sẵn của Stata là một giải pháp thay thế đơn giản hơn.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "drdid hữu ích nhất khi đóng vai trò là động cơ bên trong csdid. Để phân tích DID so le hoàn chỉnh, hãy sử dụng csdid với method(dripw) thay vì gọi trực tiếp drdid. Hiểu về drdid là quan trọng đối với các nghiên cứu DID cấp độ chuyên gia."
+      }
+    },
+    {
+      "id": "synth",
+      "name": "synth",
+      "full_name": "Synthetic Control Method",
+      "stata_version_introduced": "N/A (SSC)",
+      "install": "ssc",
+      "category": "staggered-did",
+      "difficulty": "advanced",
+      "tags": {
+        "data_structure": [
+          "panel"
+        ],
+        "estimator_type": [
+          "synthetic-control",
+          "causal-inference"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "synthetic control",
+          "Abadie-Diamond-Hainmueller",
+          "single treated unit",
+          "comparative case study",
+          "RMSPE",
+          "permutation test"
+        ]
+      },
+      "related_commands": [
+        "diff",
+        "csdid",
+        "scpi"
+      ],
+      "comparison_pages": [
+        "synth-vs-scpi"
+      ],
+      "content": {
+        "what_it_does": "Xây dựng một 'đơn vị đối chứng tổng hợp' bằng cách kết hợp có trọng số các đơn vị đối chứng không được can thiệp để khớp nhất với các đặc điểm trước can thiệp và lộ trình kết quả của đơn vị được can thiệp. Khoảng cách sau can thiệp giữa đơn vị được can thiệp và đơn vị tổng hợp ước lượng tác động can thiệp.",
+        "problem_it_solves": "Khi chỉ có một đơn vị được can thiệp (một quốc gia, tiểu bang hoặc thành phố), các phương pháp DID tiêu chuẩn thất bại vì bạn không thể lấy trung bình trên nhiều đơn vị được can thiệp. Kiểm soát tổng hợp tạo ra một kịch bản đối chứng đáng tin cậy từ sự kết hợp dựa trên dữ liệu của các đơn vị đối chứng.",
+        "algorithm": "Tìm các trọng số W (có tổng bằng 1, không âm) cho các đơn vị đối chứng nhằm tối thiểu hóa khoảng cách trước can thiệp giữa đơn vị được can thiệp và một kết hợp có trọng số của các đơn vị đối chứng, khớp trên các kết quả và biến dự báo trước can thiệp. RMSPE đo lường chất lượng khớp.",
+        "when_to_use": [
+          "Chính xác một đơn vị được can thiệp (hoặc một số lượng nhỏ)",
+          "Nghiên cứu trường hợp so sánh: một quốc gia áp dụng chính sách, các quốc gia khác thì không",
+          "Giai đoạn trước can thiệp dài để thiết lập chất lượng khớp tổng hợp",
+          "Các ứng dụng kinh điển: luật thuốc lá California, thống nhất nước Đức, khủng bố xứ Basque"
+        ],
+        "when_not_to_use": [
+          "Nhiều đơn vị được can thiệp — hãy sử dụng DID hoặc csdid",
+          "Giai đoạn trước can thiệp ngắn — không thể kiểm chứng chất lượng khớp tổng hợp",
+          "Nhiều đơn vị đối chứng nhưng tất cả đều rất khác biệt so với đơn vị được can thiệp (khớp kém)",
+          "Đừng ngoại suy bên ngoài cửa sổ thời gian được sử dụng để ghép cặp"
+        ],
+        "key_assumptions": [
+          "Đơn vị đối chứng tổng hợp xấp xỉ kết quả tiềm năng của đơn vị được can thiệp nếu không có can thiệp",
+          "Các đơn vị đối chứng không bị ảnh hưởng bởi can thiệp (không có sự can thiệp/tác động lan tỏa)",
+          "Các trọng số có thể nội suy nhưng không thể ngoại suy nhóm đóng góp (donor pool)"
+        ],
+        "output_read_first": "RMSPE trước can thiệp (Sai số dự báo căn bậc hai trung bình) — càng thấp càng tốt; cho biết chất lượng khớp. Đồ thị khoảng cách sau can thiệp. Suy luận qua các kiểm định hoán vị (phân phối placebo): tính toán tương tự cho tất cả các đơn vị đối chứng và so sánh khoảng cách của đơn vị được can thiệp với phân phối này.",
+        "beginner_mistake": "Không thực hiện các kiểm định placebo/hoán vị để suy luận. Kiểm định giả thuyết cổ điển không áp dụng trực tiếp cho synth. Suy luận đến từ việc xem xét liệu khoảng cách sau can thiệp của đơn vị được can thiệp có lớn bất thường so với phân phối hoán vị của các đơn vị đối chứng hay không.",
+        "basic_syntax": {
+          "code": "* Cài đặt\nssc install synth\n\n* Thiết lập synth kinh điển\ntsset state year\nsynth gdppc gdppc(1990(1)1999) trade population, ///\n  trunit(3) trperiod(2000) ///\n  xperiod(1990(1)1999) mspeperiod(1990(1)1999)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Với các kiểm định hoán vị placebo",
+          "code": "* Chạy synth chính\nsynth gdppc gdppc(1990(1)1999) trade, ///\n  trunit(3) trperiod(2000) keep(synth_results, replace)\n\n* Kiểm định hoán vị: chạy synth cho mỗi đơn vị đối chứng\nlocal donors 1 2 4 5 6 7 8   // tất cả các mã bang đối chứng\nforeach d of local donors {\n  synth gdppc gdppc(1990(1)1999) trade, ///\n    trunit(`d') trperiod(2000) keep(plac_`d', replace)\n}",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "synth_runner (SSC) để tự động hóa kiểm định hoán vị",
+          "reason": "synth_runner tự động hóa vòng lặp kiểm định hoán vị và tạo ra các đồ thị suy luận sẵn sàng để xuất bản, tiết kiệm đáng kể công sức lập trình.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Phân tích kiểm soát tổng hợp đòi hỏi sự minh bạch về chất lượng khớp. Luôn báo cáo RMSPE trước can thiệp và vẽ đồ thị 'placebos in space' để chứng minh ý nghĩa thống kê. Nếu khớp trước can thiệp kém, kết quả sau can thiệp là không đáng tin cậy."
+      }
+    },
+    {
+      "id": "ddml",
+      "name": "ddml",
+      "full_name": "Double/Debiased Machine Learning",
+      "stata_version_introduced": "N/A (SSC)",
+      "install": "ssc",
+      "category": "ml-econometrics",
+      "difficulty": "advanced",
+      "tags": {
+        "data_structure": [
+          "cross-section",
+          "panel"
+        ],
+        "estimator_type": [
+          "machine-learning",
+          "partialling-out",
+          "high-dimensional"
+        ],
+        "dependency_type": [
+          "continuous",
+          "binary"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "double machine learning",
+          "DDML",
+          "partialling out",
+          "cross-fitting",
+          "Lasso",
+          "high-dimensional",
+          "Chernozhukov",
+          "partially linear model"
+        ]
+      },
+      "related_commands": [
+        "ivreg2",
+        "pdslasso"
+      ],
+      "comparison_pages": [
+        "pdslasso-vs-ddml"
+      ],
+      "content": {
+        "what_it_does": "Ước lượng các tác động nhân quả trong các mô hình tuyến tính từng phần với các biến kiểm soát chiều cao (high-dimensional controls) bằng các phương pháp học máy (Lasso, rừng ngẫu nhiên, mạng nơ-ron) để triệt tiêu các tham số nhiễu trong khi vẫn duy trì suy luận thống kê hợp lệ.",
+        "problem_it_solves": "Khi số lượng biến kiểm soát lớn so với mẫu (p/n đáng kể), suy luận OLS cổ điển bị sai lệch do chệch điều chỉnh (regularization bias). DDML sử dụng kỹ thuật cross-fitting để tạo ra các trình ước lượng trực giao-Neyman (Neyman-orthogonal) vững trước vấn đề này.",
+        "algorithm": "1. Chia dữ liệu thành K phần (folds). 2. Với mỗi phần, sử dụng ML (Lasso, v.v.) để dự báo Y từ các biến kiểm soát (ngoài mẫu) và dự báo D từ các biến kiểm soát (ngoài mẫu). 3. Lấy phần dư từ cả hai. 4. Hồi quy phần dư Y lên phần dư D (triệt tiêu biến). 5. Hệ số thu được là nhất quán căn-N và xấp xỉ phân phối chuẩn.",
+        "when_to_use": [
+          "Bối cảnh chiều cao: nhiều biến kiểm soát so với quy mô mẫu",
+          "Mô hình tuyến tính từng phần: Y = θD + g(X) + ε, trong đó g(X) là một hàm linh hoạt của nhiều biến kiểm soát",
+          "Khi bạn muốn sử dụng ML để ước lượng các tham số nhiễu nhưng vẫn cần suy luận nhân quả hợp lệ cho θ",
+          "IV-DDML: cho biến D nội sinh với các biến công cụ"
+        ],
+        "when_not_to_use": [
+          "Quy mô mẫu nhỏ — kỹ thuật cross-fitting đòi hỏi đủ quan sát cho mỗi fold",
+          "Khi có ít biến kiểm soát và OLS là đủ — DDML làm tăng độ phức tạp mà không mang lại lợi ích",
+          "DDML không giải quyết được vấn đề nội sinh do các yếu tố không quan sát được — nó chỉ hỗ trợ khi có nhiều biến quan sát được"
+        ],
+        "key_assumptions": [
+          "Tính tuyến tính từng phần: phương trình cấu trúc là tuyến tính trong D nhưng linh hoạt trong các biến kiểm soát X",
+          "Kỹ thuật Cross-fitting đảm bảo suy luận hợp lệ bất chấp việc điều chỉnh ML",
+          "Mô hình ML chính xác phải tạo ra các dự báo tốt cho Y và D từ X"
+        ],
+        "output_read_first": "Hệ số nhân quả θ của biến can thiệp D và sai số chuẩn của nó (xấp xỉ phân phối chuẩn nhờ tính trực giao Neyman). Đồng thời kiểm tra R² dự báo kiểm định chéo (cross-validated R²) từ các mô hình nhiễu ML — R² thấp gợi ý rằng các biến kiểm soát không giải thích được nhiều sự biến động.",
+        "beginner_mistake": "Sử dụng Lasso trực tiếp để chọn biến cho OLS mà không có bước cross-fitting. OLS sau khi chọn biến bằng Lasso (Post-selection OLS) không phải là suy luận hợp lệ nếu không có bước trực giao hóa của DDML. Chệch điều chỉnh sẽ làm sai lệch các sai số chuẩn.",
+        "basic_syntax": {
+          "code": "* Cài đặt\nssc install ddml\nssc install pystacked  // Stacking dựa trên Python (tùy chọn)\n\n* Mô hình tuyến tính từng phần\nddml init partial, kfolds(5)\nddml E[y|X]: reg y c.x1 c.x2 c.x3\nddml E[d|X]: reg d c.x1 c.x2 c.x3\nddml crossfit\nddml estimate",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Với Lasso như một người học nhiễu (nuisance learner)",
+          "code": "* Cài đặt lasso2 (SSC) cho các mô hình nhiễu Lasso\nssc install lasso2\n\nddml init partial, kfolds(5) reps(5)\n\n* Sử dụng Lasso cho các mô hình nhiễu\nddml E[lwage|X]: lasso2 lwage c.(educ exper age)##c.(educ exper age)\nddml E[treatment|X]: lasso2 treatment c.(educ exper age)##c.(educ exper age)\n\nddml crossfit\nddml estimate, robust",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "xporegress (Hồi quy IV chiều cao tích hợp trong Stata MP) / lasso2 cho Lasso thuần túy",
+          "reason": "Stata 16+ bao gồm các phương thức lựa chọn chiều cao tích hợp (lasso, xporegress, poregress) triển khai phương pháp hậu-lựa chọn-kép Belloni-Chernozhukov-Hansen. Đơn giản hơn ddml cho một số bối cảnh.",
+          "install": "builtin"
+        },
+        "practical_recommendation": "ddml là công cụ đúng đắn khi bạn có thực sự nhiều biến kiểm soát (p tương đương n) và cần suy luận hợp lệ cho một tham số nhân quả. Đòi hỏi sự hiểu biết về cross-fitting và tính tuyến tính từng phần. Đối với người mới bắt đầu, hãy học trực giác cơ bản từ việc triệt tiêu biến (partialling-out) trước khi sử dụng ddml."
+      }
+    },
+    {
+      "id": "lasso-tools",
+      "name": "lasso2 / pdslasso",
+      "full_name": "Lasso and Post-Double-Selection for Econometrics",
+      "stata_version_introduced": "Stata 16 (built-in) / SSC (user-written)",
+      "install": "ssc",
+      "category": "ml-econometrics",
+      "difficulty": "advanced",
+      "tags": {
+        "data_structure": [
+          "cross-section"
+        ],
+        "estimator_type": [
+          "LASSO",
+          "penalized-regression",
+          "high-dimensional",
+          "selection"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "Lasso",
+          "ridge",
+          "elastic net",
+          "variable selection",
+          "high-dimensional",
+          "penalized regression",
+          "post-double selection",
+          "pdslasso"
+        ]
+      },
+      "related_commands": [
+        "ddml",
+        "pdslasso"
+      ],
+      "comparison_pages": [
+        "pdslasso-vs-ddml"
+      ],
+      "content": {
+        "what_it_does": "Triển khai Lasso (Least Absolute Shrinkage and Selection Operator) và các phương pháp hồi quy điều chỉnh (penalized regression) liên quan để lựa chọn biến và dự báo trong các bối cảnh chiều cao. lệnh pdslasso triển khai Post-Double-Selection Lasso cho suy luận nhân quả.",
+        "problem_it_solves": "Với nhiều biến kiểm soát tiềm năng (p >> n), OLS tiêu chuẩn không thể ước lượng được. Lasso điều chỉnh tổng giá trị tuyệt đối của các hệ số, thu hẹp các biến không liên quan về không và lựa chọn các biến kiểm soát có khả năng dự báo tốt nhất.",
+        "algorithm": "Lasso: tối thiểu hóa RSS + λΣ|βⱼ|. Hình phạt L1 tạo ra tính thưa (sparsity). Post-double selection (Belloni và cộng sự): chạy Lasso cho Y~X và D~X riêng biệt, sau đó sử dụng OLS trên hợp các biến đã chọn để có suy luận hợp lệ cho tác động can thiệp.",
+        "when_to_use": [
+          "Nhiều biến kiểm soát tiềm năng so với quy mô mẫu",
+          "Lựa chọn biến trước khi phân tích nhân quả",
+          "Các nhiệm vụ dự báo nơi khả năng diễn giải ít quan trọng hơn độ chính xác dự báo",
+          "Sử dụng hậu-lựa chọn-kép (post-double-selection) để có suy luận hợp lệ sau khi lựa chọn bằng Lasso"
+        ],
+        "when_not_to_use": [
+          "Khi yêu cầu khả năng diễn giải của các hệ số (hệ số Lasso bị chệch về phía không)",
+          "Lasso thuần túy mà không có hiệu chính hậu-lựa chọn sẽ không cho suy luận nhân quả hợp lệ",
+          "Không phải là sự thay thế cho việc lựa chọn biến dựa trên lý thuyết cẩn thận"
+        ],
+        "key_assumptions": [
+          "Tính thưa xấp xỉ (Approximate sparsity): chỉ có một vài biến kiểm soát là thực sự quan trọng",
+          "Tham số hình phạt λ phải được chọn chính xác (sử dụng kiểm định chéo hoặc các công thức plug-in)"
+        ],
+        "output_read_first": "Các biến được chọn và hệ số của chúng. Tham số hình phạt được kiểm định chéo. Đối với pdslasso, hệ số của biến can thiệp và sai số chuẩn của nó.",
+        "beginner_mistake": "Sử dụng Lasso cho suy luận nhân quả mà không có hiệu chính hậu-lựa chọn. Lasso chọn được biến nhưng suy luận OLS tiêu chuẩn trên các hệ số sau Lasso là không hợp lệ. Hãy sử dụng pdslasso hoặc ddml để có suy luận hợp lệ sau khi lựa chọn bằng Lasso.",
+        "basic_syntax": {
+          "code": "* Cài đặt lasso2 và pdslasso\nssc install lasso2\nssc install pdslasso\n\n* Lasso cơ bản (dự báo)\nlasso2 lwage c.(educ exper age married)##c.(educ exper age married)\n\n* Hậu-lựa chọn-kép cho suy luận nhân quả\npdslasso lwage (treatment = educ exper age married i.industry)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Lệnh lasso tích hợp của Stata 16+",
+          "code": "* Tích hợp trong Stata 16+ (không cần SSC)\nlasso linear lwage (educ exper age) (i.industry##i.year)\n\n* Hậu-lựa chọn-kép qua lệnh tích hợp\nporegress lwage treatment, controls((educ exper age i.industry))\n\n* Phiên bản IV\nxporegress lwage (treatment = instrument), controls((controls...))",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "ddml (SSC) cho việc cross-fitting đầy đủ với ML",
+          "reason": "ddml mở rộng bên ngoài Lasso cho bất kỳ phương pháp ML nào và triển khai khung làm việc học máy kép đầy đủ với cross-fitting. Được ưu tiên cho suy luận nhân quả chiều cao tiêu chuẩn nghiên cứu.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Đối với suy luận nhân quả với nhiều biến kiểm soát, hãy sử dụng pdslasso hoặc lệnh poregress tích hợp của Stata 16+ — đừng sử dụng Lasso thuần túy. Đối với cách tiếp cận linh hoạt và đúng chuẩn nghiên cứu nhất, hãy sử dụng ddml. Lasso thuần túy không có hậu-lựa chọn là một công cụ dự báo, không phải công cụ suy luận."
+      }
+    },
+    {
+      "id": "reghdfe",
+      "name": "reghdfe",
+      "full_name": "High-Dimensional Fixed Effects Regression",
+      "stata_version_introduced": "N/A (SSC)",
+      "install": "ssc",
+      "category": "panel-data",
+      "difficulty": "intermediate",
+      "tags": {
+        "data_structure": [
+          "panel",
+          "large-scale"
+        ],
+        "estimator_type": [
+          "fixed-effects",
+          "OLS"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "reghdfe",
+          "multi-way FE",
+          "absorb",
+          "clustered SE",
+          "panel"
+        ]
+      },
+      "related_commands": [
+        "xtreg-fe",
+        "ivreghdfe",
+        "boottest"
+      ],
+      "comparison_pages": [
+        "reghdfe-vs-xtreg"
+      ],
+      "content": {
+        "what_it_does": "Ước lượng các mô hình tuyến tính trong khi triệt tiêu (absorb) nhiều chiều biến cố định chiều cao và cho phép sai số chuẩn phân cụm một chiều hoặc nhiều chiều.",
+        "problem_it_solves": "Lệnh xtreg, fe không thể triệt tiêu nhiều chiều biến cố định (FE) một cách hiệu quả. reghdfe xử lý FE đơn vị + FE năm + FE tương tác trong một mô hình duy nhất.",
+        "algorithm": "Các phép chiếu xen kẽ triệt tiêu các chiều FE được hấp thụ, sau đó OLS được chạy trên các biến phần dư.",
+        "when_to_use": [
+          "Các thiết lập FE hai chiều hoặc ba chiều",
+          "Các tập dữ liệu lớn nơi xtreg chạy chậm",
+          "Cần suy luận kiểu cluster(don_vi nam)"
+        ],
+        "when_not_to_use": [
+          "Bảng động với biến phụ thuộc trễ và T nhỏ (sử dụng xtabond2)",
+          "Không cần cấu trúc FE"
+        ],
+        "key_assumptions": [
+          "Tính ngoại sinh có điều kiện trên các FE được triệt tiêu",
+          "Đủ sự biến động bên trong sau khi triệt tiêu"
+        ],
+        "output_read_first": "Đọc hệ số quan tâm, sai số chuẩn phân cụm, số lượng FE được triệt tiêu và R-squared bên trong (within R-squared).",
+        "beginner_mistake": "Triệt tiêu quá nhiều chiều FE đến mức biến can thiệp hầu như không còn sự biến động phần dư nào.",
+        "basic_syntax": {
+          "code": "ssc install ftools\nssc install reghdfe\n\nreghdfe y x1 x2, absorb(firm_id year) vce(cluster firm_id)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "FE ba chiều và phân cụm hai chiều",
+          "code": "reghdfe y x1 x2, absorb(firm_id year industry#year) vce(cluster firm_id year)",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "ivreghdfe",
+          "reason": "Nếu một biến độc lập là nội sinh, hãy kết hợp IV và FE chiều cao trong ivreghdfe.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Đối với các mô hình bảng tĩnh hiện đại, reghdfe nên là trình ước lượng mặc định của bạn thay vì xtreg, fe."
+      }
+    },
+    {
+      "id": "boottest",
+      "name": "boottest",
+      "full_name": "Wild Cluster Bootstrap Inference",
+      "stata_version_introduced": "N/A (SSC)",
+      "install": "ssc",
+      "category": "panel-data",
+      "difficulty": "advanced",
+      "tags": {
+        "data_structure": [
+          "panel",
+          "clustered"
+        ],
+        "estimator_type": [
+          "inference",
+          "bootstrap"
+        ],
+        "dependency_type": [
+          "continuous",
+          "binary"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "boottest",
+          "wild cluster bootstrap",
+          "few clusters",
+          "finite sample"
+        ]
+      },
+      "related_commands": [
+        "robust-se",
+        "ivreg2",
+        "reghdfe"
+      ],
+      "comparison_pages": [
+        "boottest-vs-cluster-se"
+      ],
+      "content": {
+        "what_it_does": "Tính toán giá trị p và khoảng tin cậy theo phương pháp wild-cluster bootstrap sau các hồi quy vững với phân cụm.",
+        "problem_it_solves": "Các sai số chuẩn phân cụm thông thường thường không đáng tin cậy khi số lượng cụm nhỏ.",
+        "algorithm": "Lấy mẫu lại các đóng góp điểm số cấp cụm với các trọng số wild dưới giả thuyết không để cải thiện suy luận trong mẫu hữu hạn.",
+        "when_to_use": [
+          "Ít hơn 30 cụm",
+          "Can thiệp chính sách ở cấp độ cụm",
+          "DID/IV với rủi ro suy luận G-nhỏ"
+        ],
+        "when_not_to_use": [
+          "Số lượng lớn các cụm cân bằng nơi sai số chuẩn cụm tiêu chuẩn đã ổn định"
+        ],
+        "key_assumptions": [
+          "Các cụm độc lập",
+          "Mức độ phân cụm chính xác"
+        ],
+        "output_read_first": "Đọc giá trị p bootstrap cho hệ số chính của bạn và so sánh với giá trị p phân cụm thông thường.",
+        "beginner_mistake": "Chạy boottest nhưng chỉ báo cáo giá trị p thông thường trong bài báo.",
+        "basic_syntax": {
+          "code": "ssc install boottest\n\nreghdfe y treat x1, absorb(id year) vce(cluster state)\nboottest treat, cluster(state) reps(9999) seed(42)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Thiết lập IV với wild bootstrap",
+          "code": "ivreg2 y (x = z) controls, cluster(state)\nboottest x, cluster(state) reps(9999) seed(42)",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "ritest",
+          "reason": "Khi việc gán can thiệp gần với ngẫu nhiên hóa, suy luận ngẫu nhiên hóa (randomization inference) là một chiến lược mẫu hữu hạn khác.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Nếu số lượng cụm ít, hãy sử dụng boottest làm suy luận chính trong các bảng và các kiểm tra tính vững của bạn."
+      }
+    },
+    {
+      "id": "honestdid",
+      "name": "honestdid",
+      "full_name": "Honest DID Sensitivity Analysis",
+      "stata_version_introduced": "N/A (SSC)",
+      "install": "ssc",
+      "category": "staggered-did",
+      "difficulty": "advanced",
+      "tags": {
+        "data_structure": [
+          "panel"
+        ],
+        "estimator_type": [
+          "sensitivity-analysis",
+          "DID"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "honestdid",
+          "Rambachan Roth",
+          "parallel trends sensitivity",
+          "event study"
+        ]
+      },
+      "related_commands": [
+        "csdid",
+        "eventstudyinteract"
+      ],
+      "comparison_pages": [],
+      "content": {
+        "what_it_does": "Xây dựng các khoảng tin cậy vững với phân tích độ nhạy cho các hiệu ứng DID/event-study dưới các vi phạm có giới hạn của giả định xu hướng song song.",
+        "problem_it_solves": "Việc vượt qua kiểm định pre-trend không chứng minh được xu hướng song song là hoàn toàn chính xác. honestdid định lượng xem các vi phạm xu hướng phải lớn đến mức nào để làm thay đổi kết luận nghiên cứu.",
+        "algorithm": "Áp dụng các ràng buộc do người dùng xác định (giá trị M) lên độ lệch xu hướng và tính toán các tập hợp xác định (identified sets) cùng các khoảng tin cậy.",
+        "when_to_use": [
+          "Sau khi chạy csdid hoặc eventstudyinteract",
+          "Khi người phản biện yêu cầu phân tích độ nhạy cho DID"
+        ],
+        "when_not_to_use": [
+          "Khi thiết kế cơ sở đã thất bại nặng nề trong kiểm định pre-trend"
+        ],
+        "key_assumptions": [
+          "Các độ lệch xu hướng có giới hạn được biện hộ về mặt kinh tế"
+        ],
+        "output_read_first": "Đọc xem tại mức M nào thì khoảng tin cậy bắt đầu cắt qua điểm không.",
+        "beginner_mistake": "Chọn lưới giá trị M mà không có giải thích về ý nghĩa kinh tế.",
+        "basic_syntax": {
+          "code": "ssc install honestdid\n\nhonestdid, pre(4) post(3) mvec(0.5(0.5)2)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Đồ thị phân tích độ nhạy",
+          "code": "honestdid, pre(5) post(4) mvec(0(0.25)3) coefplot",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "Phân tích nhóm Placebo (Placebo cohorts)",
+          "reason": "Kết hợp honestdid với các phân tích placebo để củng cố bằng chứng về tính vững của DID.",
+          "install": "builtin"
+        },
+        "practical_recommendation": "Sử dụng honestdid như một bước kiểm tra tiêu chuẩn trong phụ lục của các bài báo về DID so le hướng tới các tạp chí hàng đầu."
+      }
+    },
+    {
+      "id": "ivreghdfe",
+      "name": "ivreghdfe",
+      "full_name": "IV with High-Dimensional Fixed Effects",
+      "stata_version_introduced": "N/A (SSC)",
+      "install": "ssc",
+      "category": "iv-endogeneity",
+      "difficulty": "advanced",
+      "tags": {
+        "data_structure": [
+          "panel",
+          "cross-section"
+        ],
+        "estimator_type": [
+          "IV",
+          "2SLS",
+          "high-dimensional FE"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": true,
+        "keywords": [
+          "ivreghdfe",
+          "IV FE",
+          "2SLS",
+          "first stage",
+          "cluster"
+        ]
+      },
+      "related_commands": [
+        "ivreg2",
+        "reghdfe",
+        "boottest"
+      ],
+      "comparison_pages": [],
+      "content": {
+        "what_it_does": "Kết hợp ước lượng biến công cụ (IV) với nhiều biến cố định (FE) được triệt tiêu.",
+        "problem_it_solves": "Nhiều thiết kế thực nghiệm cần cả nhận dạng bằng IV và các FE chiều cao. ivreghdfe xử lý việc này một cách hiệu quả.",
+        "algorithm": "Triệt tiêu các FE bằng bộ máy của reghdfe và thực hiện ước lượng IV với các chẩn đoán kiểu ivreg2.",
+        "when_to_use": [
+          "Biến độc lập nội sinh với FE đơn vị/năm",
+          "Dữ liệu lớn nơi việc khai triển biến giả là không khả thi"
+        ],
+        "when_not_to_use": [
+          "Không có biến độc lập nội sinh (sử dụng reghdfe)",
+          "FE rất đơn giản và dữ liệu nhỏ (ivreg2 có thể là đủ)"
+        ],
+        "key_assumptions": [
+          "Sự liên quan và tính loại trừ của biến công cụ là hợp lệ",
+          "Đủ sự biến động nhận dạng sau khi triệt tiêu FE"
+        ],
+        "output_read_first": "Đọc sức mạnh của giai đoạn 1, hệ số IV và suy luận phân cụm.",
+        "beginner_mistake": "Không kiểm tra xem các chẩn đoán IV yếu có thể trở nên tồi tệ hơn sau khi thêm các FE mạnh hay không.",
+        "basic_syntax": {
+          "code": "ssc install ivreghdfe\n\nivreghdfe y (x = z1 z2) controls, absorb(firm_id year) cluster(firm_id) first",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Phân cụm hai chiều",
+          "code": "ivreghdfe y (x = z1 z2) controls, absorb(firm_id year industry#year) cluster(firm_id year) first",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "Hàm kiểm soát (Control function)",
+          "reason": "Đối với giai đoạn hai phi tuyến, hãy sử dụng phương pháp đưa phần dư vào hàm kiểm soát.",
+          "install": "builtin"
+        },
+        "practical_recommendation": "Sử dụng ivreghdfe khi cả IV và FE đa chiều đều được yêu cầu trong đặc điểm chính của bạn."
+      }
+    },
+    {
+      "id": "eventstudyinteract",
+      "name": "eventstudyinteract",
+      "full_name": "Sun-Abraham Interaction-Weighted Event Study",
+      "stata_version_introduced": "N/A (SSC)",
+      "install": "ssc",
+      "category": "staggered-did",
+      "difficulty": "advanced",
+      "tags": {
+        "data_structure": [
+          "panel"
+        ],
+        "estimator_type": [
+          "DID",
+          "event-study"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "eventstudyinteract",
+          "Sun Abraham",
+          "staggered DID",
+          "interaction weighted"
+        ]
+      },
+      "related_commands": [
+        "csdid",
+        "honestdid"
+      ],
+      "comparison_pages": [
+        "csdid-vs-eventstudyinteract"
+      ],
+      "content": {
+        "what_it_does": "Ước lượng các tác động event-study vững với tính không đồng nhất cho thời điểm can thiệp so le.",
+        "problem_it_solves": "Các biến leads/lags trong event-study TWFE bị chệch với việc áp dụng so le. eventstudyinteract tránh các so sánh bị 'ô nhiễm'.",
+        "algorithm": "Xây dựng các tương tác giữa nhóm-theo-thời gian tương đối và gộp các hệ số với các trọng số hợp lệ.",
+        "when_to_use": [
+          "Cần lộ trình tác động động trong DID so le",
+          "Cần tính vững kiểu Sun-Abraham bên cạnh csdid"
+        ],
+        "when_not_to_use": [
+          "Thiết kế DID 2x2 sạch đơn giản"
+        ],
+        "key_assumptions": [
+          "Xu hướng song song có điều kiện trên FE/biến kiểm soát",
+          "Mã hóa nhóm (cohort) chính xác"
+        ],
+        "output_read_first": "Kiểm tra các biến leads trước can thiệp; chúng nên gần bằng không.",
+        "beginner_mistake": "Mã hóa sai nhóm chưa bao giờ được can thiệp và âm thầm làm thay đổi định nghĩa nhóm đối chứng.",
+        "basic_syntax": {
+          "code": "ssc install eventstudyinteract\n\neventstudyinteract y ib(-1).rel_time, absorb(id year) cohort(first_treat) control_cohort(never_treated) vce(cluster id)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Vẽ đồ thị các hệ số sự kiện",
+          "code": "coefplot, drop(_cons) vertical yline(0)",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "csdid",
+          "reason": "csdid cung cấp sự phân rã ATT(g,t) và các lệnh gộp kết quả dễ dàng.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Sử dụng eventstudyinteract và csdid cùng nhau trong các phần kiểm tra tính vững của bài báo về DID so le."
+      }
+    },
+    {
+      "id": "did-multiplegt-dyn",
+      "name": "did_multiplegt_dyn",
+      "full_name": "DID with General Treatment Patterns",
+      "stata_version_introduced": "N/A (SSC)",
+      "install": "ssc",
+      "category": "staggered-did",
+      "difficulty": "advanced",
+      "tags": {
+        "data_structure": [
+          "panel"
+        ],
+        "estimator_type": [
+          "DID",
+          "dynamic-effects"
+        ],
+        "dependency_type": [
+          "binary",
+          "continuous-treatment"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "did_multiplegt_dyn",
+          "de Chaisemartin",
+          "dynamic DID",
+          "placebo leads"
+        ]
+      },
+      "related_commands": [
+        "csdid",
+        "eventstudyinteract"
+      ],
+      "comparison_pages": [],
+      "content": {
+        "what_it_does": "Ước lượng các tác động can thiệp động dưới các lộ trình can thiệp tổng quát hơn, bao gồm cả cường độ can thiệp phi nhị phân.",
+        "problem_it_solves": "Nhiều chính sách không phải là các công tắc bật/tắt nhị phân một lần. Trình ước lượng này xử lý các mẫu hình can thiệp phong phú hơn so với các công cụ DID so le tiêu chuẩn.",
+        "algorithm": "Xây dựng các so sánh dựa trên người chuyển đổi (switcher-based comparisons) qua thời gian sự kiện và báo cáo các tác động sau can thiệp kèm theo các biến leads placebo.",
+        "when_to_use": [
+          "Cường độ can thiệp thay đổi theo thời gian",
+          "Cần các chẩn đoán placebo lead tích hợp sẵn"
+        ],
+        "when_not_to_use": [
+          "Thiết kế so le nhị phân đơn giản nơi csdid là đủ"
+        ],
+        "key_assumptions": [
+          "Xu hướng song song cho các so sánh người chuyển đổi/đối chứng hợp lệ"
+        ],
+        "output_read_first": "Kiểm tra các ước lượng placebo lead trước khi xem các tác động động sau can thiệp.",
+        "beginner_mistake": "Sử dụng mã hóa can thiệp không nhất quán qua các năm.",
+        "basic_syntax": {
+          "code": "ssc install did_multiplegt_dyn\n\ndid_multiplegt_dyn y unit year treatment, effects(6) placebo(3) cluster(unit)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Cường độ can thiệp liên tục",
+          "code": "did_multiplegt_dyn y unit year treat_intensity, effects(8) placebo(4) cluster(unit)",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "csdid",
+          "reason": "Đối với thời điểm nhị phân tiêu chuẩn, csdid vẫn dễ giải thích và báo cáo hơn.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Sử dụng did_multiplegt_dyn khi các lộ trình can thiệp phức tạp và bạn cần các hồ sơ tác động động."
+      }
+    },
+    {
+      "id": "staggered-did-complete",
+      "name": "staggered-did-complete",
+      "full_name": "Complete Staggered DID Workflow (CS + SA + Sensitivity)",
+      "stata_version_introduced": "N/A",
+      "install": "ssc",
+      "category": "staggered-did",
+      "difficulty": "advanced",
+      "tags": {
+        "data_structure": [
+          "panel"
+        ],
+        "estimator_type": [
+          "workflow",
+          "DID"
+        ],
+        "dependency_type": [
+          "continuous",
+          "binary"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "staggered DID workflow",
+          "csdid",
+          "eventstudyinteract",
+          "honestdid",
+          "triangulation"
+        ]
+      },
+      "related_commands": [
+        "csdid",
+        "eventstudyinteract",
+        "did-multiplegt-dyn",
+        "honestdid"
+      ],
+      "comparison_pages": [
+        "csdid-vs-eventstudyinteract"
+      ],
+      "content": {
+        "what_it_does": "Xác định một quy trình DID so le chất lượng nghiên cứu: ATT cơ sở, event-study động, kiểm tra trình ước lượng thay thế và phân tích độ nhạy.",
+        "problem_it_solves": "Các quy trình DID chỉ dựa trên một trình ước lượng duy nhất rất mỏng manh. Một quy trình làm việc hoàn chỉnh giúp giảm bớt sự tự tin sai lầm và cải thiện chất lượng lặp lại nghiên cứu.",
+        "algorithm": "Chạy csdid -> chạy eventstudyinteract -> tùy chọn chạy did_multiplegt_dyn -> chạy phân tích độ nhạy honestdid.",
+        "when_to_use": [
+          "Thiết kế DID so le chính trong các bài báo thực nghiệm nghiêm túc",
+          "Bạn cần một chuỗi các bước kiểm tra tính vững đủ để thuyết phục người phản biện"
+        ],
+        "when_not_to_use": [
+          "Thiết kế DID 2x2 đơn giản"
+        ],
+        "key_assumptions": [
+          "Mã hóa thời điểm can thiệp chính xác",
+          "Tính hợp lý của xu hướng song song và các chẩn đoán"
+        ],
+        "output_read_first": "Bắt đầu với các hệ số sự kiện giai đoạn trước can thiệp giữa các phương pháp, sau đó so sánh các tác động sau can thiệp và các điểm giới hạn độ nhạy.",
+        "beginner_mistake": "Chỉ chạy csdid và bỏ qua việc đối chiếu chéo event-study cũng như phân tích độ nhạy.",
+        "basic_syntax": {
+          "code": "csdid y x1 x2, ivar(id) time(year) gvar(first_treat) method(dripw) cluster(id)\nestat event\n\neventstudyinteract y ib(-1).rel_time, absorb(id year) cohort(first_treat) control_cohort(never_treated) vce(cluster id)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Lớp phân tích độ nhạy",
+          "code": "honestdid, pre(4) post(4) mvec(0.25(0.25)2) coefplot",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "did2s",
+          "reason": "Thêm did2s như một trình ước lượng tính vững khác cho việc áp dụng so le.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Hãy coi quy trình này như danh sách kiểm tra DID so le mặc định của bạn cho các bằng chứng có thể xuất bản."
+      }
+    },
+    {
+      "id": "psacalc",
+      "name": "psacalc",
+      "full_name": "Oster Coefficient Stability Sensitivity",
+      "stata_version_introduced": "N/A (SSC)",
+      "install": "ssc",
+      "category": "causal-inference",
+      "difficulty": "advanced",
+      "tags": {
+        "data_structure": [
+          "cross-section",
+          "panel"
+        ],
+        "estimator_type": [
+          "sensitivity-analysis"
+        ],
+        "dependency_type": [
+          "continuous",
+          "binary"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "psacalc",
+          "Oster",
+          "delta",
+          "omitted variable bias",
+          "robustness"
+        ]
+      },
+      "related_commands": [
+        "reg",
+        "ivreg2"
+      ],
+      "comparison_pages": [],
+      "content": {
+        "what_it_does": "Định lượng xem sự lựa chọn trên các yếu tố không quan sát được phải mạnh đến mức nào để có thể giải thích hết tác động can thiệp đã ước lượng của bạn.",
+        "problem_it_solves": "Các bước kiểm tra tính vững tiêu chuẩn không đo lường trực tiếp độ nhạy đối với biến bị bỏ sót.",
+        "algorithm": "Sử dụng các momen của mô hình có kiểm soát so với mô hình không kiểm soát và giả định Rmax để tính toán Oster delta và các giới hạn hệ số.",
+        "when_to_use": [
+          "Các hồi quy quan sát có lo ngại về yếu tố gây nhiễu",
+          "Khi người phản biện yêu cầu phân tích độ nhạy đối với biến bị bỏ sót"
+        ],
+        "when_not_to_use": [
+          "Các thiết kế ngẫu nhiên hóa với giá trị nội ứng mạnh"
+        ],
+        "key_assumptions": [
+          "Giả định lựa chọn tỷ lệ (proportional selection) là hợp lý",
+          "Giá trị Rmax được biện hộ thỏa đáng"
+        ],
+        "output_read_first": "Đọc giá trị delta cần thiết để đưa hệ số về mức không.",
+        "beginner_mistake": "Báo cáo giá trị delta mà không công khai lựa chọn Rmax và cách giải thích.",
+        "basic_syntax": {
+          "code": "ssc install psacalc\n\nreg y treat x1 x2 x3, vce(cluster id)\npsacalc delta treat, mcontrols(x1 x2 x3)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Giới hạn thay thế",
+          "code": "psacalc beta treat, rmax(.8) mcontrols(x1 x2 x3 x4)",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "evalue",
+          "reason": "Đối với các thước đo tỷ lệ, giá trị e-value cung cấp một thước đo tính vững khác dễ giải thích đối với các yếu tố gây nhiễu.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Đưa psacalc vào phụ lục về tính vững khi các khẳng định nhân quả dựa trên logic của việc lựa chọn dựa trên các biến quan sát được."
+      }
+    },
+    {
+      "id": "mi-impute",
+      "name": "mi impute chained",
+      "full_name": "Multiple Imputation by Chained Equations",
+      "stata_version_introduced": "Stata 11",
+      "install": "builtin",
+      "category": "ols-diagnostics",
+      "difficulty": "intermediate",
+      "tags": {
+        "data_structure": [
+          "cross-section",
+          "panel"
+        ],
+        "estimator_type": [
+          "missing-data",
+          "imputation"
+        ],
+        "dependency_type": [
+          "continuous",
+          "binary"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "mi impute",
+          "MICE",
+          "missing data",
+          "Rubin rules",
+          "MAR"
+        ]
+      },
+      "related_commands": [
+        "reg",
+        "xtreg-fe"
+      ],
+      "comparison_pages": [],
+      "content": {
+        "what_it_does": "Thay thế các giá trị bị thiếu bằng các phương trình chuỗi và kết hợp các ước lượng mô hình trên nhiều tập dữ liệu đã được thay thế.",
+        "problem_it_solves": "Việc xóa bỏ theo dòng (listwise deletion) có thể lãng phí dữ liệu và gây ra sai lệch khi sự thiếu hụt không phải là hoàn toàn ngẫu nhiên.",
+        "algorithm": "Thay thế lặp đi lặp lại từng biến có điều kiện dựa trên các biến khác, tạo ra m tập dữ liệu và gộp các ước lượng thông qua các quy tắc của Rubin.",
+        "when_to_use": [
+          "Sự thiếu hụt ở mức vừa phải dưới giả định MAR (Missing At Random)",
+          "Mất mát mẫu đáng kể khi xóa bỏ theo dòng"
+        ],
+        "when_not_to_use": [
+          "Có khả năng là MNAR (Missing Not At Random) mà không có các biến dự báo bổ trợ",
+          "Sự thiếu hụt cực kỳ lớn với mô hình thay thế kém"
+        ],
+        "key_assumptions": [
+          "Thiếu hụt ngẫu nhiên có điều kiện dựa trên các biến quan sát được"
+        ],
+        "output_read_first": "Đọc các hệ số/sai số chuẩn đã gộp và tỷ lệ thông tin bị thiếu.",
+        "beginner_mistake": "Thay thế nhưng ước lượng mô hình cuối cùng mà không có lệnh mi estimate.",
+        "basic_syntax": {
+          "code": "mi set wide\nmi register imputed lev roa\nmi register regular id year size\n\nmi impute chained (pmm) lev roa = size age i.year, add(20) rseed(42)\nmi estimate: regress y lev roa size i.year, vce(cluster id)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Thay thế mô hình hỗn hợp",
+          "code": "mi impute chained (pmm) lev roa (logit) treated = size age i.industry, add(30) burnin(10) rseed(42)",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "IPW (Trọng số xác suất nghịch đảo)",
+          "reason": "Khi sự thiếu hụt có tính chất như sự hao hụt mẫu (attrition), trọng số xác suất nghịch đảo có thể là một lựa chọn thay thế mạnh mẽ.",
+          "install": "builtin"
+        },
+        "practical_recommendation": "Sử dụng MI làm mặc định khi giả định MAR là khả thi và sự thiếu hụt dữ liệu là đáng kể."
+      }
+    },
+    {
+      "id": "wyoung",
+      "name": "wyoung",
+      "full_name": "Westfall-Young Multiple Testing Correction",
+      "stata_version_introduced": "N/A (SSC)",
+      "install": "ssc",
+      "category": "causal-inference",
+      "difficulty": "advanced",
+      "tags": {
+        "data_structure": [
+          "cross-section",
+          "panel"
+        ],
+        "estimator_type": [
+          "multiple-testing",
+          "resampling"
+        ],
+        "dependency_type": [
+          "continuous",
+          "binary"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "wyoung",
+          "multiple hypothesis",
+          "familywise error",
+          "stepdown"
+        ]
+      },
+      "related_commands": [
+        "rwolf"
+      ],
+      "comparison_pages": [],
+      "content": {
+        "what_it_does": "Tính toán các giá trị p được điều chỉnh theo phương pháp Westfall-Young stepdown cho một họ các giả thuyết.",
+        "problem_it_solves": "Việc kiểm định nhiều kết quả (outcomes) làm tăng tỷ lệ dương tính giả nếu các giá trị p không được điều chỉnh được diễn giải một cách trực tiếp.",
+        "algorithm": "Kiểm soát sai số họ (familywise error control) dựa trên việc lấy mẫu lại cho các họ giả thuyết được chọn.",
+        "when_to_use": [
+          "Kiểm định nhiều kết quả hoặc nhiều nhóm nhỏ",
+          "Các bài báo về RCT/chính sách với một tập hợp các kết quả"
+        ],
+        "when_not_to_use": [
+          "Chỉ có một điểm cuối chính duy nhất đã được công bố trước đó"
+        ],
+        "key_assumptions": [
+          "Thiết lập lấy mẫu lại khớp với mô hình và cách phân cụm"
+        ],
+        "output_read_first": "So sánh các giá trị p đã điều chỉnh với giá trị p thô cho các tác động can thiệp mục tiêu.",
+        "beginner_mistake": "Áp dụng các điều chỉnh cho từng kết quả một mà không xác định một họ giả thuyết duy nhất.",
+        "basic_syntax": {
+          "code": "ssc install wyoung\n\nwyoung y1 y2 y3, cmd(regress OUTCOME treat x1 x2, vce(cluster id)) familyp(treat) bootstraps(1000) seed(42)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Họ giả thuyết lớn hơn",
+          "code": "wyoung y1-y10, cmd(regress OUTCOME treat controls, vce(cluster id)) familyp(treat) bootstraps(3000) seed(123)",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "rwolf",
+          "reason": "Romano-Wolf là một lựa chọn thay thế gần gũi thường được sử dụng trong các bài báo kinh tế vi mô ứng dụng.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Nếu bạn báo cáo nhiều kiểm định kết quả, hãy bao gồm các giá trị p đã được điều chỉnh theo Westfall-Young trong các bảng phụ lục chính."
+      }
+    },
+    {
+      "id": "rwolf",
+      "name": "rwolf",
+      "full_name": "Romano-Wolf Stepdown Adjustment",
+      "stata_version_introduced": "N/A (SSC)",
+      "install": "ssc",
+      "category": "causal-inference",
+      "difficulty": "advanced",
+      "tags": {
+        "data_structure": [
+          "cross-section",
+          "panel"
+        ],
+        "estimator_type": [
+          "multiple-testing",
+          "resampling"
+        ],
+        "dependency_type": [
+          "continuous",
+          "binary"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "rwolf",
+          "Romano Wolf",
+          "multiple testing",
+          "stepdown"
+        ]
+      },
+      "related_commands": [
+        "wyoung"
+      ],
+      "comparison_pages": [],
+      "content": {
+        "what_it_does": "Tính toán các giá trị p được điều chỉnh theo phương pháp Romano-Wolf cho nhiều kết quả hoặc họ các giả thuyết.",
+        "problem_it_solves": "Ngăn chặn các khám phá sai lầm khi thực hiện nhiều kiểm định có liên quan.",
+        "algorithm": "Điều chỉnh stepdown dựa trên việc lấy mẫu lại, có tính đến sự phụ thuộc giữa các thống kê kiểm định.",
+        "when_to_use": [
+          "Nhiều kết quả đầu ra",
+          "Các phân tích chính sách có nhiều nhóm nhỏ"
+        ],
+        "when_not_to_use": [
+          "Chỉ có một điểm cuối chính duy nhất"
+        ],
+        "key_assumptions": [
+          "Kế hoạch lấy mẫu lại phù hợp với cấu trúc phụ thuộc và cách phân cụm"
+        ],
+        "output_read_first": "Đọc các giá trị p đã được điều chỉnh và so sánh với các giá trị p thô.",
+        "beginner_mistake": "Báo cáo các dấu sao không được điều chỉnh sau khi chạy rwolf.",
+        "basic_syntax": {
+          "code": "ssc install rwolf\n\nrwolf y1 y2 y3, method(regress) indepvars(treat x1 x2) vce(cluster id) reps(1000) seed(42)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Họ kết quả lớn hơn",
+          "code": "rwolf y1-y12, method(regress) indepvars(treat controls) vce(cluster id) reps(3000) seed(99)",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "wyoung",
+          "reason": "Westfall-Young là một cách tiếp cận hiệu chính họ giả thuyết (familywise correction) khác được chấp nhận.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Sử dụng rwolf hoặc wyoung bất cứ khi nào bài báo của bạn kiểm định một họ các kết quả, thay vì chỉ một điểm cuối duy nhất."
+      }
+    },
+    {
+      "id": "xtscc",
+      "name": "xtscc",
+      "full_name": "Driscoll-Kraay Standard Errors",
+      "stata_version_introduced": "N/A (SSC)",
+      "install": "ssc",
+      "category": "panel-data",
+      "difficulty": "advanced",
+      "tags": {
+        "data_structure": [
+          "panel",
+          "macro-panel"
+        ],
+        "estimator_type": [
+          "standard-errors",
+          "HAC"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "xtscc",
+          "Driscoll-Kraay",
+          "cross-sectional dependence",
+          "serial correlation"
+        ]
+      },
+      "related_commands": [
+        "xtreg-fe",
+        "xtcd2",
+        "reghdfe"
+      ],
+      "comparison_pages": [],
+      "content": {
+        "what_it_does": "Ước lượng các hồi quy bảng với sai số chuẩn Driscoll-Kraay vững với phương sai sai số thay đổi, tự tương quan và phụ thuộc chéo.",
+        "problem_it_solves": "Các bảng dữ liệu vĩ mô (macro panels) thường vi phạm tính độc lập chéo, làm cho sai số chuẩn phân cụm tiêu chuẩn trở nên không đầy đủ.",
+        "algorithm": "Sử dụng ước lượng hiệp phương sai phi tham số kiểu HAC trên cả thời gian và các đơn vị chéo.",
+        "when_to_use": [
+          "Các bảng dữ liệu có T lớn",
+          "Bằng chứng về sự phụ thuộc chéo"
+        ],
+        "when_not_to_use": [
+          "T rất ngắn nơi các giả định tiệm cận của DK bị yếu"
+        ],
+        "key_assumptions": [
+          "Chiều thời gian đủ lớn",
+          "Đặc điểm mô hình trung bình hợp lý"
+        ],
+        "output_read_first": "Đọc thống kê t của DK và độ dài độ trễ đã chọn.",
+        "beginner_mistake": "Sử dụng xtscc với T rất ngắn và coi nó là vượt trội trong mọi trường hợp.",
+        "basic_syntax": {
+          "code": "ssc install xtscc\n\nxtscc y x1 x2 x3, fe lag(3)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Độ nhạy của độ trễ",
+          "code": "xtscc y x1 x2, fe lag(2)\nxtscc y x1 x2, fe lag(4)",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "Các mô hình CCE",
+          "reason": "Nếu các yếu tố chung (common factors) mạnh, các trình ước lượng CCE có thể cải thiện tính nhất quán bên cạnh tính vững của sai số chuẩn.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Sử dụng xtscc như một lớp tính vững cho suy luận trong các ứng dụng dữ liệu bảng với T lớn."
+      }
+    },
+    {
+      "id": "xtcd2",
+      "name": "xtcd2",
+      "full_name": "Pesaran Cross-Sectional Dependence Test",
+      "stata_version_introduced": "N/A (SSC)",
+      "install": "ssc",
+      "category": "panel-data",
+      "difficulty": "intermediate",
+      "tags": {
+        "data_structure": [
+          "panel",
+          "macro-panel"
+        ],
+        "estimator_type": [
+          "diagnostics"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "xtcd2",
+          "Pesaran CD",
+          "cross-sectional dependence",
+          "panel diagnostics"
+        ]
+      },
+      "related_commands": [
+        "xtscc",
+        "xtreg-fe"
+      ],
+      "comparison_pages": [],
+      "content": {
+        "what_it_does": "Kiểm định xem các phần dư của bảng dữ liệu có phụ thuộc chéo hay không.",
+        "problem_it_solves": "Nhiều phương pháp dữ liệu bảng giả định tính độc lập chéo, điều này thường bị vi phạm bởi các cú sốc chung.",
+        "algorithm": "Gộp các tương quan phần dư từng đôi một thành một thống kê CD chuẩn hóa.",
+        "when_to_use": [
+          "Sau khi ước lượng bảng FE/RE",
+          "Trước khi chọn chiến lược suy luận vững"
+        ],
+        "when_not_to_use": [
+          "Các bảng dữ liệu có N cực nhỏ nơi kiểm định CD có rất ít lực (power)"
+        ],
+        "key_assumptions": [
+          "Phần dư từ một mô hình cơ sở hợp lý"
+        ],
+        "output_read_first": "Đọc giá trị p của kiểm định CD và điều chỉnh phương pháp suy luận nếu bị bác bỏ.",
+        "beginner_mistake": "Bỏ qua việc bác bỏ CD rõ ràng và chỉ báo cáo sai số chuẩn phân cụm tiêu chuẩn.",
+        "basic_syntax": {
+          "code": "ssc install xtcd2\n\nxtreg y x1 x2, fe\npredict ehat, e\nxtcd2 ehat",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Sử dụng với phần dư của reghdfe",
+          "code": "reghdfe y x1 x2, absorb(id year) vce(cluster id)\npredict ehat, resid\nxtcd2 ehat",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "xtscc",
+          "reason": "Nếu CD bị bác bỏ, hãy sử dụng suy luận vững DK như một bước tiếp theo.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Trong các bảng dữ liệu N lớn và T lớn, hãy coi xtcd2 như một chẩn đoán định kỳ trước khi báo cáo mô hình cuối cùng."
+      }
+    },
+    {
+      "id": "pdslasso",
+      "name": "pdslasso",
+      "full_name": "Post-Double-Selection Lasso",
+      "stata_version_introduced": "N/A (SSC)",
+      "install": "ssc",
+      "category": "ml-econometrics",
+      "difficulty": "advanced",
+      "tags": {
+        "data_structure": [
+          "cross-section",
+          "panel"
+        ],
+        "estimator_type": [
+          "machine-learning",
+          "selection",
+          "causal-inference"
+        ],
+        "dependency_type": [
+          "continuous",
+          "binary"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "pdslasso",
+          "post-double-selection",
+          "Belloni",
+          "high-dimensional controls"
+        ]
+      },
+      "related_commands": [
+        "ddml",
+        "lasso-tools"
+      ],
+      "comparison_pages": [
+        "pdslasso-vs-ddml"
+      ],
+      "content": {
+        "what_it_does": "Lựa chọn các biến kiểm soát thông qua Lasso kép và ước lượng các tác động can thiệp với suy luận hợp lệ sau lựa chọn.",
+        "problem_it_solves": "Việc lựa chọn biến ngây thơ có thể làm mất hiệu lực của các sai số chuẩn trong các hồi quy nhân quả chiều cao.",
+        "algorithm": "Chạy Lasso cho Y~X và D~X một cách riêng biệt, sau đó chạy OLS/IV trên hợp các biến kiểm soát được chọn.",
+        "when_to_use": [
+          "Nhiều biến kiểm soát với cấu trúc tuyến tính thưa thớt (sparse-linear) chủ yếu",
+          "Cần việc lựa chọn biến kiểm soát chiều cao minh bạch"
+        ],
+        "when_not_to_use": [
+          "Các mối quan hệ gây nhiễu phi tuyến mạnh nơi cần các phương pháp học linh hoạt hơn"
+        ],
+        "key_assumptions": [
+          "Tính thưa xấp xỉ (Approximate sparsity)",
+          "Cấu trúc tham số mục tiêu tuyến tính"
+        ],
+        "output_read_first": "Đọc các biến kiểm soát được chọn và hệ số can thiệp sau lựa chọn kèm theo sai số chuẩn vững.",
+        "beginner_mistake": "Coi các biến kiểm soát được chọn là sự thật cấu trúc thay vì là kết quả của việc lựa chọn theo thuật toán.",
+        "basic_syntax": {
+          "code": "ssc install rlasso\nssc install pdslasso\n\npdslasso y d x1-x100, cluster(id)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Phiên bản IV",
+          "code": "pdslasso y (d = z1 z2) x1-x120, cluster(id)",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "ddml",
+          "reason": "Sử dụng ddml khi bạn cần các phương pháp học gây nhiễu phi tham số linh hoạt với cross-fitting.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Sử dụng pdslasso như một phương pháp cơ sở nhân quả chiều cao thực dụng và xác nhận lại bằng ddml khi có thể."
+      }
+    },
+    {
+      "id": "scpi",
+      "name": "scpi",
+      "full_name": "Synthetic Control with Prediction Intervals",
+      "stata_version_introduced": "N/A (SSC)",
+      "install": "ssc",
+      "category": "staggered-did",
+      "difficulty": "advanced",
+      "tags": {
+        "data_structure": [
+          "panel"
+        ],
+        "estimator_type": [
+          "synthetic-control",
+          "inference"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "scpi",
+          "synthetic control",
+          "prediction intervals",
+          "uncertainty"
+        ]
+      },
+      "related_commands": [
+        "synth"
+      ],
+      "comparison_pages": [
+        "synth-vs-scpi"
+      ],
+      "content": {
+        "what_it_does": "Mở rộng phân tích nhóm đối chứng tổng hợp (synthetic control) với các khoảng dự báo chính quy và định lượng sự không chắc chắn.",
+        "problem_it_solves": "Phương pháp synth cổ điển phụ thuộc nhiều vào đồ thị placebo và thường thiếu các suy luận khoảng tin cậy rõ ràng.",
+        "algorithm": "Xây dựng các trọng số tổng hợp và tính toán các tập hợp không chắc chắn xung quanh các khoảng cách sau can thiệp.",
+        "when_to_use": [
+          "Các thiết kế đơn vị can thiệp duy nhất cần suy luận dựa trên khoảng tin cậy"
+        ],
+        "when_not_to_use": [
+          "Nhiều đơn vị được can thiệp nơi DID phù hợp hơn"
+        ],
+        "key_assumptions": [
+          "Nhóm đơn vị đối chứng (donor pool) đáng tin cậy và sự khớp tốt giai đoạn trước can thiệp"
+        ],
+        "output_read_first": "Kiểm tra sự khớp giai đoạn trước can thiệp và các khoảng dự báo được báo cáo cho các hiệu ứng sau can thiệp.",
+        "beginner_mistake": "Tin tưởng vào các khoảng tin cậy khi sự khớp giai đoạn trước can thiệp kém.",
+        "basic_syntax": {
+          "code": "ssc install scpi\nhelp scpi",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "So sánh với synth",
+          "code": "synth y y(1990(1)2000), trunit(1) trperiod(2001)\n* sau đó chạy scpi trên cùng thiết lập donor",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "synth_runner",
+          "reason": "Nếu sử dụng synth cổ điển, synth_runner cải thiện việc tự động hóa placebo và báo cáo kết quả.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Sử dụng scpi khi ứng dụng synthetic control của bạn cần các khoảng tin cậy không chắc chắn rõ ràng, chứ không chỉ là các đồ thị placebo."
+      }
+    },
+    {
+      "id": "rdlocrand",
+      "name": "rdlocrand",
+      "full_name": "Local Randomization RD Inference",
+      "stata_version_introduced": "N/A (SSC)",
+      "install": "ssc",
+      "category": "causal-inference",
+      "difficulty": "advanced",
+      "tags": {
+        "data_structure": [
+          "cross-section"
+        ],
+        "estimator_type": [
+          "RDD",
+          "randomization-inference"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "rdlocrand",
+          "local randomization",
+          "RD inference",
+          "permutation"
+        ]
+      },
+      "related_commands": [
+        "rdrobust",
+        "rdrobust-advanced"
+      ],
+      "comparison_pages": [
+        "rdrobust-vs-rdlocrand"
+      ],
+      "content": {
+        "what_it_does": "Thực hiện suy luận RD dưới thiết kế ngẫu nhiên hóa cục bộ (local randomization) gần điểm cắt.",
+        "problem_it_solves": "Cung cấp suy luận dựa trên thiết kế để bổ sung cho các ước lượng rdrobust dựa trên tính liên tục.",
+        "algorithm": "Chọn một cửa sổ cục bộ xung quanh điểm cắt và áp dụng các kiểm định ngẫu nhiên hóa/hoán vị trong cửa sổ đó.",
+        "when_to_use": [
+          "Việc gán can thiệp có tính ngẫu nhiên hóa cao xung quanh điểm cắt",
+          "Cần tính vững RD dựa trên ngẫu nhiên hóa"
+        ],
+        "when_not_to_use": [
+          "Quá ít quan sát xung quanh điểm cắt",
+          "Không có cửa sổ ngẫu nhiên hóa cục bộ đáng tin cậy"
+        ],
+        "key_assumptions": [
+          "Việc gán can thiệp như ngẫu nhiên bên trong cửa sổ đã chọn"
+        ],
+        "output_read_first": "Đọc cửa sổ đã chọn, kiểm tra tính cân bằng và các giá trị p ngẫu nhiên hóa.",
+        "beginner_mistake": "Sử dụng các cửa sổ quá rộng vi phạm tính ngẫu nhiên hóa cục bộ.",
+        "basic_syntax": {
+          "code": "ssc install rdlocrand\n\nrdwinselect y runvar, c(0)\nrdlocrand y runvar, c(0) wl(5) wr(5)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Suy luận hoán vị",
+          "code": "rdrandinf y runvar, c(0) wl(4) wr(4) reps(5000)",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "rdrobust",
+          "reason": "Sử dụng RD dựa trên tính liên tục với hiệu hiệu chỉnh chệch vững làm ước lượng chính và rdlocrand như bước kiểm tra tính vững.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Kết hợp rdlocrand với rdrobust để củng cố độ tin cậy của RD dưới các giả định nhận dạng thay thế."
+      }
+    },
+    {
+      "id": "rdrobust-advanced",
+      "name": "rdrobust-advanced",
+      "full_name": "Advanced RD Protocol (rdrobust + rddensity + sensitivity)",
+      "stata_version_introduced": "N/A",
+      "install": "ssc",
+      "category": "causal-inference",
+      "difficulty": "advanced",
+      "tags": {
+        "data_structure": [
+          "cross-section"
+        ],
+        "estimator_type": [
+          "RDD",
+          "workflow"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "rdrobust advanced",
+          "rddensity",
+          "bandwidth sensitivity",
+          "RD checklist"
+        ]
+      },
+      "related_commands": [
+        "rdrobust",
+        "rdlocrand"
+      ],
+      "comparison_pages": [
+        "rdrobust-vs-rdlocrand"
+      ],
+      "content": {
+        "what_it_does": "Xác định một quy trình báo cáo RD đầy đủ: kiểm định mật độ, băng thông tối ưu, ước lượng vững, kiểm tra biến kiểm soát và độ nhạy của băng thông.",
+        "problem_it_solves": "Nhiều ứng dụng RD chỉ báo cáo một ước lượng duy nhất và bỏ qua các chẩn đoán tính hợp lệ quan trọng.",
+        "algorithm": "rddensity -> rdbwselect -> rdrobust -> biến kiểm soát placebo -> độ nhạy băng thông.",
+        "when_to_use": [
+          "Bất kỳ thiết kế RD nào có ý định xuất bản"
+        ],
+        "when_not_to_use": [
+          "Không có biến chạy (running variable)/điểm cắt rõ ràng"
+        ],
+        "key_assumptions": [
+          "Không có sự thao túng tại điểm cắt",
+          "Tính liên tục của các kết quả tiềm năng xung quanh ngưỡng"
+        ],
+        "output_read_first": "Đọc kiểm định thao túng trước, sau đó là ước lượng RD vững và các cửa sổ độ nhạy.",
+        "beginner_mistake": "Chỉ báo cáo khoảng tin cậy thông thường và bỏ qua khoảng tin cậy vững/hiệu chỉnh chệch.",
+        "basic_syntax": {
+          "code": "ssc install rdrobust\nssc install rddensity\n\nrddensity runvar, c(0)\nrdrobust y runvar, c(0) bwselect(mserd)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Kiểm tra độ nhạy",
+          "code": "rdrobust y runvar, c(0) h(5)\nrdrobust y runvar, c(0) h(10)\nrdrobust covariate runvar, c(0)",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "rdlocrand",
+          "reason": "Thêm suy luận ngẫu nhiên hóa cục bộ như là một bước bổ sung cho tính vững của RD.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Coi giao thức này là bắt buộc để báo cáo RD một cách minh bạch trong các công trình nghiên cứu chuẩn mực."
+      }
+    },
+    {
+      "id": "xtabond2-advanced",
+      "name": "xtabond2-advanced",
+      "full_name": "Advanced Dynamic Panel GMM Diagnostics",
+      "stata_version_introduced": "N/A",
+      "install": "ssc",
+      "category": "panel-data",
+      "difficulty": "advanced",
+      "tags": {
+        "data_structure": [
+          "panel"
+        ],
+        "estimator_type": [
+          "GMM",
+          "dynamic-panel",
+          "diagnostics"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": true,
+        "keywords": [
+          "xtabond2 diagnostics",
+          "AR2",
+          "Hansen J",
+          "instrument proliferation",
+          "collapse"
+        ]
+      },
+      "related_commands": [
+        "xtabond2",
+        "boottest"
+      ],
+      "comparison_pages": [],
+      "content": {
+        "what_it_does": "Cung cấp một quy trình thực hiện chẩn đoán ưu tiên cho xtabond2: cửa sổ độ trễ hạn chế, các công cụ thu gọn (collapsed instruments), và các kiểm tra AR(2)/Hansen bắt buộc.",
+        "problem_it_solves": "xtabond2 thường xuyên bị sử dụng sai với quá nhiều biến công cụ và kỷ luật chẩn đoán yếu.",
+        "algorithm": "Ước lượng GMM hệ thống/sai phân với các tập hợp công cụ được kiểm soát, sau đó xác nhận các điều kiện tự tương quan và định danh quá mức.",
+        "when_to_use": [
+          "Các mô hình động bảng ngắn với biến phụ thuộc trễ",
+          "Cần các chẩn đoán GMM vững trong các bảng kết quả xuất bản"
+        ],
+        "when_not_to_use": [
+          "Các bảng dữ liệu có T lớn nơi chệch FE là nhỏ",
+          "Không có cấu trúc động về mặt lý thuyết"
+        ],
+        "key_assumptions": [
+          "Không có AR(2) trong các sai số đã lấy sai phân",
+          "Tập hợp biến công cụ hợp lệ và không bị quá khớp (overfit)"
+        ],
+        "output_read_first": "Đọc giá trị p của AR(2), giá trị p của Hansen J, và số lượng biến công cụ so với số nhóm.",
+        "beginner_mistake": "Hài lòng với giá trị p Hansen cao trong khi số lượng biến công cụ vượt quá số nhóm.",
+        "basic_syntax": {
+          "code": "xtabond2 y l.y x1 x2, gmm(l.y, lag(2 3) collapse) iv(x1 x2) twostep robust small\nestat abond\nestat sargan",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "GMM hệ thống với cửa sổ độ trễ chặt chẽ hơn",
+          "code": "xtabond2 y l.y x1 x2, gmm(l.y, lag(2 3) collapse eq(diff)) gmm(l.y, lag(2 2) collapse eq(level)) iv(x1 x2, eq(level)) twostep robust small",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "FE hiệu chỉnh chệch",
+          "reason": "Với T lớn hơn, các trình ước lượng FE hiệu chỉnh chệch có thể là một lựa chọn thay thế đơn giản hơn so với GMM đầy đủ.",
+          "install": "builtin"
+        },
+        "practical_recommendation": "Chỉ sử dụng xtabond2 với kỷ luật chẩn đoán nghiêm ngặt và báo cáo rõ ràng số lượng biến công cụ."
+      }
+    },
+    {
+      "id": "misstable",
+      "name": "misstable",
+      "full_name": "Missing Data Audit",
+      "stata_version_introduced": "Stata 11",
+      "install": "builtin",
+      "category": "data-infrastructure",
+      "difficulty": "beginner",
+      "tags": {
+        "data_structure": [
+          "any"
+        ],
+        "estimator_type": [
+          "audit"
+        ],
+        "dependency_type": [
+          "any"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "missing data",
+          "audit",
+          "patterns",
+          "MCAR",
+          "MAR"
+        ]
+      },
+      "related_commands": [
+        "mi-impute",
+        "inspect",
+        "codebook"
+      ],
+      "comparison_pages": [],
+      "content": {
+        "what_it_does": "Kiểm toán sự hiện diện và các mẫu hình của các giá trị bị thiếu trong tập dữ liệu của bạn.",
+        "problem_it_solves": "Xác định xem dữ liệu là Thiếu hụt Hoàn toàn Ngẫu nhiên (MCAR) hay tuân theo một mẫu hình (MAR), điều này quyết định xem việc xóa bỏ đơn giản có gây chệch hay không.",
+        "algorithm": "Lập bảng sự thiếu hụt qua các biến và các quan sát.",
+        "when_to_use": [
+          "Ngay từ khi bắt đầu làm sạch dữ liệu",
+          "Trước khi quyết định chiến lược thay thế (imputation)"
+        ],
+        "when_not_to_use": [
+          "Không phải là một lệnh ước lượng"
+        ],
+        "key_assumptions": [
+          "N/A"
+        ],
+        "output_read_first": "Tỷ lệ phần trăm thiếu hụt trên mỗi biến. Thiếu hụt cao (>40%) thường làm cho một biến không thể sử dụng được.",
+        "beginner_mistake": "Bỏ qua các mẫu hình dữ liệu thiếu và giả định rằng việc xóa bỏ theo dòng mặc định của Stata là an toàn.",
+        "basic_syntax": {
+          "code": "misstable summarize\nmisstable patterns",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Biểu diễn dạng cây của sự thiếu hụt",
+          "code": "misstable tree",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "mdesc (SSC)",
+          "reason": "Hữu ích cho một bảng tóm tắt sạch sẽ hơn về các giá trị bị thiếu.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Luôn chạy 'misstable summarize' trước bất kỳ hồi quy nào để hiểu có bao nhiêu quan sát sẽ bị loại bỏ."
+      }
+    },
+    {
+      "id": "psacalc",
+      "name": "psacalc",
+      "full_name": "Proportional Selection Assessment",
+      "stata_version_introduced": "N/A (user-written)",
+      "install": "ssc",
+      "category": "sensitivity-robustness",
+      "difficulty": "intermediate",
+      "tags": {
+        "data_structure": [
+          "cross-section",
+          "panel"
+        ],
+        "estimator_type": [
+          "sensitivity"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": true,
+        "keywords": [
+          "Oster",
+          "selection on unobservables",
+          "robustness",
+          "causal",
+          "stability"
+        ]
+      },
+      "related_commands": [
+        "reg"
+      ],
+      "comparison_pages": [],
+      "content": {
+        "what_it_does": "Tính toán mức độ chọn lọc trên các yếu tố không quan sát được so với các yếu tố quan sát được cần thiết để triệt tiêu một tác động can thiệp.",
+        "problem_it_solves": "Giải quyết mối đe dọa 'yếu tố gây nhiễu không quan sát được' bằng cách chính thức hóa logic Altonji/Oster về tính ổn định của hệ số.",
+        "algorithm": "Sử dụng sự thay đổi của hệ số và R-squared giữa một mô hình có và không có biến kiểm soát để giới hạn tác động thực sự.",
+        "when_to_use": [
+          "Để phản hồi các lo ngại của người phản biện về chệch do biến bị bỏ sót",
+          "Khi bạn có các biến kiểm soát mạnh nhưng nghi ngờ các biến không quan sát được vẫn còn tồn tại"
+        ],
+        "when_not_to_use": [
+          "Khi R-squared của bạn đã rất gần với R-max",
+          "Mẫu kích thước nhỏ"
+        ],
+        "key_assumptions": [
+          "Sự chọn lọc trên các biến quan sát được cung cấp thông tin về sự chọn lọc trên các biến không quan sát được",
+          "R-max (R2 tối đa lý thuyết) phải được xác định (Oster gợi ý 1.3 * R2 quan sát được)"
+        ],
+        "output_read_first": "Giá trị delta (δ). Một δ > 1 gợi ý rằng các yếu tố không quan sát được sẽ phải quan trọng hơn tất cả các biến kiểm soát đã bao gồm để triệt tiêu hiệu ứng, điều này thường được coi là vững.",
+        "beginner_mistake": "Giả định rằng chỉ sự ổn định của hệ số là đủ — bạn phải tính đến sự thay đổi của R-squared.",
+        "basic_syntax": {
+          "code": "ssc install psacalc\nreg y x controls\npsacalc beta key_var",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Xác định R-max và tập hợp nhận dạng",
+          "code": "psacalc delta key_var, rmax(0.7)",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "konfound (SSC)",
+          "reason": "Một công cụ phân tích độ nhạy khác để định lượng tác động của các yếu tố gây nhiễu tiềm tàng.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Sử dụng psacalc như một bước kiểm tra tính vững tiêu chuẩn trong các bài báo nhân quả để định lượng 'Oster delta'."
+      }
+    },
+    {
+      "id": "honestdid",
+      "name": "honestdid",
+      "full_name": "Honest Difference-in-Differences",
+      "stata_version_introduced": "N/A (user-written)",
+      "install": "ssc",
+      "category": "sensitivity-robustness",
+      "difficulty": "advanced",
+      "tags": {
+        "data_structure": [
+          "panel"
+        ],
+        "estimator_type": [
+          "inference",
+          "sensitivity"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": true,
+        "keywords": [
+          "DID",
+          "parallel trends",
+          "sensitivity",
+          "honest",
+          "Rambachan",
+          "Roth"
+        ]
+      },
+      "related_commands": [
+        "csdid",
+        "eventstudyinteract"
+      ],
+      "comparison_pages": [],
+      "content": {
+        "what_it_does": "Xây dựng các khoảng tin cậy cho các tác động DID vững đối với một số vi phạm nhất định của giả định xu hướng song song.",
+        "problem_it_solves": "Chứng minh rằng kết quả là vững ngay cả khi các xu hướng trước can thiệp (pre-trends) không hoàn toàn song song.",
+        "algorithm": "Sử dụng cách tiếp cận 'độ lớn tương đối' (M) để cho phép các sai lệch xu hướng tỷ lệ với các xu hướng giai đoạn trước can thiệp.",
+        "when_to_use": [
+          "Sau khi chạy một event study nơi các pre-trends hơi nhiễu",
+          "Để chỉ ra điểm 'đổ vỡ' của một kết quả DID"
+        ],
+        "when_not_to_use": [
+          "Khi bạn chưa chạy một event study tiêu chuẩn trước đó"
+        ],
+        "key_assumptions": [
+          "Giả định các vi phạm xu hướng tuân theo một lớp hàm cụ thể (ví dụ: độ lớn có giới hạn)"
+        ],
+        "output_read_first": "Đồ thị các khoảng tin cậy qua các giá trị khác nhau của M. Nếu CI không chứa điểm không với M=1, kết quả là vững đối với các vi phạm xu hướng lớn bằng sự biến động của giai đoạn trước can thiệp.",
+        "beginner_mistake": "Sử dụng công cụ này thay thế cho việc cố gắng tìm kiếm một nhóm đối chứng tốt hơn.",
+        "basic_syntax": {
+          "code": "honestdid, pre(1/4) post(5/8) mvec(0(0.5)2)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Với các chỉ số thời gian tương đối cụ thể",
+          "code": "honestdid, pre(-4 -3 -2) post(0 1 2) mvec(0.5 1.0 1.5)",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "hậu ước lượng csdid",
+          "reason": "csdid có các kiểm định pre-trend tích hợp sẵn, nhưng honestdid là bước phân tích độ nhạy nghiêm ngặt sau đó.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Thêm một đồ thị honestdid vào phụ lục của bạn để dập tắt những chỉ trích về giả định xu hướng song song của bạn."
+      }
+    },
+    {
+      "id": "winsor2",
+      "name": "winsor2",
+      "full_name": "Winsorization and Outlier Treatment",
+      "stata_version_introduced": "N/A (user-written)",
+      "install": "ssc",
+      "category": "data-infrastructure",
+      "difficulty": "beginner",
+      "tags": {
+        "data_structure": [
+          "any"
+        ],
+        "estimator_type": [
+          "preprocessing"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "outliers",
+          "winsorize",
+          "trimming",
+          "robustness"
+        ]
+      },
+      "related_commands": [
+        "summarize",
+        "histogram"
+      ],
+      "comparison_pages": [],
+      "content": {
+        "what_it_does": "Thay thế các giá trị cực biên (ngoại lệ) bằng giá trị tại một phân vị xác định (ví dụ: thứ 1 hoặc thứ 99).",
+        "problem_it_solves": "Ngăn chặn các ngoại lệ cực đoan gây ra ảnh hưởng quá mức lên các ước lượng OLS trong khi vẫn bảo toàn kích thước mẫu.",
+        "algorithm": "Mã hóa lại các giá trị trên ngưỡng trên thành giá trị ngưỡng trên, và dưới ngưỡng dưới thành giá trị ngưỡng dưới.",
+        "when_to_use": [
+          "Trong các nghiên cứu tài chính doanh nghiệp và kinh tế vĩ mô nơi các tỷ số thường có các giá trị cực biên",
+          "Như một bước kiểm tra tính vững định kỳ"
+        ],
+        "when_not_to_use": [
+          "Khi các giá trị cực biên là đối tượng nghiên cứu chính (ví dụ: rủi ro đuôi - tail risk)",
+          "Khi bạn có ít quan sát"
+        ],
+        "key_assumptions": [
+          "Mối quan hệ 'thực sự' được thể hiện tốt hơn nếu không có nhiễu ở các đuôi cực đoan"
+        ],
+        "output_read_first": "Thống kê tóm tắt trước và sau khi winsorize.",
+        "beginner_mistake": "Winsorize mà không báo cáo, hoặc winsorize để che giấu sự biến động hợp lệ.",
+        "basic_syntax": {
+          "code": "ssc install winsor2\nwinsor2 wage, cuts(1 99) replace",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Winsorize nhiều biến với hậu tố",
+          "code": "winsor2 roa leverage, cuts(5 95) suffix(_w)",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "trimming (lọc bỏ)",
+          "reason": "Trimming (loại bỏ các quan sát) khắt khe hơn winsorizing. Winsorizing thường được ưu tiên hơn trong nghiên cứu.",
+          "install": "builtin"
+        },
+        "practical_recommendation": "Báo cáo kết quả chính của bạn cả khi có và không có winsorization để chứng minh rằng các ngoại lệ không phải là nhân tố thúc đẩy các phát hiện của bạn."
+      }
+    },
+    {
+      "id": "ihs",
+      "name": "Inverse Hyperbolic Sine (IHS)",
+      "full_name": "IHS Transformation",
+      "stata_version_introduced": "Stata 1 (via gen)",
+      "install": "builtin",
+      "category": "data-infrastructure",
+      "difficulty": "beginner",
+      "tags": {
+        "data_structure": [
+          "any"
+        ],
+        "estimator_type": [
+          "transform"
+        ],
+        "dependency_type": [
+          "continuous"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "log",
+          "zeros",
+          "transformation",
+          "IHS",
+          "elasticity"
+        ]
+      },
+      "related_commands": [
+        "generate"
+      ],
+      "comparison_pages": [],
+      "content": {
+        "what_it_does": "Biến đổi một biến bằng hàm arcsinh, hàm này có tính chất giống như biến đổi log nhưng được xác định tại điểm không và cho các giá trị âm.",
+        "problem_it_solves": "Xử lý các biến bị lệch có chứa các giá trị không (ví dụ: tài sản, lợi nhuận, bằng sáng chế) mà không bị chệch ad-hoc như 'ln(x+1)'.",
+        "algorithm": "f(x) = ln(x + sqrt(x^2 + 1))",
+        "when_to_use": [
+          "Các biến có nhiều giá trị không vốn có lợi từ việc co giãn kiểu log",
+          "Khi bạn muốn diễn giải kiểu độ co giãn cho các giá trị lớn"
+        ],
+        "when_not_to_use": [
+          "Khi các giá trị rất nhỏ (gần bằng không), nơi IHS có tính tuyến tính hơn là kiểu log"
+        ],
+        "key_assumptions": [
+          "Diễn giải ≈ log(x) cho x > 2"
+        ],
+        "output_read_first": "N/A (lệnh biến đổi)",
+        "beginner_mistake": "Sử dụng ln(x+1) thay vì IHS. Bellemare & Wichman (2020) chỉ ra rằng IHS vượt trội về mặt lý thuyết.",
+        "basic_syntax": {
+          "code": "gen ihs_y = asinh(y)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Tính toán thủ công trong các phiên bản Stata cũ hơn",
+          "code": "gen ihs_y = ln(y + sqrt(y^2 + 1))",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "log(x+1)",
+          "reason": "Cách tiếp cận truyền thống nhưng gây chệch cho các biến có giá trị không.",
+          "install": "builtin"
+        },
+        "practical_recommendation": "Trích dẫn Bellemare & Wichman (2020) khi sử dụng IHS để biện minh tại sao nó tốt hơn log(x+1)."
+      }
+    },
+    {
+      "id": "coefplot",
+      "name": "coefplot",
+      "full_name": "Plotting Regression Coefficients",
+      "stata_version_introduced": "N/A (user-written)",
+      "install": "ssc",
+      "category": "publication-standards",
+      "difficulty": "beginner",
+      "tags": {
+        "data_structure": [
+          "any"
+        ],
+        "estimator_type": [
+          "visualization"
+        ],
+        "dependency_type": [
+          "any"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "coefficients",
+          "visualization",
+          "confidence intervals",
+          "plotting"
+        ]
+      },
+      "related_commands": [
+        "regress",
+        "estout"
+      ],
+      "comparison_pages": [],
+      "content": {
+        "what_it_does": "Tạo ra các đồ thị có khả năng tùy biến cao của các hệ số hồi quy và các khoảng tin cậy của chúng.",
+        "problem_it_solves": "Các đồ thị hệ số dễ dàng để người đọc phân tích và so sánh hơn nhiều so với các bảng hồi quy lớn.",
+        "algorithm": "Trích xuất e(b) và e(V) từ các kết quả ước lượng đã lưu.",
+        "when_to_use": [
+          "Để trình bày kết quả từ nhiều đặc điểm mô hình",
+          "Để chỉ ra tính không đồng nhất giữa các nhóm",
+          "Để thay thế hoặc bổ sung cho các bảng lớn"
+        ],
+        "when_not_to_use": [
+          "N/A"
+        ],
+        "key_assumptions": [
+          "Yêu cầu các ước lượng được lưu trong bộ nhớ"
+        ],
+        "output_read_first": "Vị trí của chấm hệ số và độ dài của các thanh CI. Các chấm nằm xa đường số không đại diện cho các hiệu ứng có ý nghĩa thống kê.",
+        "beginner_mistake": "Sử dụng các nhãn mặc định khó đọc. Hãy sử dụng tùy chọn 'rename' hoặc 'label'.",
+        "basic_syntax": {
+          "code": "ssc install coefplot\nreg y x1 x2 x3\ncoefplot, drop(_cons) xline(0)",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "So sánh nhiều mô hình",
+          "code": "eststo m1: reg y x1\neststo m2: reg y x1 controls\ncoefplot m1 m2, keep(x1) vertical",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "marginsplot",
+          "reason": "Để vẽ đồ thị các tác động biên sau lệnh 'margins'.",
+          "install": "builtin"
+        },
+        "practical_recommendation": "Sử dụng 'coefplot' để trực quan hóa kết quả chính của bạn qua các mẫu phụ hoặc các đặc điểm mô hình khác nhau. Nó kể một câu chuyện tốt hơn nhiều so với một bảng khổng lồ."
+      }
+    },
+    {
+      "id": "putdocx",
+      "name": "putdocx",
+      "full_name": "Export to Word Document",
+      "stata_version_introduced": "Stata 15",
+      "install": "builtin",
+      "category": "publication-standards",
+      "difficulty": "intermediate",
+      "tags": {
+        "data_structure": [
+          "any"
+        ],
+        "estimator_type": [
+          "reporting"
+        ],
+        "dependency_type": [
+          "any"
+        ],
+        "endogeneity": false,
+        "keywords": [
+          "Word",
+          "automation",
+          "reports",
+          "reproducibility"
+        ]
+      },
+      "related_commands": [
+        "putpdf",
+        "estout"
+      ],
+      "comparison_pages": [],
+      "content": {
+        "what_it_does": "Cho phép tạo các tệp Word (.docx) trực tiếp từ Stata, bao gồm văn bản, bảng biểu và đồ thị.",
+        "problem_it_solves": "Cho phép tạo ra các báo cáo và bài báo có tính lặp lại hoàn toàn, trong đó các kết quả được cập nhật tự động khi dữ liệu hoặc phân tích thay đổi.",
+        "algorithm": "N/A",
+        "when_to_use": [
+          "Tạo các báo cáo định kỳ",
+          "Tự động hóa phần 'kết quả' của một bài báo",
+          "Chia sẻ phát hiện với các cộng tác viên không sử dụng Stata"
+        ],
+        "when_not_to_use": [
+          "Nếu bạn chủ yếu sử dụng LaTeX — hãy tiếp tục với estout/esttab"
+        ],
+        "key_assumptions": [
+          "Yêu cầu Stata 15 trở lên"
+        ],
+        "output_read_first": "Tệp .docx được tạo ra.",
+        "beginner_mistake": "Việc định dạng thủ công trong tệp .do rất tẻ nhạt; tốt hơn là nên xây dựng các chương trình hỗ trợ có thể tái sử dụng.",
+        "basic_syntax": {
+          "code": "putdocx begin\nputdocx paragraph\nputdocx text (\"Main Results\")\nputdocx save myreport.docx, replace",
+          "language": "stata"
+        },
+        "advanced_syntax": {
+          "description": "Thêm một bảng hồi quy",
+          "code": "reg y x\nputdocx table mytable = etable\nputdocx save myreport.docx, append",
+          "language": "stata"
+        },
+        "advanced_alternative": {
+          "command": "asdoc (SSC)",
+          "reason": "Một cách đơn giản hơn, 'tự động' hơn để gửi kết quả đầu ra tới Word cho người mới bắt đầu.",
+          "install": "ssc"
+        },
+        "practical_recommendation": "Tích hợp putdocx vào kịch bản phân tích cuối cùng của bạn để một lần chạy duy nhất có thể tạo ra toàn bộ tài liệu kết quả của bạn."
+      }
+    }
+  ]
+}

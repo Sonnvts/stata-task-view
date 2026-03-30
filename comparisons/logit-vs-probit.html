@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>logit vs probit — Stata Kinh Tế Lượng Task View</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+</head>
+<body>
+<nav class="site-nav"><div class="nav-inner">
+  <a class="nav-brand" href="../index.html">Stata <span>Task View</span></a>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="../index.html">Trang chủ</a></li>
+    <li><a href="../categories/limited-dependent.html">Mô hình BPT giới hạn</a></li>
+    <li><a href="../comparison-index.html">Tất cả so sánh</a></li>
+  </ul>
+  <button class="nav-hamburger" id="nav-hamburger">☰</button>
+</div></nav>
+
+<main><div class="page-container" style="max-width:960px;">
+<nav class="breadcrumb"><a href="../index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><a href="../comparison-index.html">So sánh</a><span class="breadcrumb-sep">›</span><span class="breadcrumb-current">logit vs probit</span></nav>
+<div class="page-title-block">
+  <h1><code>logit</code> vs. <code>probit</code></h1>
+  <p class="page-subtitle">Hai mô hình, kết quả gần như giống nhau — đây là khi nào và tại sao chọn từng loại</p>
+</div>
+
+<div class="callout callout-info"><div class="callout-title">Câu trả lời ngắn</div>
+  <p>Trong hầu hết các ứng dụng, <strong>logit và probit cho Hiệu ứng biên trung bình gần như giống hệt nhau.</strong> Lựa chọn hiếm khi quan trọng với kết luận thực chất. Dùng <strong>logit làm mặc định</strong> (phổ biến hơn trong kinh tế), chạy probit để kiểm tra sự vững.</p>
+</div>
+
+<div class="vs-cards">
+  <div class="vs-card vs-recommended">
+    <div class="vs-card-header"><span class="vs-card-name">logit</span><span class="badge badge-builtin">Có sẵn</span></div>
+    <p style="font-size:.875rem;color:var(--muted-fg);">P(Y=1|X) = exp(Xβ)/(1+exp(Xβ)) — CDF logistic</p>
+    <ul class="vs-pro"><li>Mặc định cho biến kết quả nhị phân trong kinh tế</li><li>Hệ số có giải thích tự nhiên theo tỷ số odds</li><li>Phổ biến hơn trong tài liệu xuất bản</li></ul>
+  </div>
+  <div class="vs-card">
+    <div class="vs-card-header"><span class="vs-card-name">probit</span><span class="badge badge-builtin">Có sẵn</span></div>
+    <p style="font-size:.875rem;color:var(--muted-fg);">P(Y=1|X) = Φ(Xβ) — CDF phân phối chuẩn</p>
+    <ul class="vs-pro"><li>Cần thiết cho biprobit, heckprobit</li><li>Giải thích biến ẩn tự nhiên hơn cho mô hình tiện ích</li><li>Dùng để kiểm tra sự vững</li></ul>
+  </div>
+</div>
+
+<h2 style="margin-top:2rem;">Tại sao chúng cho AME giống nhau?</h2>
+<p>Hai CDF logistic và chuẩn rất giống nhau ở khu vực giữa của phân phối (tránh xa 0 và 1). Khi hầu hết xác suất dự báo nằm trong khoảng [0,1; 0,9], hai CDF tạo ra gần như cùng hiệu ứng biên, chỉ với hệ số được chia tỷ lệ xấp xỉ π/√3 ≈ 1,81 cho logit so với probit.</p>
+
+<div class="code-wrapper">
+  <pre class="language-stata"><code>* Chạy cả hai và so sánh AME
+logit employed educ exper married, robust
+margins, dydx(*)
+eststo logit_ame: margins, dydx(*) post
+
+probit employed educ exper married, robust
+margins, dydx(*)
+eststo probit_ame: margins, dydx(*) post
+
+* So sánh — AME phải gần như giống nhau
+esttab logit_ame probit_ame, se label title("So sánh AME: logit vs probit")</code></pre>
+  <button class="copy-btn">Sao chép</button>
+</div>
+
+<div class="comparison-table-wrapper">
+  <table class="comparison-table">
+    <thead><tr><th class="feature-name">Tiêu chí</th><th>logit</th><th>probit</th></tr></thead>
+    <tbody>
+      <tr><td class="feature-name">Hàm liên kết</td><td>CDF Logistic</td><td>CDF Chuẩn</td></tr>
+      <tr><td class="feature-name">AME trong thực tế</td><td colspan="2" style="text-align:center;font-weight:600;">Gần như giống nhau với hầu hết bộ dữ liệu</td></tr>
+      <tr><td class="feature-name">Giải thích hệ số</td><td class="good">Log-tỷ số odds (tỷ số odds với exp(b))</td><td>Hệ số chỉ số biến ẩn</td></tr>
+      <tr><td class="feature-name">Mặc định trong kinh tế</td><td class="good">✓ Có (ưu tiên)</td><td>Dùng để kiểm tra sự vững</td></tr>
+      <tr><td class="feature-name">Mở rộng</td><td>ivlogit, xtlogit</td><td>biprobit, heckprobit, ivprobit</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="verdict-box">
+  <div class="verdict-label">Kết luận</div>
+  <p><strong>Dùng logit làm mặc định cho biến kết quả nhị phân.</strong> Luôn theo sau bằng <code>margins, dydx(*)</code> — không báo cáo AME là sai lầm phổ biến nhất với các mô hình này. Chạy probit để kiểm tra sự vững. Nếu AME khác biệt đáng kể giữa logit và probit, hãy điều tra liệu xác suất dự báo có tập trung gần 0 hay 1 không (vấn đề phân tách).</p>
+</div>
+<a href="../commands/command.html?cmd=logit" class="btn-primary" style="margin-top:1rem;display:inline-block;">Hướng dẫn đầy đủ logit →</a>
+</div></main>
+<footer class="site-footer"><div class="footer-inner"><div class="footer-col"><h4>Liên quan</h4><ul>
+  <li><a href="../categories/limited-dependent.html">Mô hình BPT giới hạn</a></li>
+  <li><a href="../commands/command.html?cmd=margins">Hướng dẫn margins</a></li>
+</ul></div></div><div class="footer-bottom">Stata Kinh Tế Lượng Task View · Tài nguyên học thuật cho kinh tế lượng ứng dụng</div></footer>
+<script src="../assets/js/navigation.js"></script>
+</body></html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hướng dẫn Lệnh — Stata Kinh tế lượng Task View</title>
+  <meta name="description" content="Hướng dẫn lệnh Stata — chức năng, khi nào dùng, cú pháp và lời khuyên thực tế.">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/print.css" media="print">
+  <style>
+    /* Sidebar on-page TOC */
+    .sidebar-toc a {
+      font-size: .82rem;
+    }
+
+    #cmd-root {
+      min-height: 300px;
+    }
+
+    #cmd-root .callout {
+      margin-top: 1.5rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- LMS Progress Bar -->
+  <div class="progress-container">
+    <div class="progress-bar" id="lms-progress"></div>
+  </div>
+
+  <!-- ── Navigation ── -->
+  <nav class="site-nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a class="nav-brand" href="../index.html">Stata <span>Kinh tế lượng</span></a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../index.html">Trang chủ</a></li>
+        <li class="nav-dropdown">
+          <button class="nav-dropdown-btn" aria-haspopup="true">Danh mục ▾</button>
+          <div class="nav-dropdown-menu">
+            <!-- Dynamic categories would go here, keeping simple for now -->
+            <a href="../categories/ols-diagnostics.html">OLS &amp; Kiểm định</a>
+            <a href="../categories/limited-dependent.html">Biến phụ thuộc giới hạn</a>
+            <a href="../categories/panel-data.html">Dữ liệu bảng</a>
+            <a href="../categories/iv-endogeneity.html">Biến công cụ &amp; Nội sinh</a>
+            <a href="../categories/time-series.html">Chuỗi thời gian</a>
+            <a href="../categories/causal-inference.html">Suy diễn nhân quả</a>
+            <a href="../categories/staggered-did.html">DID theo giai đoạn</a>
+            <a href="../categories/ml-econometrics.html">Kinh tế lượng ML</a>
+          </div>
+        </li>
+        <li><a href="../decision-tree.html">Cây quyết định</a></li>
+        <li><a href="../best-packages.html">Gói tốt nhất</a></li>
+      </ul>
+      <button class="nav-search-btn" id="nav-search-btn" aria-label="Search">🔍 Tìm kiếm</button>
+    </div>
+  </nav>
+
+  <!-- ── Main Content ── -->
+  <main>
+    <div class="page-container">
+      <div class="content-with-sidebar">
+
+        <!-- Left Sidebar: LMS Syllabus & TOC -->
+        <aside class="page-sidebar" role="complementary">
+
+          <div class="sidebar-section" id="curriculum-sidebar">
+            <h4>📚 Chương trình học</h4>
+            <div id="syllabus-root">
+              <p style="font-size:0.8rem; color:var(--muted-fg);">Đang tải danh sách bài học...</p>
+            </div>
+          </div>
+
+          <div class="sidebar-section">
+            <h4>📍 Nội dung trang</h4>
+            <ul class="sidebar-toc">
+              <li><a href="#what-it-does">Lệnh này làm gì?</a></li>
+              <li><a href="#problem">Vấn đề giải quyết</a></li>
+              <li><a href="#algorithm">Mô hình / Thuật toán</a></li>
+              <li><a href="#when-to-use">Sử dụng / Tránh</a></li>
+              <li><a href="#assumptions">Giả định chính</a></li>
+              <li><a href="#output">Kết quả cần đọc</a></li>
+              <li><a href="#mistake">Sai lầm phổ biến</a></li>
+              <li><a href="#basic-syntax">Cú pháp cơ bản</a></li>
+              <li><a href="#advanced-syntax">Nâng cao</a></li>
+              <li><a href="#recommendation">Khuyến nghị</a></li>
+            </ul>
+          </div>
+
+          <div class="sidebar-section">
+            <h4>Thao tác nhanh</h4>
+            <ul>
+              <li><a href="../comparison-index.html">So sánh các lệnh</a></li>
+              <li><a href="#" class="print-btn">🖨 In bài học này</a></li>
+            </ul>
+          </div>
+        </aside>
+
+        <!-- Main content -->
+        <div class="content-main">
+          <div id="cmd-root">
+            <div class="callout callout-info" style="margin-top:2rem;">
+              <div class="callout-title">Đang tải...</div>
+              <p>Đang lấy dữ liệu bài học. Vui lòng đợi trong giây lát.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ── Footer ── -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <h4>Danh mục</h4>
+        <ul>
+          <li><a href="../categories/ols-diagnostics.html">OLS &amp; Kiểm định</a></li>
+          <li><a href="../categories/panel-data.html">Dữ liệu bảng</a></li>
+          <li><a href="../categories/iv-endogeneity.html">Biến công cụ &amp; Nội sinh</a></li>
+          <li><a href="../categories/causal-inference.html">Suy diễn nhân quả</a></li>
+          <li><a href="../categories/staggered-did.html">DID theo giai đoạn</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Công cụ</h4>
+        <ul>
+          <li><a href="../decision-tree.html">Cây quyết định</a></li>
+          <li><a href="../best-packages.html">Gói tốt nhất</a></li>
+          <li><a href="../research-roadmap.html">Lộ trình nghiên cứu</a></li>
+          <li><a href="../common-mistakes.html">Sai lầm phổ biến</a></li>
+          <li><a href="../taxonomy.html">Phân loại gói</a></li>
+          <li><a href="../comparison-index.html">Tất cả so sánh</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Giới thiệu</h4>
+        <p style="font-size:.8rem;color:rgba(255,255,255,.6);line-height:1.5;">
+          Stata Kinh tế lượng Task View — hướng dẫn thực hành tập trung vào gói phần mềm dành cho các nhà nghiên cứu ứng
+          dụng và sinh viên.
+        </p>
+      </div>
+    </div>
+    <div class="footer-bottom">Stata Kinh tế lượng Task View · Tài nguyên giáo dục cho kinh tế lượng ứng dụng</div>
+  </footer>
+
+  <!-- ── Scripts ── -->
+  <!-- Lunr.js for search (CDN with local fallback note) -->
+  <script src="https://cdn.jsdelivr.net/npm/lunr@2.3.9/lunr.min.js"></script>
+  <script src="../assets/js/template-engine.js"></script>
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/search.js"></script>
+  <script>
+    // Initialize command page from URL ?cmd= parameter
+    document.addEventListener('DOMContentLoaded', function () {
+      var root = document.getElementById('cmd-root');
+      if (root) {
+        CommandPage.renderFromUrl(root);
+      }
+      // Nav search
+      StataSearch.initNavSearch('nav-search-btn');
+    });
+  </script>
+
+</body>
+
+</html>

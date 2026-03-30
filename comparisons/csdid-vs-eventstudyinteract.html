@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>csdid vs eventstudyinteract — Stata Kinh Tế Lượng Task View</title>
+  <meta name="description"
+    content="So sánh csdid và eventstudyinteract cho DID theo giai đoạn với tác động can thiệp không đồng nhất.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+</head>
+
+<body>
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="../index.html">Stata <span>Task View</span></a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../index.html">Trang chủ</a></li>
+        <li><a href="../categories/staggered-did.html">DID theo giai đoạn</a></li>
+        <li><a href="../comparison-index.html">Tất cả so sánh</a></li>
+      </ul>
+      <button class="nav-hamburger" id="nav-hamburger">☰</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-container" style="max-width:960px;">
+      <nav class="breadcrumb"><a href="../index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><a
+          href="../comparison-index.html">So sánh</a><span class="breadcrumb-sep">›</span><span
+          class="breadcrumb-current">csdid vs eventstudyinteract</span></nav>
+
+      <div class="page-title-block">
+        <h1><code>csdid</code> vs <code>eventstudyinteract</code></h1>
+        <p class="page-subtitle">Hai trình ước lượng DID theo giai đoạn hiện đại giúp khắc phục chệch TWFE</p>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-title">Câu trả lời ngắn</div>
+        <p>Sử dụng <strong>csdid</strong> làm trình ước lượng mặc định để phân rã và tổng hợp ATT(g,t). Sử dụng
+          <strong>eventstudyinteract</strong> như một kiểm tra độ vững cho động lực nghiên cứu sự kiện trọng số tương
+          tác.</p>
+      </div>
+
+      <div class="comparison-table-wrapper">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Tiêu chí</th>
+              <th>csdid</th>
+              <th>eventstudyinteract</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Đầu ra chính</td>
+              <td>ATT(g,t) + ATT tổng hợp</td>
+              <td>Các hệ số trọng số tương tác theo thời gian tương đối</td>
+            </tr>
+            <tr>
+              <td>Sử dụng tốt nhất</td>
+              <td>Báo cáo tác động can thiệp chính</td>
+              <td>Độ vững của lộ trình nghiên cứu sự kiện động</td>
+            </tr>
+            <tr>
+              <td>Biến kiểm soát</td>
+              <td>Kép vững (doubly-robust) qua drdid</td>
+              <td>FE + cấu trúc biến kiểm soát trong dạng hồi quy</td>
+            </tr>
+            <tr>
+              <td>Độ khó</td>
+              <td>Trung bình</td>
+              <td>Trung bình đến cao (cần mã hóa cohort và rel_time)</td>
+            </tr>
+            <tr>
+              <td>Kỳ vọng từ tạp chí</td>
+              <td>Rất phổ biến trong bảng chính</td>
+              <td>Phổ biến như hình vẽ hỗ trợ độ vững</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 style="margin-top:1.5rem;">Mẫu mã tối thiểu</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div class="code-wrapper">
+          <pre class="language-stata"><code>* csdid cơ bản
+csdid y x1 x2, ///
+  ivar(id) time(year) gvar(first_treat) ///
+  method(dripw) cluster(id)
+
+estat event
+csdid_plot</code></pre><button class="copy-btn">Sao chép</button>
+        </div>
+        <div class="code-wrapper">
+          <pre class="language-stata"><code>* Sun-Abraham event study
+eventstudyinteract y, ///
+  absorb(id year) ///
+  cohort(first_treat) ///
+  control_cohort(never_treated) ///
+  vce(cluster id)
+
+coefplot, vertical yline(0)</code></pre><button class="copy-btn">Sao chép</button>
+        </div>
+      </div>
+
+      <div class="verdict-box" style="margin-top:1.5rem;">
+        <div class="verdict-label">Kết luận</div>
+        <p>Hãy chạy cả hai khi có thể: <strong>csdid</strong> để báo cáo ATT cốt lõi,
+          <strong>eventstudyinteract</strong> cho tính vững động. Nếu cả hai đều cho kết quả tương đồng, bằng chứng DID
+          theo giai đoạn của bạn sẽ mạnh mẽ hơn nhiều.</p>
+      </div>
+
+      <div style="margin-top:1rem;display:flex;gap:.75rem;flex-wrap:wrap;">
+        <a href="../commands/command.html?cmd=csdid" class="btn-primary">Hướng dẫn csdid →</a>
+        <a href="../commands/command.html?cmd=eventstudyinteract" class="btn-secondary">Hướng dẫn eventstudyinteract
+          →</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <h4>Liên quan</h4>
+        <ul>
+          <li><a href="../commands/command.html?cmd=staggered-did-complete">Quy trình DID theo giai đoạn đầy đủ</a></li>
+          <li><a href="../commands/command.html?cmd=honestdid">honestdid</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">Stata Kinh Tế Lượng Task View · Tài nguyên học thuật cho kinh tế lượng ứng dụng</div>
+  </footer>
+
+  <script src="../assets/js/navigation.js"></script>
+</body>
+
+</html>

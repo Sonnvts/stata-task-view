@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kinh tế lượng hỗ trợ ML — Stata Kinh Tế Lượng Task View</title>
+  <meta name="description"
+    content="Lasso, học máy kép, và lựa chọn biến kiểm soát chiều cao trong Stata. ddml, lasso2, pdslasso — khi nào và cách dùng.">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/print.css" media="print">
+</head>
+
+<body>
+  <div class="noise-overlay" aria-hidden="true"></div>
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="../index.html">Stata <span>Task View</span></a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../index.html">Trang chủ</a></li>
+        <li class="nav-dropdown"><button class="nav-dropdown-btn">Danh mục ▾</button>
+          <div class="nav-dropdown-menu">
+            <a href="ols-diagnostics.html">OLS &amp; Kiểm định</a>
+            <a href="limited-dependent.html">Biến phụ thuộc giới hạn</a>
+            <a href="panel-data.html">Dữ liệu bảng</a>
+            <a href="iv-endogeneity.html">Biến công cụ &amp; Nội sinh</a>
+            <a href="time-series.html">Chuỗi thời gian</a>
+            <a href="causal-inference.html">Suy diễn nhân quả</a>
+            <a href="staggered-did.html">DID theo giai đoạn</a>
+            <a href="ml-econometrics.html" class="active">Kinh tế lượng ML</a>
+          </div>
+        </li>
+        <li><a href="../decision-tree.html">Cây quyết định</a></li>
+        <li><a href="../best-packages.html">Gói tốt nhất</a></li>
+      </ul>
+      <button class="nav-search-btn" id="nav-search-btn">🔍 Tìm kiếm</button>
+      <button class="nav-hamburger" id="nav-hamburger" aria-label="Toggle menu">☰</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-container">
+      <nav class="breadcrumb"><a href="../index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><span
+          class="breadcrumb-current">Kinh tế lượng hỗ trợ ML</span></nav>
+
+      <div class="page-title-block">
+        <h1>🤖 Kinh tế lượng hỗ trợ ML</h1>
+        <p class="page-subtitle">Lasso, Học máy kép, và lựa chọn biến kiểm soát chiều cao — khi hồi quy cổ điển không đủ</p>
+      </div>
+
+      <!-- Overview -->
+      <section style="margin-bottom:2rem;">
+        <h2>Tổng quan</h2>
+        <p>Kinh tế lượng ứng dụng hiện đại ngày càng gặp các bối cảnh có nhiều biến kiểm soát tiềm năng — đôi khi xấp xỉ hoặc vượt quá cỡ mẫu. OLS cổ điển không thể xử lý trực tiếp điều này. Các phương pháp học máy được điều chỉnh cho suy diễn nhân quả cung cấp giải pháp.</p>
+        <p>Điểm mấu chốt: các phương pháp ML KHÔNG nên thay thế tư duy kinh tế lượng về nhận dạng. Chúng là công cụ để xử lý <strong>biến kiểm soát chiều cao</strong> trong khi vẫn bảo toàn suy diễn nhân quả hợp lệ cho biến can thiệp quan tâm.</p>
+        <div class="callout callout-warning">
+          <div class="callout-title">⚠ ML ≠ nhận dạng nhân quả</div>
+          <p>Các phương pháp học máy — bao gồm Lasso, học máy kép, và rừng ngẫu nhiên — <strong>không</strong> giải quyết
+            nội sinh hay lệch biến bị bỏ sót. Nếu biến can thiệp của bạn là nội sinh, bạn vẫn cần biến công cụ hợp lệ hoặc chiến lược nhận dạng khác. Công cụ ML giúp lựa chọn biến kiểm soát và ước lượng hàm nhiễu, không phải nhận dạng nhân quả.</p>
+        </div>
+      </section>
+
+      <!-- Command cards -->
+      <div class="cmd-grid" id="cmd-grid">
+
+        <a class="cmd-card" href="../commands/command.html?cmd=lasso-tools"
+          data-tags='{"difficulty":"advanced","install":"ssc"}'>
+          <div class="cmd-card-header">
+            <div>
+              <div class="cmd-card-name">lasso2 / pdslasso</div>
+              <div class="cmd-card-title">Lasso cho lựa chọn biến</div>
+            </div>
+            <span class="badge badge-ssc">SSC</span>
+          </div>
+          <div class="cmd-card-desc">lasso2 ước lượng hồi quy chính quy hóa Lasso, Ridge và Elastic Net. pdslasso thực hiện phương pháp Lasso Lựa chọn hậu kép (Belloni et al.) để suy diễn hợp lệ với biến kiểm soát được chọn bởi Lasso.</div>
+          <div class="cmd-card-footer"><span class="badge badge-advanced">Nâng cao</span><span
+              class="tag-pill">Lasso</span><span class="tag-pill">chính quy hóa</span><span class="tag-pill">lựa chọn biến</span></div>
+        </a>
+
+        <a class="cmd-card" href="../commands/command.html?cmd=ddml"
+          data-tags='{"difficulty":"advanced","install":"ssc"}'>
+          <div class="cmd-card-header">
+            <div>
+              <div class="cmd-card-name">ddml</div>
+              <div class="cmd-card-title">Học máy kép/giải thiên lệch</div>
+            </div>
+            <span class="badge badge-ssc">SSC</span>
+          </div>
+          <div class="cmd-card-desc">Thực hiện Học máy kép Chernozhukov et al. (2018) với khớp chéo. Sử dụng các bộ học ML để loại bỏ biến kiểm soát chiều cao khỏi cả kết quả và can thiệp trước khi ước lượng hiệu ứng can thiệp.</div>
+          <div class="cmd-card-footer"><span class="badge badge-advanced">Nâng cao</span><span class="tag-pill">học máy kép</span><span class="tag-pill">khớp chéo</span><span class="tag-pill">bán tham số</span></div>
+        </a>
+
+      </div>
+
+      <!-- When to use ML for controls -->
+      <section style="margin-top:2.5rem;">
+        <h2>Khi nào cách tiếp cận cổ điển thất bại?</h2>
+        <p>OLS cổ điển trở nên có vấn đề khi:</p>
+        <ul>
+          <li><strong>Tỷ lệ p/n cao (p ≈ n):</strong> Nhiều biến kiểm soát so với cỡ mẫu → hệ số OLS bị lệch và SE sai</li>
+          <li><strong>Nhiều biến công cụ tiềm năng:</strong> Nhiều ứng viên biến công cụ nhưng không rõ cái nào hợp lệ → dùng Lasso để lựa chọn biến công cụ</li>
+          <li><strong>Cần dạng hàm linh hoạt:</strong> Mối quan hệ phi tuyến không biết trước giữa biến kiểm soát và kết quả</li>
+          <li><strong>Cần suy diễn hậu lựa chọn:</strong> Nếu chọn biến kiểm soát bằng mức ý nghĩa OLS, không thể dùng cùng dữ liệu để suy diễn hợp lệ về hiệu ứng can thiệp (lệch lựa chọn)</li>
+        </ul>
+      </section>
+
+      <!-- Main approaches -->
+      <section style="margin-top:2rem;">
+        <h2>Hai cách tiếp cận chính trong Stata</h2>
+        <div class="vs-cards">
+          <div class="vs-card">
+            <div class="vs-card-header"><span class="vs-card-name">Lasso Lựa chọn hậu kép (pdslasso)</span></div>
+            <p style="font-size:.875rem;"><strong>Tốt nhất cho:</strong> Dữ liệu chéo với nhiều biến kiểm soát hoặc biến công cụ; ước lượng hiệu ứng can thiệp</p>
+            <ul class="vs-pro">
+              <li>Lý thuyết thống kê chặt chẽ cho suy diễn hậu lựa chọn</li>
+              <li>Chạy hai hồi quy Lasso (kết quả và can thiệp) để chọn biến kiểm soát</li>
+              <li>Dùng hợp của các biến kiểm soát được chọn cho OLS/IV cuối cùng</li>
+              <li>Đảm bảo suy diễn hợp lệ dưới DGP thưa thớt</li>
+            </ul>
+          </div>
+          <div class="vs-card vs-recommended">
+            <div class="vs-card-header"><span class="vs-card-name">Học máy kép/giải thiên lệch (ddml)</span></div>
+            <p style="font-size:.875rem;"><strong>Tốt nhất cho:</strong> Hàm kiểm soát phi tham số linh hoạt; bất kỳ bộ học ML nào (Lasso, mạng nơ-ron, rừng ngẫu nhiên)</p>
+            <ul class="vs-pro">
+              <li>Linh hoạt hơn — bất kỳ phương pháp ML nào cho hàm nhiễu</li>
+              <li>Khớp chéo loại bỏ lệch chính quy hóa</li>
+              <li>Xử lý hiệu ứng can thiệp không đồng nhất (CATE)</li>
+              <li>Lý thuyết tổng quát hơn (thưa thớt gần đúng, không chỉ thưa thớt)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ddml workflow -->
+      <section style="margin-top:2rem;">
+        <h2>Quy trình ddml (mô hình tuyến tính một phần)</h2>
+        <div class="code-wrapper">
+          <pre class="language-stata"><code>* Cài đặt
+ssc install ddml
+ssc install pystacked  // Bộ học dựa Python (tùy chọn)
+ssc install lasso2     // cho bộ học Lasso
+
+* Khai báo mô hình học máy kép
+ddml init partial, kfolds(5) reps(3)
+
+* Chỉ định phương trình kết quả (Y): biến kiểm soát → nhiều covariates
+ddml E[Y|X]: lasso2 lwage $highd_controls
+* lasso2 là bộ học cho hàm nhiễu
+
+* Chỉ định phương trình can thiệp (D)
+ddml E[D|X]: lasso2 educ $highd_controls
+
+* Khớp chéo + ước lượng
+ddml crossfit
+ddml estimate
+
+* Với bộ học pystacked (mạnh hơn)
+ddml E[Y|X]: pystacked lwage $controls, ///
+  type(lassoic) ftype(reg)
+ddml E[D|X]: pystacked educ $controls, ///
+  type(lassoic) ftype(reg)
+ddml crossfit
+ddml estimate, robust</code></pre>
+          <button class="copy-btn">Sao chép</button>
+        </div>
+      </section>
+
+      <!-- Lasso workflow -->
+      <section style="margin-top:1.5rem;">
+        <h2>Quy trình Lasso lựa chọn hậu kép (pdslasso)</h2>
+        <div class="code-wrapper">
+          <pre class="language-stata"><code>* Cài đặt
+ssc install pdslasso
+ssc install lasso2
+
+* Lựa chọn hậu kép cho hiệu ứng can thiệp của educ lên lwage
+* Nhiều biến kiểm soát tiềm năng trong varlist
+pdslasso lwage educ ($controls), robust
+
+* Lệnh này:
+* 1. Chạy Lasso trên Y ~ controls → chọn biến kiểm soát qua phạt L1
+* 2. Chạy Lasso trên D ~ controls → chọn biến kiểm soát qua phạt L1
+* 3. Chạy OLS với hợp của cả hai tập biến kiểm soát được chọn
+* 4. Báo cáo suy diễn về hệ số can thiệp
+
+* Với IV (IV lựa chọn hậu kép):
+pdslasso lwage educ ($controls) (proximity = $IV_candidates), robust</code></pre>
+          <button class="copy-btn">Sao chép</button>
+        </div>
+      </section>
+
+      <!-- When to use -->
+      <section style="margin-top:2rem;">
+        <h2>Hướng dẫn quyết định</h2>
+        <div class="comparison-table-wrapper">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Tình huống</th>
+                <th>Cách tiếp cận khuyến nghị</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Nhiều biến kiểm soát (p/n > 0,1), OLS đủ trong trường hợp khác</td>
+                <td><code>pdslasso</code> (cách tiếp cận hợp lệ đơn giản nhất)</td>
+              </tr>
+              <tr>
+                <td>Nhiều biến kiểm soát, mối quan hệ phi tuyến có thể xảy ra</td>
+                <td><code>ddml</code> với bộ học phi tham số</td>
+              </tr>
+              <tr>
+                <td>Nhiều ứng viên biến công cụ, cần lựa chọn</td>
+                <td><code>pdslasso</code> với tùy chọn IV</td>
+              </tr>
+              <tr>
+                <td>Hiệu ứng can thiệp không đồng nhất (CATE)</td>
+                <td><code>ddml</code> với mô hình tương tác</td>
+              </tr>
+              <tr>
+                <td>Chỉ dự báo (không nhân quả)</td>
+                <td><code>lasso2</code> trực tiếp</td>
+              </tr>
+              <tr>
+                <td>Dữ liệu bảng với nhiều biến kiểm soát</td>
+                <td>Kết hợp <code>reghdfe</code> với <code>ddml</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Common mistakes -->
+      <section style="margin-top:2rem;">
+        <h2>Sai lầm phổ biến</h2>
+        <div class="callout callout-danger">
+          <div class="callout-title">Sai lầm hàng đầu</div>
+          <ul>
+            <li><strong>Dùng Lasso để lựa chọn biến rồi chạy OLS trên các biến được chọn mà không hiệu chỉnh hậu lựa chọn</strong> — Lệch lựa chọn ngây thơ dẫn đến bác bỏ quá mức giả thuyết không. Dùng pdslasso hoặc ddml, không phải Lasso đơn thuần rồi OLS</li>
+            <li><strong>Nhầm lẫn công cụ ML với nhận dạng nhân quả</strong> — ML chỉ xử lý biến kiểm soát chiều cao. Nó không giải quyết nội sinh của biến can thiệp</li>
+            <li><strong>Không dùng khớp chéo trong Học máy kép</strong> — Không có khớp chéo, lệch chính quy hóa làm ô nhiễm ước lượng hiệu ứng can thiệp</li>
+            <li><strong>Áp dụng ddml cho cỡ mẫu nhỏ</strong> — Học máy kép cần cỡ mẫu đủ lớn để khớp chéo hoạt động tốt trong thực tế. Không được thiết kế cho n &lt; 200</li>
+          </ul>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <h4>Liên quan</h4>
+        <ul>
+          <li><a href="causal-inference.html">Suy diễn nhân quả</a></li>
+          <li><a href="iv-endogeneity.html">Biến công cụ &amp; Nội sinh</a></li>
+          <li><a href="../decision-tree.html">Cây quyết định</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Công cụ</h4>
+        <ul>
+          <li><a href="../best-packages.html">Gói tốt nhất</a></li>
+          <li><a href="../common-mistakes.html">Sai lầm phổ biến</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">Stata Kinh Tế Lượng Task View · Tài nguyên học thuật cho kinh tế lượng ứng dụng</div>
+  </footer>
+
+  <script src="../assets/js/navigation.js"></script>
+</body>
+
+</html>

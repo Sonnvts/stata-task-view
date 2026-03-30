@@ -1,0 +1,504 @@
+{
+  "version": "1.0",
+  "categories": [
+    {
+      "id": "ols-diagnostics",
+      "name": "OLS & Kiểm định",
+      "icon": "📊",
+      "short_desc": "Hồi quy tuyến tính, suy diễn vững và kiểm định đặc điểm mô hình",
+      "overview": "Nền tảng của kinh tế lượng ứng dụng. OLS là điểm bắt đầu cho hầu hết mọi phân tích thực nghiệm liên quan đến biến phụ thuộc liên tục. Chìa khóa không chỉ là chạy hồi quy — mà là chạy đúng cách: với sai số chuẩn vững, các kiểm định chẩn đoán phù hợp và báo cáo minh bạch.",
+      "why_not_simple": "OLS cổ điển với sai số chuẩn mặc định giả định các sai số có phương sai đồng nhất và độc lập — một giả định hầu như luôn bị vi phạm trong dữ liệu thực tế. Nếu không có sai số chuẩn vững (robust SEs), thống kê t sẽ sai và giá trị p sẽ gây hiểu lầm.",
+      "commands": [
+        "reg",
+        "robust-se",
+        "vif",
+        "hettest",
+        "ovtest",
+        "outreg2",
+        "estout",
+        "binscatter2",
+        "mi-impute"
+      ],
+      "comparison_pages": [
+        "reg-vs-robust",
+        "outreg2-vs-estout"
+      ],
+      "recommended_learning_order": [
+        {
+          "step": 1,
+          "cmd": "reg",
+          "reason": "Nắm vững OLS cơ bản trước — cú pháp, đọc kết quả, diễn giải hệ số"
+        },
+        {
+          "step": 2,
+          "cmd": "robust-se",
+          "reason": "Sử dụng sai số chuẩn vững làm mặc định — không bao giờ dùng SE cổ điển"
+        },
+        {
+          "step": 3,
+          "cmd": "hettest",
+          "reason": "Chạy để minh chứng cho việc lựa chọn dùng sai số chuẩn vững"
+        },
+        {
+          "step": 4,
+          "cmd": "vif",
+          "reason": "Kiểm tra đa cộng tuyến trong tập hợp các biến độc lập"
+        },
+        {
+          "step": 5,
+          "cmd": "ovtest",
+          "reason": "Kiểm tra xem mô hình có bị thiếu biến hoặc sai dạng hàm không"
+        },
+        {
+          "step": 6,
+          "cmd": "estout",
+          "reason": "Học cách tạo bảng kết quả chuyên nghiệp để công bố khoa học"
+        },
+        {
+          "step": 7,
+          "cmd": "binscatter2",
+          "reason": "Trực quan hóa mối quan hệ hồi quy — luôn khám phá dữ liệu trước khi lập mô hình"
+        }
+      ],
+      "common_mistakes": [
+        "Sử dụng sai số chuẩn cổ điển (không vững) — luôn thêm tùy chọn 'robust'",
+        "Diễn giải R-squared như một thước đo chất lượng mô hình hoặc giá trị nhân quả",
+        "Không báo cáo các chẩn đoán cho từng biến (VIF, hettest, ovtest)",
+        "Báo cáo kết quả thô từ Stata thay vì các bảng đã định dạng (dùng estout)"
+      ],
+      "upgrade_path": "OLS → IV nếu phát hiện nội sinh → xtreg, fe nếu có cấu trúc bảng → csdid nếu thời điểm can thiệp thay đổi"
+    },
+    {
+      "id": "limited-dependent",
+      "name": "Biến phụ thuộc giới hạn",
+      "icon": "🎯",
+      "short_desc": "Các mô hình cho kết quả nhị phân, bị chặn và bị cắt cụt",
+      "overview": "Khi biến phụ thuộc của bạn không liên tục và không bị giới hạn — nó là nhị phân (0/1), bị chặn (có nhiều giá trị tại số 0) hoặc bị cắt cụt — OLS sẽ không phù hợp. Họ mô hình này sử dụng Ước lượng Hợp lý cực đại (MLE) để mô hình hóa chính xác phân phối của kết quả.",
+      "why_not_simple": "OLS trên kết quả nhị phân (Mô hình xác suất tuyến tính - LPM) có thể dự báo xác suất nằm ngoài khoảng [0,1] và có phương sai sai số thay đổi theo cấu trúc. Hệ số có thể không chệch nhưng suy diễn sẽ sai. Thay vào đó hãy dùng logit hoặc probit.",
+      "commands": [
+        "logit",
+        "probit",
+        "tobit",
+        "margins"
+      ],
+      "comparison_pages": [
+        "logit-vs-probit"
+      ],
+      "recommended_learning_order": [
+        {
+          "step": 1,
+          "cmd": "logit",
+          "reason": "Lựa chọn mặc định cho các kết quả nhị phân — bắt đầu từ đây"
+        },
+        {
+          "step": 2,
+          "cmd": "margins",
+          "reason": "Luôn tính toán tác động biên trung bình (AME) sau logit — hệ số đứng một mình rất khó diễn giải"
+        },
+        {
+          "step": 3,
+          "cmd": "probit",
+          "reason": "Chạy như một bước kiểm tra độ bền — so sánh AME với logit"
+        },
+        {
+          "step": 4,
+          "cmd": "tobit",
+          "reason": "Cho các kết quả bị chặn — hiểu khi nào giá trị 0 là do bị chặn so với do lựa chọn"
+        }
+      ],
+      "common_mistakes": [
+        "Diễn giải hệ số logit/probit trực tiếp như tác động biên — chúng thực chất là log-odds hoặc hệ số biến tiềm ẩn",
+        "Sử dụng tác động biên tại giá trị trung bình (MEM) thay vì tác động biên trung bình (AME) — nên ưu tiên AME",
+        "Sử dụng tobit cho các giải pháp góc kinh tế (zeros là lựa chọn) thay vì mô hình hai phần (two-part model)",
+        "Không kiểm tra hiện tượng phân tách hoàn hảo (perfect separation) trước khi chạy logit"
+      ],
+      "upgrade_path": "logit/probit → ivprobit cho nội sinh → heckprobit cho tự lựa chọn → mlogit/ologit cho nhiều kết quả"
+    },
+    {
+      "id": "panel-data",
+      "name": "Dữ liệu bảng",
+      "icon": "📋",
+      "short_desc": "Tác động cố định (FE), tác động ngẫu nhiên (RE) và mô hình bảng động",
+      "overview": "Dữ liệu bảng — quan sát lặp lại của cùng một đơn vị qua thời gian — cho phép kiểm soát các yếu tố không quan sát được, không thay đổi theo thời gian mà có thể gây chệch hệ số OLS. Lựa chọn then chốt là giữa FE (kiểm soát tất cả các yếu tố không quan sát được ở cấp độ đơn vị) và RE (hiệu quả hơn nếu tác động đơn vị không tương quan với các biến giải thích).",
+      "why_not_simple": "Pooled OLS bỏ qua cấu trúc bảng và coi tất cả các quan sát là độc lập. Điều này lờ đi tương quan trong nội bộ đơn vị và các yếu tố không quan sát được, dẫn đến ước lượng bị chệch và không nhất quán khi tác động đơn vị tương quan với các biến giải thích.",
+      "commands": [
+        "xtreg-fe",
+        "xtreg-re",
+        "xtabond2",
+        "reghdfe",
+        "boottest",
+        "xtscc",
+        "xtcd2",
+        "xtabond2-advanced"
+      ],
+      "comparison_pages": [
+        "xtreg-fe-vs-re",
+        "fe-vs-xtabond2",
+        "reghdfe-vs-xtreg",
+        "boottest-vs-cluster-se"
+      ],
+      "recommended_learning_order": [
+        {
+          "step": 1,
+          "cmd": "xtreg-fe",
+          "reason": "Bắt đầu với tác động cố định — lựa chọn thận trọng mặc định cho dữ liệu bảng"
+        },
+        {
+          "step": 2,
+          "cmd": "xtreg-re",
+          "reason": "Ước lượng RE và thực hiện kiểm định Hausman — hãy để dữ liệu dẫn dắt lựa chọn"
+        },
+        {
+          "step": 3,
+          "cmd": "xtabond2",
+          "reason": "Chỉ khi mô hình của bạn thực sự yêu cầu biến phụ thuộc trễ — hãy nghiên cứu Roodman (2009) trước"
+        }
+      ],
+      "common_mistakes": [
+        "Sử dụng pooled OLS trên dữ liệu bảng mà không kiểm tra tác động cá biệt",
+        "Sử dụng RE mà không chạy kiểm định Hausman — FE mới là mặc định an toàn",
+        "Không cụm sai số chuẩn (cluster SEs) ở cấp độ đơn vị bảng khi dùng xtreg, fe",
+        "Sử dụng xtabond2 mà không hiểu các kiểm định chẩn đoán AR(2) và Hansen"
+      ],
+      "upgrade_path": "xtreg, fe → reghdfe (SSC) cho nhiều FE → xtabond2 nếu là bảng động → csdid nếu can thiệp theo giai đoạn"
+    },
+    {
+      "id": "iv-endogeneity",
+      "name": "Biến công cụ & Nội sinh",
+      "icon": "🔗",
+      "short_desc": "Biến công cụ và hiệu chỉnh hiện tượng nội sinh",
+      "overview": "Biến công cụ (IV) là công cụ cần thiết khi OLS thất bại do biến giải thích là nội sinh — tương quan with sai số do biến bị bỏ sót, quan hệ nhân quả ngược, hoặc sai số đo lường. Một biến công cụ hợp lệ sẽ tác động đến biến nội sinh nhưng không có tác động trực tiếp lên kết quả.",
+      "why_not_simple": "OLS với biến giải thích nội sinh tạo ra ước lượng bị chệch và không nhất quán, ngay cả với cỡ mẫu vô hạn. Hướng và mức độ chệch phụ thuộc vào bản chất của hiện tượng nội sinh. IV sửa chữa điều này bằng cách chỉ sử dụng 'phần ngoại sinh' của biến nội sinh.",
+      "commands": [
+        "ivregress",
+        "ivreg2",
+        "ivreghdfe"
+      ],
+      "comparison_pages": [
+        "ivregress-vs-ivreg2"
+      ],
+      "recommended_learning_order": [
+        {
+          "step": 1,
+          "cmd": "ivregress",
+          "reason": "Học về thiết lập 2SLS và logic của giai đoạn một"
+        },
+        {
+          "step": 2,
+          "cmd": "ivreg2",
+          "reason": "Chuyển sang dùng ivreg2 cho tất cả các bài nghiên cứu — cung cấp chẩn đoán phong phú hơn"
+        }
+      ],
+      "common_mistakes": [
+        "Không báo cáo thống kê F của giai đoạn một — biến công cụ yếu làm ước lượng IV tệ hơn cả OLS",
+        "Sử dụng Cragg-Donald F với sai số chuẩn cụm — phải dùng Kleibergen-Paap F thay thế",
+        "Coi một biến công cụ không hợp lệ là hợp lệ — điều kiện ngoại sinh là không thể kiểm chứng trực tiếp",
+        "Diễn giải IV như ước lượng tác động trung bình (ATE) trong khi LATE mới là diễn giải phù hợp với biến công cụ nhị phân"
+      ],
+      "upgrade_path": "ivregress → ivreg2 (chẩn đoán phong phú hơn) → weakiv để suy diễn vững với công cụ yếu → cách tiếp cận CF cho các mô hình phi tuyến"
+    },
+    {
+      "id": "time-series",
+      "name": "Chuỗi thời gian",
+      "icon": "📈",
+      "short_desc": "Kiểm định tính dừng, mô hình ARIMA và VAR",
+      "overview": "Phân tích chuỗi thời gian mô hình hóa hành vi động của các biến được quan sát qua thời gian. Bước đầu tiên quan trọng là kiểm định tính dừng — các chuỗi không dừng có thể tạo ra hồi quy giả mạo. Sau khi xác định tính dừng, ARIMA mô hình hóa động học đơn biến trong khi VAR mô hình hóa sự phụ thuộc lẫn nhau giữa nhiều chuỗi.",
+      "why_not_simple": "Hồi quy các chuỗi không dừng lên nhau (cùng có xu hướng chung) tạo ra hồi quy giả mạo: R-squared cực cao và các hệ số có vẻ có ý nghĩa nhưng thực chất là các sai sót thống kê vô nghĩa. Luôn kiểm định nghiệm đơn vị trước.",
+      "commands": [
+        "dfuller",
+        "arima",
+        "var"
+      ],
+      "comparison_pages": [
+        "arima-vs-var"
+      ],
+      "recommended_learning_order": [
+        {
+          "step": 1,
+          "cmd": "dfuller",
+          "reason": "Luôn bắt đầu ở đây — kiểm định tính dừng của tất cả các biến trước khi chạy bất kỳ mô hình chuỗi thời gian nào"
+        },
+        {
+          "step": 2,
+          "cmd": "arima",
+          "reason": "Dành cho động học đơn biến và dự báo một chuỗi dừng duy nhất"
+        },
+        {
+          "step": 3,
+          "cmd": "var",
+          "reason": "Dành cho nhiều chuỗi dừng phụ thuộc lẫn nhau và phân tích phản ứng xung (IRF)"
+        }
+      ],
+      "common_mistakes": [
+        "Hồi quy các chuỗi không dừng mà không kiểm định đồng liên kết (hồi quy giả mạo)",
+        "Chọn bậc ARIMA mà không kiểm tra đồ thị ACF/PACF",
+        "Không kiểm tra tính ổn định của VAR với lệnh varstable sau khi ước lượng",
+        "Diễn giải IRF của VAR dạng thu gọn như quan hệ nhân quả mà không có sơ đồ định danh"
+      ],
+      "upgrade_path": "dfuller → arima (đơn biến) hoặc var (đa biến) → vec nếu có đồng liên kết → SVAR để định danh cấu trúc"
+    },
+    {
+      "id": "causal-inference",
+      "name": "Suy diễn nhân quả",
+      "icon": "⚡",
+      "short_desc": "DID, khớp điểm xu hướng và hồi quy gián đoạn",
+      "overview": "Các phương pháp suy diễn nhân quả khai thác các biến động giả thực nghiệm để xác định tác động nhân quả mà không cần phân bổ ngẫu nhiên. Các phương pháp chính là Sai phân trong Sai phân (DID), Hồi quy gián đoạn (RD), và Khớp điểm xu hướng (PSM).",
+      "why_not_simple": "OLS quan sát chỉ xác định tác động nhân quả dưới các giả định rất mạnh (không có biến bị bỏ sót tương quan with cả can thiệp và kết quả). Các thiết kế suy diễn nhân quả sử dụng các đặc điểm cụ thể của dữ liệu — thời điểm chính sách, ngưỡng, thực nghiệm tự nhiên — để tiếp cận gần hơn với định danh thực nghiệm.",
+      "commands": [
+        "diff",
+        "psmatch2",
+        "rdrobust",
+        "rdrobust-advanced",
+        "rdlocrand",
+        "psacalc",
+        "wyoung",
+        "rwolf"
+      ],
+      "comparison_pages": [
+        "did-simple-vs-csdid",
+        "psmatch2-vs-rdrobust",
+        "rdrobust-vs-rdlocrand"
+      ],
+      "recommended_learning_order": [
+        {
+          "step": 1,
+          "cmd": "diff",
+          "reason": "Học DID cổ điển — công cụ chủ lực trong đánh giá chính sách"
+        },
+        {
+          "step": 2,
+          "cmd": "rdrobust",
+          "reason": "Học RD cho các thực nghiệm tự nhiên dựa trên ngưỡng — định danh mạnh nhất sau RCT"
+        },
+        {
+          "step": 3,
+          "cmd": "psmatch2",
+          "reason": "Học về phương pháp khớp (matching) — hiểu các giả định mạnh của nó cũng quan trọng như việc áp dụng"
+        }
+      ],
+      "common_mistakes": [
+        "Sử dụng DID cổ điển cho thời điểm can thiệp so le — hãy dùng csdid thay thế",
+        "Không kiểm định xu hướng song song trong DID — luôn vẽ đồ thị nghiên cứu sự kiện (event study)",
+        "Tin tưởng psmatch2 mà không kiểm tra sự cân bằng của các biến kiểm soát sau khi khớp",
+        "Không kiểm định hiện tượng thao túng biến chạy trong các thiết kế RD (dùng rddensity)"
+      ],
+      "upgrade_path": "diff → csdid cho DID so le → psmatch2 chỉ khi giả định lựa chọn dựa trên quan sát là hợp lý → rdrobust cho các thiết kế dựa trên ngưỡng"
+    },
+    {
+      "id": "staggered-did",
+      "name": "DID theo giai đoạn",
+      "icon": "🔬",
+      "short_desc": "DID của Callaway-Sant'Anna, DID vững kép và kiểm soát tổng hợp",
+      "overview": "Cuộc cách mạng suy diễn nhân quả hiện đại đã chỉ ra rằng hồi quy Tác động cố định hai chiều (TWFE) cổ điển with biến giả can thiệp sẽ bị chệch khi thời điểm can thiệp so le và có sự không đồng nhất về tác động can thiệp. Danh mục này bao gồm các phương pháp thay thế hiện đại.",
+      "why_not_simple": "Trong bối cảnh áp dụng can thiệp so le, hồi quy TWFE sử dụng các đơn vị đã can thiệp sớm làm 'đối chứng' cho các đơn vị can thiệp muộn hơn. Nếu tác động can thiệp không đồng nhất, điều này tạo ra các trọng số âm — hệ số ước lượng có thể sai dấu ngay cả khi tất cả tác động can thiệp đều dương.",
+      "commands": [
+        "csdid",
+        "drdid",
+        "synth",
+        "staggered-did-complete",
+        "eventstudyinteract",
+        "did-multiplegt-dyn",
+        "honestdid",
+        "scpi"
+      ],
+      "comparison_pages": [
+        "did-simple-vs-csdid",
+        "csdid-vs-drdid",
+        "csdid-vs-eventstudyinteract",
+        "synth-vs-scpi"
+      ],
+      "recommended_learning_order": [
+        {
+          "step": 1,
+          "cmd": "diff",
+          "reason": "Hiểu DID cổ điển trước — sau đó mới thấy lý do tại sao nó thất bại trong thiết kế so le"
+        },
+        {
+          "step": 2,
+          "cmd": "csdid",
+          "reason": "Học csdid — tiêu chuẩn hiện tại cho DID so le"
+        },
+        {
+          "step": 3,
+          "cmd": "drdid",
+          "reason": "Hiểu về DID vững kép — được sử dụng nội bộ bởi csdid with tùy chọn method(dripw)"
+        },
+        {
+          "step": 4,
+          "cmd": "synth",
+          "reason": "Học kiểm soát tổng hợp cho các nghiên cứu điển hình so sánh with một đơn vị can thiệp"
+        }
+      ],
+      "common_mistakes": [
+        "Sử dụng TWFE (i.treat##i.time) cho thiết kế so le — bị chệch dưới tác động không đồng nhất",
+        "Không vẽ đồ thị nghiên cứu sự kiện sau khi chạy csdid",
+        "Sử dụng synth khi có nhiều đơn vị can thiệp",
+        "Lờ đi kiểm định xu hướng song song trong nghiên cứu sự kiện — bước xác nhận thiết yếu"
+      ],
+      "upgrade_path": "diff (2x2) → csdid (so le, không đồng nhất) → drdid (vững kép) → synth (đơn vị duy nhất) → did_imputation / stacked DID như các bước kiểm tra độ bền"
+    },
+    {
+      "id": "ml-econometrics",
+      "name": "Kinh tế lượng ML",
+      "icon": "🤖",
+      "short_desc": "Lasso, học máy kép và các phương pháp số chiều cao",
+      "overview": "Khi số lượng các biến kiểm soát tiềm năng lớn so với cỡ mẫu, OLS cổ điển sẽ thất bại và cần đến các phương pháp chính quy hóa (Lasso, Ridge). Học máy kép (DDML) mở rộng điều này cho suy diễn nhân quả bằng cách sử dụng ML để ước lượng các tham số gây nhiễu trong khi vẫn bảo toàn suy diễn hợp lệ cho tham số nhân quả quan tâm.",
+      "why_not_simple": "Với quá nhiều biến kiểm soát, OLS sẽ bị quá khớp (k ≈ n nghĩa là hiệu năng ngoài mẫu kém) và sai số chuẩn trở nên vô nghĩa. Lasso thu hẹp các hệ số không liên quan về 0, nhưng sử dụng Lasso cho suy diễn nhân quả đòi hỏi phải trực giao hóa cẩn thận thông qua cross-fitting để tránh chệch chính quy hóa.",
+      "commands": [
+        "ddml",
+        "lasso-tools",
+        "pdslasso"
+      ],
+      "comparison_pages": [
+        "pdslasso-vs-ddml"
+      ],
+      "recommended_learning_order": [
+        {
+          "step": 1,
+          "cmd": "lasso-tools",
+          "reason": "Hiểu về Lasso cơ bản và lựa chọn sau khi chọn kép (post-double-selection) trước DDML"
+        },
+        {
+          "step": 2,
+          "cmd": "ddml",
+          "reason": "Học về Double ML đầy đủ with cross-fitting — phương pháp chuẩn nghiên cứu hiện nay"
+        }
+      ],
+      "common_mistakes": [
+        "Sử dụng Lasso trực tiếp cho suy diễn nhân quả mà không có hiệu chỉnh sau lựa chọn (pdslasso/DDML)",
+        "Không hiểu về cross-fitting — bước thiết yếu giúp suy diễn của DDML trở nên hợp lệ",
+        "Sử dụng DDML with mẫu nhỏ — cross-fitting đòi hỏi đủ số lượng quan sát cho mỗi 'fold'",
+        "Coi DDML là giải pháp cho các biến gây nhiễu không quan sát được — nó chỉ xử lý các biến kiểm soát quan sát được có số chiều cao"
+      ],
+      "upgrade_path": "OLS → Lasso (số chiều cao, dự báo) → pdslasso/poregress (nhân quả số chiều cao) → ddml (Double ML đầy đủ) → Gói DoubleML của R cho nghiên cứu chuyên sâu"
+    },
+    {
+      "id": "data-infrastructure",
+      "name": "Hạ tầng dữ liệu",
+      "icon": "🏗️",
+      "short_desc": "Tiền xử lý, kiểm toán chất lượng và xử lý dữ liệu vững",
+      "overview": "Nguồn phổ biến nhất của các kết quả sai không phải là do lựa chọn ước lượng — mà là do lỗi xây dựng dữ liệu. Tiền xử lý đúng cách, kiểm toán chất lượng, xử lý dữ liệu thiếu và ngoại lai là các bước không thể thương lượng trước khi thực hiện bất kỳ ước lượng nào.",
+      "why_not_simple": "Lờ đi các mẫu dữ liệu thiếu (MCAR so với MAR) hoặc không kiểm toán sự mất cân bằng của bảng có thể dẫn đến chệch do tự lựa chọn. Việc xóa bỏ đơn giản các dòng thiếu dữ liệu thường làm mất đi thông tin giá trị hoặc gây ra chệch hệ số.",
+      "commands": [
+        "misstable",
+        "mi-impute",
+        "winsor2",
+        "ipw",
+        "ihs",
+        "lvr2plot",
+        "cooksd"
+      ],
+      "comparison_pages": [],
+      "recommended_learning_order": [
+        {
+          "step": 1,
+          "cmd": "misstable",
+          "reason": "Luôn kiểm toán các mẫu dữ liệu thiếu trước tiên"
+        },
+        {
+          "step": 2,
+          "cmd": "winsor2",
+          "reason": "Xử lý các giá trị ngoại lai một cách hệ thống thay vì chỉ xóa bỏ chúng"
+        },
+        {
+          "step": 3,
+          "cmd": "mi-impute",
+          "reason": "Học về MI để xử lý dữ liệu thiếu nhất quán with giả định MAR"
+        },
+        {
+          "step": 4,
+          "cmd": "ihs",
+          "reason": "Sử dụng IHS cho các biến có giá trị 0 thay vì dùng ln(x+1)"
+        }
+      ],
+      "common_mistakes": [
+        "Xóa bỏ các giá trị ngoại lai mà không có cơ sở xác đáng (p-hacking)",
+        "Sử dụng ln(x+1) cho các biến có nhiều giá trị 0 — hãy dùng IHS thay thế",
+        "Lờ đi các mẫu dữ liệu thiếu (MNAR đòi hỏi cách xử lý khác with MAR)",
+        "Không kiểm toán các khoảng trống trong bảng trước khi dùng xtset"
+      ],
+      "upgrade_path": "Nhập liệu cơ bản → Kiểm toán chất lượng → Winsorization/IHS → Ước lượng MI nếu cần → Ước lượng chính"
+    },
+    {
+      "id": "sensitivity-robustness",
+      "name": "Kiểm tra độ nhạy & Sự vững",
+      "icon": "🛡️",
+      "short_desc": "Phân tích độ nhạy và kiểm tra độ bền cho suy diễn nhân quả",
+      "overview": "Các ước lượng nhân quả chỉ tốt bằng các giả định định danh của chúng. Các tiêu chuẩn nghiên cứu hiện đại đòi hỏi phải kiểm tra độ nhạy của kết quả đối với các vi phạm giả định (vd: xu hướng song song) và tính ổn định của hệ số khi thay đổi biến kiểm soát.",
+      "why_not_simple": "Vượt qua kiểm định tiền xu hướng (pre-trend) trong DID không đảm bảo xu hướng phản thực tế là song song. Tính ổn định của hệ số không chỉ là về việc 'không thay đổi' — nó cần được định lượng chính thức.",
+      "commands": [
+        "honestdid",
+        "psacalc",
+        "wyoung",
+        "rwolf",
+        "estout"
+      ],
+      "comparison_pages": [],
+      "recommended_learning_order": [
+        {
+          "step": 1,
+          "cmd": "psacalc",
+          "reason": "Kiểm tra tính ổn định của hệ số so với sự tự lựa chọn không quan sát được"
+        },
+        {
+          "step": 2,
+          "cmd": "honestdid",
+          "reason": "Kiểm tra độ nhạy của DID đối với các vi phạm xu hướng gần song song"
+        },
+        {
+          "step": 3,
+          "cmd": "wyoung",
+          "reason": "Hiệu chỉnh giá trị p cho việc kiểm định nhiều giả thuyết cùng lúc"
+        }
+      ],
+      "common_mistakes": [
+        "Đồng nhất 'tiền xu hướng không có ý nghĩa' với 'định danh DID hợp lệ'",
+        "Không hiệu chỉnh cho việc kiểm định nhiều lần khi chạy nhiều hồi quy",
+        "Tuyên bố kết quả vững chỉ dựa trên việc quan sát bằng mắt các thay đổi hệ số"
+      ],
+      "upgrade_path": "Ước lượng cơ sở → Độ nhạy biến kiểm soát (psacalc) → Hiệu chỉnh kiểm định nhiều lần (wyoung) → Suy diễn trung thực (honestdid)"
+    },
+    {
+      "id": "publication-standards",
+      "name": "Tiêu chuẩn công bố",
+      "icon": "📄",
+      "short_desc": "Tiêu chuẩn báo cáo hiện đại và kết quả sẵn sàng cho xuất bản",
+      "overview": "Thực hiện đúng phương pháp kinh tế lượng mới chỉ là một nửa trận chiến; nửa còn lại là truyền đạt chúng theo các tiêu chuẩn tạp chí hiện đại. Điều này bao gồm định dạng bảng hệ thống, báo cáo chẩn đoán minh bạch và quy trình làm việc có thể tái lập.",
+      "why_not_simple": "Kết quả thô từ Stata rất khó đọc đối với độc giả. Tạo bảng thủ công dễ gây ra sai sót. Các tạp chí hiện đại yêu cầu các gói tái lập và báo cáo chuẩn hóa về lựa chọn sai số chuẩn.",
+      "commands": [
+        "estout",
+        "outreg2",
+        "coefplot",
+        "putdocx",
+        "putpdf"
+      ],
+      "comparison_pages": [
+        "outreg2-vs-estout"
+      ],
+      "recommended_learning_order": [
+        {
+          "step": 1,
+          "cmd": "estout",
+          "reason": "Nắm vững tiêu chuẩn vàng cho các bảng công bố khoa học"
+        },
+        {
+          "step": 2,
+          "cmd": "coefplot",
+          "reason": "Trực quan hóa các hệ số để truyền đạt tốt hơn"
+        },
+        {
+          "step": 3,
+          "cmd": "putdocx",
+          "reason": "Tự động hóa việc tạo toàn bộ tài liệu cho các báo cáo có tính tái lập"
+        }
+      ],
+      "common_mistakes": [
+        "Copy-paste kết quả vào các bảng trong Word",
+        "Không dán nhãn các biến đúng cách trong bảng cuối cùng",
+        "Báo cáo không nhất quán các dấu sao và ngưỡng ý nghĩa",
+        "Không bao gồm các chẩn đoán (N, R2, thống kê F, ghi chú sai số chuẩn cụm) trong bảng"
+      ],
+      "upgrade_path": "Kết quả màn hình → File CSV/Doc đã định dạng → Bảng LaTeX tự động (esttab) → Bài báo có tính tái lập hoàn toàn (Stata + Markdown/LaTeX)"
+    }
+  ]
+}

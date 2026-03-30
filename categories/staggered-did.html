@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DID theo giai đoạn &amp; Nhân quả hiện đại — Stata Kinh Tế Lượng Task View</title>
+  <meta name="description"
+    content="csdid, drdid, synth — phương pháp hiện đại cho DID theo giai đoạn và kiểm soát tổng hợp trong Stata.">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/print.css" media="print">
+</head>
+
+<body>
+  <div class="noise-overlay" aria-hidden="true"></div>
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="../index.html">Stata <span>Task View</span></a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../index.html">Trang chủ</a></li>
+        <li class="nav-dropdown"><button class="nav-dropdown-btn">Danh mục ▾</button>
+          <div class="nav-dropdown-menu">
+            <a href="ols-diagnostics.html">OLS &amp; Kiểm định</a>
+            <a href="limited-dependent.html">Biến phụ thuộc giới hạn</a>
+            <a href="panel-data.html">Dữ liệu bảng</a>
+            <a href="iv-endogeneity.html">Biến công cụ &amp; Nội sinh</a>
+            <a href="time-series.html">Chuỗi thời gian</a>
+            <a href="causal-inference.html">Suy diễn nhân quả</a>
+            <a href="staggered-did.html" class="active">DID theo giai đoạn</a>
+            <a href="ml-econometrics.html">Kinh tế lượng ML</a>
+          </div>
+        </li>
+        <li><a href="../decision-tree.html">Cây quyết định</a></li>
+        <li><a href="../best-packages.html">Gói tốt nhất</a></li>
+      </ul>
+      <button class="nav-search-btn" id="nav-search-btn">🔍 Tìm kiếm</button>
+      <button class="nav-hamburger" id="nav-hamburger" aria-label="Toggle menu">☰</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-container">
+      <nav class="breadcrumb"><a href="../index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><span
+          class="breadcrumb-current">DID theo giai đoạn &amp; Nhân quả hiện đại</span></nav>
+
+      <div class="page-title-block">
+        <h1>🔬 Nhân quả hiện đại / DID theo giai đoạn</h1>
+        <p class="page-subtitle">csdid, drdid, synth — tại sao ước lượng TWFE cổ điển bị lệch và nên dùng gì thay thế</p>
+      </div>
+
+      <!-- Critical overview -->
+      <section style="margin-bottom:2rem;">
+        <h2>Tại sao DID theo giai đoạn cần phương pháp đặc biệt</h2>
+        <p>Trong nhiều bối cảnh chính sách, can thiệp được triển khai vào <strong>các thời điểm khác nhau cho các đơn vị khác nhau</strong> —
+          một số doanh nghiệp áp dụng quy định năm 2015, số khác năm 2017, số khác nữa năm 2019. Đây là <em>áp dụng theo giai đoạn</em>.
+        </p>
+        <p>Cách tiếp cận cổ điển — hồi quy hiệu ứng cố định hai chiều (TWFE) với biến giả can thiệp — bị
+          <strong>lệch về cơ bản</strong> trong bối cảnh này khi hiệu ứng can thiệp không đồng nhất theo nhóm
+          hay theo thời gian. Các đơn vị được can thiệp sớm trở thành "so sánh bị cấm" với các đơn vị được can thiệp muộn, làm ô nhiễm ước lượng.</p>
+        <div class="callout callout-danger">
+          <div class="callout-title">⚠ Cảnh báo TWFE</div>
+          <p>KHÔNG chạy <code>reg outcome i.treated##i.year, fe</code> hay
+            <code>xtreg outcome treatment i.year, fe</code> trong bối cảnh theo giai đoạn với hiệu ứng có thể không đồng nhất.
+            Hệ số trên <code>treatment</code> là trung bình có trọng số của ATT theo nhóm-thời gian với
+            <strong>trọng số âm có thể xảy ra</strong> — ước lượng có thể có dấu sai hoàn toàn.</p>
+          <p>Lưu ý: TWFE vẫn hợp lệ cho DID 2×2 sạch và hiệu ứng can thiệp đồng nhất.</p>
+        </div>
+      </section>
+
+      <!-- Filter -->
+      <div class="filter-bar">
+        <label>Lọc theo:</label>
+        <select class="filter-select" data-filter-key="difficulty">
+          <option value="all">Tất cả cấp độ</option>
+          <option value="intermediate">Trung cấp</option>
+          <option value="advanced">Nâng cao</option>
+        </select>
+        <button class="filter-clear" id="filter-clear">Xóa bộ lọc</button>
+        <span class="filter-count" id="filter-count"></span>
+      </div>
+
+      <!-- Command cards -->
+      <div class="cmd-grid" id="cmd-grid">
+
+        <a class="cmd-card" href="../commands/command.html?cmd=csdid"
+          data-tags='{"difficulty":"advanced","install":"ssc"}'>
+          <div class="cmd-card-header">
+            <div>
+              <div class="cmd-card-name">csdid</div>
+              <div class="cmd-card-title">DID theo giai đoạn Callaway-Sant'Anna</div>
+            </div>
+            <span class="badge badge-ssc">SSC</span>
+          </div>
+          <div class="cmd-card-desc">Mặc định hiện đại cho DID theo giai đoạn. Ước lượng ATT theo nhóm-thời gian tránh các so sánh bị ô nhiễm. Luôn vẽ nghiên cứu sự kiện và kiểm định xu hướng trước. Sử dụng drdid nội bộ.</div>
+          <div class="cmd-card-footer"><span class="badge badge-advanced">Nâng cao</span><span
+              class="tag-pill">DID theo giai đoạn</span><span class="tag-pill">hiệu ứng không đồng nhất</span><span
+              class="tag-pill">nghiên cứu sự kiện</span></div>
+        </a>
+
+        <a class="cmd-card" href="../commands/command.html?cmd=drdid"
+          data-tags='{"difficulty":"advanced","install":"ssc"}'>
+          <div class="cmd-card-header">
+            <div>
+              <div class="cmd-card-name">drdid</div>
+              <div class="cmd-card-title">DID Kép vững</div>
+            </div>
+            <span class="badge badge-ssc">SSC</span>
+          </div>
+          <div class="cmd-card-desc">DID kép vững Sant'Anna-Zhao. Tốt nhất khi dùng làm động cơ ước lượng trong csdid (method(dripw)). Nhất quán nếu mô hình điểm xu hướng hoặc mô hình kết quả được chỉ định đúng.</div>
+          <div class="cmd-card-footer"><span class="badge badge-advanced">Nâng cao</span><span
+              class="tag-pill">kép vững</span><span class="tag-pill">IPW</span><span
+              class="tag-pill">bán tham số</span></div>
+        </a>
+
+        <a class="cmd-card" href="../commands/command.html?cmd=synth"
+          data-tags='{"difficulty":"advanced","install":"ssc"}'>
+          <div class="cmd-card-header">
+            <div>
+              <div class="cmd-card-name">synth</div>
+              <div class="cmd-card-title">Phương pháp kiểm soát tổng hợp</div>
+            </div>
+            <span class="badge badge-ssc">SSC</span>
+          </div>
+          <div class="cmd-card-desc">Dành cho thiết kế một đơn vị được can thiệp (một quốc gia, bang, hoặc thành phố). Xây dựng tổ hợp có trọng số của các đơn vị kiểm soát khớp với kết quả trước can thiệp của đơn vị được can thiệp. Cần kiểm định hoán vị để suy diễn.</div>
+          <div class="cmd-card-footer"><span class="badge badge-advanced">Nâng cao</span><span
+              class="tag-pill">kiểm soát tổng hợp</span><span class="tag-pill">đơn vị đơn</span><span
+              class="tag-pill">nghiên cứu so sánh</span></div>
+        </a>
+
+      </div>
+
+      <!-- Why TWFE fails visual -->
+      <section style="margin-top:2.5rem;">
+        <h2>Hiểu tại sao TWFE bị lệch</h2>
+        <p>Ước lượng TWFE có thể được phân tách thành trung bình có trọng số của tất cả các so sánh DID 2×2 có thể. Với áp dụng theo giai đoạn, một số so sánh này sử dụng các nhóm <em>đã được can thiệp</em> làm kiểm soát — đây là vấn đề.</p>
+        <div class="comparison-table-wrapper">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Loại so sánh</th>
+                <th>Hợp lệ?</th>
+                <th>Vấn đề</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Áp dụng sớm vs. không bao giờ được can thiệp (trước/sau)</td>
+                <td class="good">✓ Hợp lệ</td>
+                <td>DID 2×2 sạch</td>
+              </tr>
+              <tr>
+                <td>Áp dụng muộn vs. không bao giờ được can thiệp (trước/sau)</td>
+                <td class="good">✓ Hợp lệ</td>
+                <td>DID 2×2 sạch</td>
+              </tr>
+              <tr>
+                <td>Áp dụng muộn vs. áp dụng sớm (trước/sau)</td>
+                <td class="bad">✗ Bị ô nhiễm</td>
+                <td>Áp dụng sớm đã được can thiệp — kết quả của nó bao gồm hiệu ứng can thiệp</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="margin-top:1rem;">csdid khắc phục điều này bằng cách chỉ sử dụng các đơn vị <strong>chưa được can thiệp</strong> và
+          <strong>không bao giờ được can thiệp</strong> làm kiểm soát cho mỗi nhóm.</p>
+      </section>
+
+      <!-- csdid workflow -->
+      <section style="margin-top:2rem;">
+        <h2>Quy trình làm việc với csdid</h2>
+        <div class="code-wrapper">
+          <pre class="language-stata"><code>* Cài đặt các gói cần thiết
+ssc install csdid
+ssc install drdid
+ssc install event_plot
+
+* gvar = năm can thiệp lần đầu (0 hoặc missing cho không bao giờ được can thiệp)
+csdid outcome, ivar(unitid) tvar(year) gvar(first_treat_year)
+
+* Tổng hợp ATT
+estat simple   // ATT trung bình trên tất cả nhóm và giai đoạn
+estat group    // ATT theo nhóm can thiệp
+estat calendar // ATT theo thời gian lịch
+estat event    // ATT động/nghiên cứu sự kiện (hữu ích nhất)
+
+* Biểu đồ nghiên cứu sự kiện
+csdid_plot, title("Nghiên cứu sự kiện: csdid") note("Callaway–Sant'Anna (2021)")
+
+* Kiểm định xu hướng trước
+estat pretrend
+
+* Với covariates (kép vững qua drdid)
+csdid outcome age educ income, ///
+  ivar(unitid) tvar(year) gvar(first_treat_year) ///
+  method(dripw) wboot reps(999)</code></pre>
+          <button class="copy-btn">Sao chép</button>
+        </div>
+      </section>
+
+      <!-- Methods comparison -->
+      <section style="margin-top:2rem;">
+        <h2>So sánh các ước lượng DID theo giai đoạn</h2>
+        <div class="comparison-table-wrapper">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Phương pháp</th>
+                <th>Lệnh</th>
+                <th>Cách tiếp cận</th>
+                <th>Hiệu ứng không đồng nhất?</th>
+                <th>Covariates?</th>
+                <th>Gói Stata</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>TWFE cổ điển</td>
+                <td><code>xtreg, fe</code></td>
+                <td>Ước lượng gộp</td>
+                <td class="bad">⚠ Lệch</td>
+                <td class="good">✓ Có</td>
+                <td><span class="badge badge-builtin">Có sẵn</span></td>
+              </tr>
+              <tr>
+                <td>Callaway-Sant'Anna</td>
+                <td><code>csdid</code></td>
+                <td>ATT nhóm-thời gian, kiểm soát sạch</td>
+                <td class="good">✓ Vững</td>
+                <td class="good">✓ Qua drdid</td>
+                <td><span class="badge badge-ssc">SSC</span></td>
+              </tr>
+              <tr>
+                <td>Borusyak-Jaravel-Spiess</td>
+                <td><code>did_imputation</code></td>
+                <td>Quy chiếu phản thực tế</td>
+                <td class="good">✓ Vững</td>
+                <td class="good">✓ Có</td>
+                <td><span class="badge badge-ssc">SSC</span></td>
+              </tr>
+              <tr>
+                <td>DID xếp chồng</td>
+                <td>Thủ công (qua stackedev)</td>
+                <td>Xếp chồng các so sánh 2×2 sạch</td>
+                <td class="good">✓ Vững</td>
+                <td class="good">✓ Có</td>
+                <td><span class="badge badge-ssc">SSC</span></td>
+              </tr>
+              <tr>
+                <td>Sun-Abraham</td>
+                <td><code>eventstudyinteract</code></td>
+                <td>Nghiên cứu sự kiện vững với không đồng nhất</td>
+                <td class="good">✓ Vững</td>
+                <td class="good">✓ Có</td>
+                <td><span class="badge badge-ssc">SSC</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:1rem;display:flex;gap:1rem;flex-wrap:wrap;">
+          <a href="../comparisons/did-simple-vs-csdid.html" class="btn-secondary">DID đơn giản vs csdid →</a>
+          <a href="../comparisons/csdid-vs-drdid.html" class="btn-secondary">csdid vs drdid →</a>
+        </div>
+      </section>
+
+      <!-- Synthetic control - when to use -->
+      <section style="margin-top:2rem;">
+        <h2>Kiểm soát tổng hợp: khi chỉ có một đơn vị được can thiệp</h2>
+        <p>Tất cả các phương pháp DID đều cần nhiều đơn vị được can thiệp để lấy trung bình. Khi nghiên cứu một trường hợp được can thiệp đơn lẻ (ví dụ: một quốc gia áp dụng chính sách, một bang thực thi luật), kiểm soát tổng hợp là phương pháp phù hợp.</p>
+        <div class="vs-cards">
+          <div class="vs-card">
+            <div class="vs-card-header"><span class="vs-card-name">Khi nào dùng synth</span></div>
+            <ul class="vs-pro">
+              <li>Chính xác một (hoặc rất ít) đơn vị được can thiệp</li>
+              <li>Giai đoạn trước can thiệp dài để thiết lập chất lượng khớp</li>
+              <li>Có nhiều đơn vị kiểm soát (nhóm nhà cung cấp)</li>
+              <li>Ứng dụng điển hình: nghiên cứu chính sách cấp quốc gia/bang</li>
+            </ul>
+          </div>
+          <div class="vs-card">
+            <div class="vs-card-header"><span class="vs-card-name">Khi nào KHÔNG dùng synth</span></div>
+            <ul class="vs-con">
+              <li>Nhiều đơn vị được can thiệp (dùng DID/csdid thay thế)</li>
+              <li>Giai đoạn trước can thiệp ngắn (không thể xác nhận chất lượng khớp)</li>
+              <li>Khớp trước can thiệp kém (RMSPE cao) — không phải phản thực tế đáng tin cậy</li>
+              <li>Giao thoa/tràn lan từ đơn vị được can thiệp sang đơn vị kiểm soát</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Common mistakes -->
+      <section style="margin-top:2rem;">
+        <h2>Sai lầm phổ biến trong suy diễn nhân quả hiện đại</h2>
+        <div class="callout callout-danger">
+          <div class="callout-title">Sai lầm hàng đầu</div>
+          <ul>
+            <li><strong>Dùng hồi quy TWFE cho áp dụng theo giai đoạn</strong> — Lỗi phổ biến nhất hiện nay trong kinh tế ứng dụng. Cho kết quả lệch, có thể đảo ngược dấu</li>
+            <li><strong>Không vẽ biểu đồ nghiên cứu sự kiện sau csdid</strong> — Kiểm định xu hướng trước là bắt buộc; hội tụ im lặng không có nghĩa là ước lượng hợp lệ</li>
+            <li><strong>Dùng synth cho nhiều đơn vị được can thiệp</strong> — Kiểm soát tổng hợp được thiết kế cho một đơn vị được can thiệp. Với nhiều đơn vị, dùng csdid hoặc DID xếp chồng</li>
+            <li><strong>Không chạy kiểm định hoán vị với synth</strong> — Suy diễn thống kê cần phân phối hoán vị, không phải sai số chuẩn cổ điển</li>
+            <li><strong>Chấp nhận RMSPE cao trong synth</strong> — Khớp trước can thiệp kém nghĩa là kiểm soát tổng hợp không phải phản thực tế đáng tin cậy; phân tích không hợp lệ</li>
+          </ul>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <h4>DID theo giai đoạn</h4>
+        <ul>
+          <li><a href="../comparisons/did-simple-vs-csdid.html">DID đơn giản vs csdid</a></li>
+          <li><a href="../comparisons/csdid-vs-drdid.html">csdid vs drdid</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Liên quan</h4>
+        <ul>
+          <li><a href="causal-inference.html">Suy diễn nhân quả</a></li>
+          <li><a href="../decision-tree.html">Cây quyết định</a></li>
+          <li><a href="../common-mistakes.html">Sai lầm phổ biến</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">Stata Kinh Tế Lượng Task View · Tài nguyên học thuật cho kinh tế lượng ứng dụng</div>
+  </footer>
+
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/filter.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      StataFilter.initCategoryFilter({ gridId: 'cmd-grid', countId: 'filter-count', clearId: 'filter-clear' });
+    });
+  </script>
+</body>
+
+</html>

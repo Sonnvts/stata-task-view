@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiêu chuẩn xuất bản — Stata Kinh Tế Lượng Task View</title>
+    <meta name="description"
+        content="Hướng dẫn báo cáo chuyên nghiệp, định dạng bảng và quy trình tái tạo trong Stata.">
+      <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="../assets/css/print.css" media="print">
+</head>
+
+<body>
+    <div class="noise-overlay" aria-hidden="true"></div>
+    <nav class="site-nav">
+        <div class="nav-inner">
+            <a class="nav-brand" href="../index.html">Stata <span>Task View</span></a>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="../index.html">Trang chủ</a></li>
+                <li class="nav-dropdown"><button class="nav-dropdown-btn">Danh mục ▾</button>
+                    <div class="nav-dropdown-menu">
+                        <a href="ols-diagnostics.html">OLS &amp; Kiểm định</a>
+                        <a href="limited-dependent.html">Biến phụ thuộc giới hạn</a>
+                        <a href="panel-data.html">Dữ liệu bảng</a>
+                        <a href="iv-endogeneity.html">Biến công cụ &amp; Nội sinh</a>
+                        <a href="time-series.html">Chuỗi thời gian</a>
+                        <a href="causal-inference.html">Suy diễn nhân quả</a>
+                        <a href="staggered-did.html">DID theo giai đoạn</a>
+                        <a href="ml-econometrics.html">Kinh tế lượng ML</a>
+                        <a href="data-infrastructure.html">Hạ tầng dữ liệu</a>
+                        <a href="sensitivity-robustness.html">Độ nhạy &amp; Kiểm định sự vững</a>
+                        <a href="publication-standards.html" class="active">Tiêu chuẩn xuất bản</a>
+                    </div>
+                </li>
+                <li><a href="../decision-tree.html">Cây quyết định</a></li>
+                <li><a href="../best-packages.html">Gói tốt nhất</a></li>
+            </ul>
+            <button class="nav-search-btn" id="nav-search-btn">🔍 Tìm kiếm</button>
+            <button class="nav-hamburger" id="nav-hamburger" aria-label="Toggle menu">☰</button>
+        </div>
+    </nav>
+
+    <main>
+        <div class="page-container">
+            <nav class="breadcrumb"><a href="../index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><span
+                    class="breadcrumb-current">Tiêu chuẩn xuất bản</span></nav>
+
+            <div class="page-title-block">
+                <h1>📄 Tiêu chuẩn xuất bản</h1>
+                <p class="page-subtitle">Báo cáo chuyên nghiệp, định dạng bảng và quy trình tái tạo</p>
+            </div>
+
+            <!-- Overview -->
+            <section style="margin-bottom:2rem;">
+                <h2>Tổng quan</h2>
+                <p>Làm đúng kinh tế lượng mới là một nửa trận đánh; nửa còn lại là truyền đạt chúng theo
+                    tiêu chuẩn tạp chí hiện đại. Điều này bao gồm định dạng bảng có hệ thống, báo cáo minh bạch về
+                    các kiểm định chẩn đoán và quy trình tái tạo.</p>
+                <p>Các tạp chí hiện đại (AER, QJE, v.v.) nay yêu cầu gói tái tạo và báo cáo chuẩn hóa. Danh mục này
+                    bao gồm các công cụ giúp bạn thu hẹp khoảng cách giữa phân tích và bài báo cuối cùng.</p>
+                <div class="callout callout-info">
+                    <div class="callout-title">Nguyên tắc chính</div>
+                    <p><strong>Minh bạch là uy tín.</strong> Dùng công cụ tự động để xuất kết quả trực tiếp từ
+                        Stata vào tài liệu của bạn. Nhập thủ công là công thức cho lỗi và thất bại tái tạo.</p>
+                </div>
+            </section>
+
+            <!-- Filter bar -->
+            <div class="filter-bar">
+                <label>Lọc theo:</label>
+                <select class="filter-select" data-filter-key="difficulty">
+                    <option value="all">Tất cả cấp độ</option>
+                    <option value="beginner">Cơ bản</option>
+                    <option value="intermediate">Trung cấp</option>
+                    <option value="advanced">Nâng cao</option>
+                </select>
+                <select class="filter-select" data-filter-key="install">
+                    <option value="all">Tất cả nguồn</option>
+                    <option value="builtin">Có sẵn</option>
+                    <option value="ssc">SSC</option>
+                </select>
+                <button class="filter-clear" id="filter-clear">Xóa bộ lọc</button>
+                <span class="filter-count" id="filter-count"></span>
+            </div>
+
+            <!-- Command cards -->
+            <div class="cmd-grid" id="cmd-grid">
+
+                <a class="cmd-card" href="../commands/command.html?cmd=estout"
+                    data-tags='{"difficulty":"intermediate","install":"ssc"}'>
+                    <div class="cmd-card-header">
+                        <div>
+                            <div class="cmd-card-name">estout / esttab</div>
+                            <div class="cmd-card-title">Bảng LaTeX/CSV chuyên nghiệp</div>
+                        </div>
+                        <span class="badge badge-ssc">SSC</span>
+                    </div>
+                    <div class="cmd-card-desc">Tiêu chuẩn vàng cho bảng học thuật. Kiểm soát hoàn toàn về dấu sao, SE
+                        và định dạng.</div>
+                    <div class="cmd-card-footer"><span class="badge badge-intermediate">Trung cấp</span><span
+                            class="tag-pill">bảng</span><span class="tag-pill">LaTeX</span></div>
+                </a>
+
+                <a class="cmd-card" href="../commands/command.html?cmd=coefplot"
+                    data-tags='{"difficulty":"beginner","install":"ssc"}'>
+                    <div class="cmd-card-header">
+                        <div>
+                            <div class="cmd-card-name">coefplot</div>
+                            <div class="cmd-card-title">Trực quan hóa hệ số</div>
+                        </div>
+                        <span class="badge badge-ssc">SSC</span>
+                    </div>
+                    <div class="cmd-card-desc">Trực quan hóa hệ số hồi quy và khoảng tin cậy. Trực quan hơn nhiều so với
+                        bảng khi so sánh các hiệu ứng.</div>
+                    <div class="cmd-card-footer"><span class="badge badge-beginner">Cơ bản</span><span
+                            class="tag-pill">trực quan hóa</span><span class="tag-pill">đồ thị</span></div>
+                </a>
+
+                <a class="cmd-card" href="../commands/command.html?cmd=putdocx"
+                    data-tags='{"difficulty":"intermediate","install":"builtin"}'>
+                    <div class="cmd-card-header">
+                        <div>
+                            <div class="cmd-card-name">putdocx / putpdf</div>
+                            <div class="cmd-card-title">Tạo tài liệu tự động</div>
+                        </div>
+                        <span class="badge badge-builtin">Có sẵn</span>
+                    </div>
+                    <div class="cmd-card-desc">Công cụ Stata gốc để tạo tài liệu Word hoặc PDF trực tiếp. Cho phép
+                        tạo báo cáo hoàn toàn tái tạo.</div>
+                    <div class="cmd-card-footer"><span class="badge badge-intermediate">Trung cấp</span><span
+                            class="tag-pill">tái tạo</span><span class="tag-pill">Word</span></div>
+                </a>
+
+            </div><!-- #cmd-grid -->
+
+            <!-- Workflow path -->
+            <section style="margin-top:2rem;">
+                <h2>Quy trình tái tạo</h2>
+                <div class="learning-path">
+                    <div class="learning-step">
+                        <div class="learning-step-content">
+                            <h4>Gắn nhãn biến</h4>
+                            <p>Luôn dùng <code>label variable</code> và <code>label define</code>. Bảng của bạn không nên
+                                chứa tên biến gốc như <code>ln_wg_2</code>.</p>
+                        </div>
+                    </div>
+                    <div class="learning-step">
+                        <div class="learning-step-content">
+                            <h4>Lưu trữ trong bộ nhớ</h4>
+                            <p>Dùng <code>eststo</code> hoặc <code>estimates store</code> để giữ kết quả trong bộ nhớ khi
+                                bạn xây dựng bảng.</p>
+                        </div>
+                    </div>
+                    <div class="learning-step">
+                        <div class="learning-step-content">
+                            <h4>Xuất tự động</h4>
+                            <p>Viết script tạo bảng trong do-file của bạn. Một lần nhấn nên cập nhật toàn bộ kết quả bài báo.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-col">
+                <h4>Danh mục khác</h4>
+                <ul>
+                    <li><a href="ols-diagnostics.html">OLS &amp; Kiểm định</a></li>
+                    <li><a href="panel-data.html">Dữ liệu bảng</a></li>
+                    <li><a href="causal-inference.html">Suy diễn nhân quả</a></li>
+                    <li><a href="data-infrastructure.html">Hạ tầng dữ liệu</a></li>
+                    <li><a href="sensitivity-robustness.html">Độ nhạy &amp; Kiểm định sự vững</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">Stata Kinh Tế Lượng Task View · Tài nguyên học thuật cho kinh tế lượng ứng dụng</div>
+    </footer>
+
+    <script src="../assets/js/navigation.js"></script>
+    <script src="../assets/js/filter.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            StataFilter.initCategoryFilter({ gridId: 'cmd-grid', countId: 'filter-count', clearId: 'filter-clear' });
+        });
+    </script>
+</body>
+
+</html>

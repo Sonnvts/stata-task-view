@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dữ liệu bảng — Stata Kinh Tế Lượng Task View</title>
+  <meta name="description"
+    content="Hiệu ứng cố định, hiệu ứng ngẫu nhiên, kiểm định Hausman và GMM bảng động trong Stata. Hướng dẫn xtreg fe, xtreg re và xtabond2.">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/print.css" media="print">
+</head>
+
+<body>
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="../index.html">Stata <span>Task View</span></a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../index.html">Trang chủ</a></li>
+        <li class="nav-dropdown"><button class="nav-dropdown-btn">Danh mục ▾</button>
+          <div class="nav-dropdown-menu">
+            <a href="ols-diagnostics.html">OLS &amp; Kiểm định</a>
+            <a href="limited-dependent.html">Biến phụ thuộc giới hạn</a>
+            <a href="panel-data.html" class="active">Dữ liệu bảng</a>
+            <a href="iv-endogeneity.html">Biến công cụ &amp; Nội sinh</a>
+            <a href="time-series.html">Chuỗi thời gian</a>
+            <a href="causal-inference.html">Suy diễn nhân quả</a>
+            <a href="staggered-did.html">DID theo giai đoạn</a>
+            <a href="ml-econometrics.html">Kinh tế lượng ML</a>
+          </div>
+        </li>
+        <li><a href="../decision-tree.html">Cây quyết định</a></li>
+        <li><a href="../best-packages.html">Gói tốt nhất</a></li>
+      </ul>
+      <button class="nav-search-btn" id="nav-search-btn">🔍 Tìm kiếm</button>
+      <button class="nav-hamburger" id="nav-hamburger" aria-label="Bật/tắt menu">☰</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-container">
+      <nav class="breadcrumb"><a href="../index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><span
+          class="breadcrumb-current">Dữ liệu bảng</span></nav>
+
+      <div class="page-title-block">
+        <h1>📋 Mô hình dữ liệu bảng</h1>
+        <p class="page-subtitle">Hiệu ứng cố định, hiệu ứng ngẫu nhiên, kiểm định Hausman và GMM bảng động cho dữ liệu theo thời gian</p>
+      </div>
+
+      <!-- Tổng quan -->
+      <section style="margin-bottom:2rem;">
+        <h2>Tổng quan</h2>
+        <p>Dữ liệu bảng — quan sát lặp lại trên cùng các đơn vị theo thời gian — là một trong những cấu trúc dữ liệu mạnh nhất trong kinh tế lượng ứng dụng. Nó cho phép kiểm soát <strong>tính không đồng nhất không quan sát được, bất biến theo thời gian</strong> mà nếu không sẽ làm chệch ước lượng OLS cắt ngang.</p>
+        <p>Câu hỏi trung tâm trong kinh tế lượng bảng luôn là: <strong>Các hiệu ứng đơn vị không quan sát được có tương quan với biến giải thích không?</strong></p>
+        <ul>
+          <li><strong>Có (thường trong kinh tế):</strong> Dùng <code>xtreg, fe</code>. Hiệu ứng cố định loại bỏ các yếu tố gây nhiễu bất biến theo thời gian qua trung bình hóa trong đơn vị.</li>
+          <li><strong>Không (giả định có thể kiểm định):</strong> <code>xtreg, re</code> hiệu quả hơn nhưng không nhất quán khi giả định bị vi phạm.</li>
+          <li><strong>Mô hình động với biến trễ:</strong> <code>xtabond2</code> triển khai Arellano-Bond/System GMM để sửa chệch Nickell.</li>
+        </ul>
+        <div class="callout callout-warning">
+          <div class="callout-title">⚠ Luôn cluster sai số chuẩn</div>
+          <p>Mọi hồi quy bảng phải dùng <code>vce(cluster panelvar)</code>. SE bảng cổ điển giả định sai số không tương quan theo thời gian trong đơn vị — hầu như không bao giờ đúng. Clustering cho phép tương quan chuỗi tùy ý trong đơn vị.</p>
+        </div>
+      </section>
+
+      <!-- Thanh lọc -->
+      <div class="filter-bar">
+        <label>Lọc theo:</label>
+        <select class="filter-select" data-filter-key="difficulty">
+          <option value="all">Tất cả cấp độ</option>
+          <option value="beginner">Cơ bản</option>
+          <option value="intermediate">Trung cấp</option>
+          <option value="advanced">Nâng cao</option>
+        </select>
+        <select class="filter-select" data-filter-key="install">
+          <option value="all">Tất cả nguồn</option>
+          <option value="builtin">Có sẵn</option>
+          <option value="ssc">SSC</option>
+        </select>
+        <button class="filter-clear" id="filter-clear">Xóa</button>
+        <span class="filter-count" id="filter-count"></span>
+      </div>
+
+      <!-- Thẻ lệnh -->
+      <div class="cmd-grid" id="cmd-grid">
+
+        <a class="cmd-card" href="../commands/command.html?cmd=xtreg-fe"
+          data-tags='{"difficulty":"intermediate","install":"builtin"}'>
+          <div class="cmd-card-header">
+            <div>
+              <div class="cmd-card-name">xtreg, fe</div>
+              <div class="cmd-card-title">Hồi quy hiệu ứng cố định</div>
+            </div>
+            <span class="badge badge-builtin">Có sẵn</span>
+          </div>
+          <div class="cmd-card-desc">Loại bỏ tính không đồng nhất đơn vị bất biến theo thời gian qua trung bình hóa trong đơn vị. Mặc định thận trọng cho dữ liệu bảng. Luôn cluster theo đơn vị bảng.</div>
+          <div class="cmd-card-footer"><span class="badge badge-intermediate">Trung cấp</span><span
+              class="tag-pill">FE</span><span class="tag-pill">ước lượng trong đơn vị</span><span
+              class="tag-pill">bảng</span></div>
+        </a>
+
+        <a class="cmd-card" href="../commands/command.html?cmd=xtreg-re"
+          data-tags='{"difficulty":"intermediate","install":"builtin"}'>
+          <div class="cmd-card-header">
+            <div>
+              <div class="cmd-card-name">xtreg, re</div>
+              <div class="cmd-card-title">Hồi quy hiệu ứng ngẫu nhiên</div>
+            </div>
+            <span class="badge badge-builtin">Có sẵn</span>
+          </div>
+          <div class="cmd-card-desc">Hiệu quả hơn FE khi hiệu ứng đơn vị không tương quan với biến giải thích. Chạy kiểm định Hausman để xác định FE hay RE phù hợp. Thường không nhất quán trong thực tế.</div>
+          <div class="cmd-card-footer"><span class="badge badge-intermediate">Trung cấp</span><span
+              class="tag-pill">RE</span><span class="tag-pill">GLS</span><span class="tag-pill">Hausman</span></div>
+        </a>
+
+        <a class="cmd-card" href="../commands/command.html?cmd=xtabond2"
+          data-tags='{"difficulty":"advanced","install":"ssc"}'>
+          <div class="cmd-card-header">
+            <div>
+              <div class="cmd-card-name">xtabond2</div>
+              <div class="cmd-card-title">GMM bảng động</div>
+            </div>
+            <span class="badge badge-ssc">SSC</span>
+          </div>
+          <div class="cmd-card-desc">Arellano-Bond / System GMM cho bảng động khi biến trễ của biến phụ thuộc là biến giải thích. Kiểm tra AR(2) và kiểm định Hansen J sau mỗi ước lượng. Dễ dùng sai.</div>
+          <div class="cmd-card-footer"><span class="badge badge-advanced">Nâng cao</span><span
+              class="tag-pill">GMM</span><span class="tag-pill">động</span><span
+              class="tag-pill">Arellano-Bond</span></div>
+        </a>
+
+      </div><!-- #cmd-grid -->
+
+      <!-- Quy trình kiểm định Hausman -->
+      <section style="margin-top:2.5rem;">
+        <h2>Kiểm định Hausman: quyết định FE vs RE</h2>
+        <p>Kiểm định Hausman là công cụ chuẩn để lựa chọn giữa FE và RE. Nó kiểm định xem ước lượng RE có nhất quán không (bằng cách kiểm tra xem hệ số RE và FE có khác nhau có hệ thống không).</p>
+        <div class="code-wrapper">
+          <pre class="language-stata"><code>* Bước 1: Khai báo cấu trúc bảng
+xtset firmid year
+
+* Bước 2: Ước lượng FE (nhất quán dưới cả H0 và H1)
+xtreg lwage educ exper i.year, fe
+eststo fe_model
+
+* Bước 3: Ước lượng RE (hiệu quả chỉ dưới H0)
+xtreg lwage educ exper i.year, re
+eststo re_model
+
+* Bước 4: Kiểm định Hausman
+* H0: RE nhất quán (ưu tiên RE)
+* H1: RE không nhất quán (dùng FE)
+hausman fe_model re_model, sigmamore
+* Từ chối H0 (p &lt; 0.05) → Dùng FE
+* Không từ chối → RE có thể phù hợp
+
+* Bước 5: Với FE, luôn cluster SE
+xtreg lwage educ exper i.year, fe vce(cluster firmid)</code></pre>
+          <button class="copy-btn">Sao chép</button>
+        </div>
+        <div class="callout callout-tip" style="margin-top:1rem;">
+          <div class="callout-title">💡 Phương án Mundlak thay thế Hausman</div>
+          <p>Khi kiểm định Hausman không rõ ràng, thử <strong>phương pháp Mundlak (1978)</strong>: thêm giá trị trung bình trong nhóm của tất cả biến giải thích thay đổi theo thời gian vào mô hình RE và kiểm định ý nghĩa thống kê chung. Trung bình nhóm có ý nghĩa → Cần FE. Phương pháp này ổn định hơn kiểm định Hausman cổ điển trong mẫu nhỏ.</p>
+        </div>
+      </section>
+
+      <!-- So sánh song song -->
+      <section style="margin-top:2.5rem;">
+        <h2>So sánh song song</h2>
+        <div class="comparison-table-wrapper">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Lệnh</th>
+                <th>Nguồn</th>
+                <th>Phương pháp</th>
+                <th>Giả định chính</th>
+                <th>Biến bất biến?</th>
+                <th>Người mới?</th>
+                <th>Cấp nghiên cứu?</th>
+                <th>Rủi ro lớn nhất</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>xtreg, fe</code></td>
+                <td><span class="badge badge-builtin">Có sẵn</span></td>
+                <td>Trung bình hóa trong đơn vị (OLS)</td>
+                <td>Ngoại sinh nghiêm ngặt</td>
+                <td class="bad">✗ Bị hấp thụ</td>
+                <td class="ok">Trung bình</td>
+                <td class="good">✓ Có</td>
+                <td>Quên cluster SE</td>
+              </tr>
+              <tr>
+                <td><code>xtreg, re</code></td>
+                <td><span class="badge badge-builtin">Có sẵn</span></td>
+                <td>GLS (trong + giữa đơn vị)</td>
+                <td>Hiệu ứng đơn vị ⊥ biến giải thích</td>
+                <td class="good">✓ Có</td>
+                <td class="good">✓ Có</td>
+                <td class="ok">Chỉ khi Hausman OK</td>
+                <td>Dùng RE khi cần FE</td>
+              </tr>
+              <tr>
+                <td><code>xtabond2</code></td>
+                <td><span class="badge badge-ssc">SSC</span></td>
+                <td>GMM (sai phân + hệ thống)</td>
+                <td>Không có AR(2) trong sai số; công cụ hợp lệ</td>
+                <td class="bad">✗ Bị lấy sai phân</td>
+                <td class="bad">✗ Phức tạp</td>
+                <td class="good">✓ Có (nếu dùng đúng)</td>
+                <td>Tăng sinh công cụ; bỏ qua kiểm định</td>
+              </tr>
+              <tr>
+                <td><code>reghdfe</code> (SSC)</td>
+                <td><span class="badge badge-ssc">SSC</span></td>
+                <td>FE chiều cao (OLS)</td>
+                <td>Như FE + nhiều chiều FE</td>
+                <td class="bad">✗ Bị hấp thụ</td>
+                <td class="ok">Trung bình</td>
+                <td class="good">✓ Có</td>
+                <td>Giải thích nhiều tập FE</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="margin-top:1rem;"><a href="../comparisons/xtreg-fe-vs-re.html" class="btn-secondary">So sánh đầy đủ FE vs RE →</a> <a href="../comparisons/fe-vs-xtabond2.html" class="btn-secondary">FE vs xtabond2 →</a></p>
+      </section>
+
+      <!-- Khi nào FE thất bại -->
+      <section style="margin-top:2rem;">
+        <h2>Khi nào FE thất bại? Vấn đề chệch Nickell</h2>
+        <p>Khi mô hình bao gồm <strong>biến trễ của biến phụ thuộc</strong> (bảng động), hiệu ứng cố định qua trung bình hóa trong đơn vị tạo ra tương quan cơ học giữa biến trễ đã trung bình hóa và sai số đã trung bình hóa. Đây là <strong>chệch Nickell</strong> — nó không biến mất khi N→∞ khi T cố định.</p>
+        <div class="vs-cards">
+          <div class="vs-card">
+            <div class="vs-card-header"><span class="vs-card-name">xtreg, fe với L.y</span></div>
+            <ul class="vs-con">
+              <li>Bị chệch do chệch Nickell: độ lớn ~1/T</li>
+              <li>Chệch về phía 0 cho ρ: hệ số trên biến trễ bị ước lượng thấp</li>
+              <li>Chỉ hợp lệ khi T lớn (T &gt; 30)</li>
+            </ul>
+          </div>
+          <div class="vs-card vs-recommended">
+            <div class="vs-card-header"><span class="vs-card-name">xtabond2 (System GMM)</span></div>
+            <ul class="vs-pro">
+              <li>Sửa chệch Nickell dùng mức trễ làm công cụ</li>
+              <li>Xử lý đồng thời các biến giải thích nội sinh khác</li>
+              <li>Yêu cầu công cụ hợp lệ: kiểm tra AR(2) + Hansen J</li>
+            </ul>
+          </div>
+        </div>
+        <div class="callout callout-danger" style="margin-top:1rem;">
+          <div class="callout-title">Khi nào KHÔNG dùng xtabond2</div>
+          <p>xtabond2 mạnh nhưng bị dùng sai rộng rãi. Không dùng trừ khi: (1) thực sự có mô hình động với biến trễ phụ thuộc, (2) N >> T (bảng ngắn, nhiều đơn vị), (3) đã kiểm tra kiểm định AR(2) (<em>p</em> &gt; 0.05) và kiểm định Hansen J (<em>p</em> &gt; 0.05). Kiểm định AR(2) thất bại làm vô hiệu hoàn toàn ước lượng.</p>
+        </div>
+      </section>
+
+      <!-- Thứ tự học -->
+      <section style="margin-top:2rem;">
+        <h2>Thứ tự học khuyến nghị</h2>
+        <div class="learning-path">
+          <div class="learning-step">
+            <div class="learning-step-content">
+              <h4><a href="../commands/command.html?cmd=xtreg-fe">xtreg, fe</a> — Bắt đầu tại đây cho mọi phân tích bảng</h4>
+              <p>Hiệu ứng cố định là mặc định thận trọng. Thành thạo ước lượng trong đơn vị trước khi thêm độ phức tạp.</p>
+            </div>
+          </div>
+          <div class="learning-step">
+            <div class="learning-step-content">
+              <h4>Luôn thêm <code>vce(cluster panelvar)</code></h4>
+              <p>Không bao giờ dùng hồi quy bảng mà không cluster theo đơn vị bảng. Tương quan chuỗi trong đơn vị là quy luật, không phải ngoại lệ.</p>
+            </div>
+          </div>
+          <div class="learning-step">
+            <div class="learning-step-content">
+              <h4>Chạy <a href="../comparisons/xtreg-fe-vs-re.html">kiểm định Hausman</a> để so sánh FE vs RE</h4>
+              <p>Chạy cả hai mô hình, lưu ước lượng, rồi hausman. Trong hầu hết các ứng dụng kinh tế, FE thắng.</p>
+            </div>
+          </div>
+          <div class="learning-step">
+            <div class="learning-step-content">
+              <h4>Thêm hiệu ứng cố định thời gian: <code>xtreg y x i.year, fe</code></h4>
+              <p>FE đơn vị kiểm soát các yếu tố đơn vị bất biến theo thời gian. Biến giả năm bổ sung kiểm soát các cú sốc thời gian chung.</p>
+            </div>
+          </div>
+          <div class="learning-step">
+            <div class="learning-step-content">
+              <h4>Cho mô hình động: <a href="../commands/command.html?cmd=xtabond2">xtabond2</a></h4>
+              <p>Chỉ chuyển đến đây khi mô hình thực sự bao gồm biến trễ phụ thuộc và T nhỏ so với N. Nghiên cứu Roodman (2009) trước.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sai lầm phổ biến -->
+      <section style="margin-top:2rem;">
+        <h2>Sai lầm phổ biến trong dữ liệu bảng</h2>
+        <div class="callout callout-danger">
+          <div class="callout-title">Sai lầm hàng đầu</div>
+          <ul>
+            <li><strong>Không cluster sai số chuẩn theo đơn vị bảng</strong> — SE bảng không cluster đánh giá thấp độ bất định do tương quan chuỗi trong đơn vị</li>
+            <li><strong>Dùng hiệu ứng ngẫu nhiên không có kiểm định Hausman</strong> — Trong hầu hết ứng dụng kinh tế, hiệu ứng đơn vị tương quan với biến giải thích, làm RE không nhất quán</li>
+            <li><strong>Báo cáo R² giữa hoặc tổng thể thay vì R² trong đơn vị</strong> — Với FE, chỉ R² trong đơn vị có ý nghĩa. R² giữa và tổng thể trộn biến động giữa các đơn vị</li>
+            <li><strong>Áp dụng FE khi biến chính không có biến động trong đơn vị</strong> — FE hấp thụ mọi biến không thay đổi trong đơn vị theo thời gian (ví dụ: giới tính, ngành trong bảng ngắn)</li>
+            <li><strong>Dùng xtabond2 khi T lớn</strong> — Chệch Nickell là ~1/T, nên với T &gt; 30, FE đơn giản thường tốt và độ phức tạp của xtabond2 là không cần thiết</li>
+            <li><strong>Bỏ qua kiểm định chẩn đoán xtabond2</strong> — Kiểm định AR(2) và Hansen J không phải tùy chọn. Bỏ qua có nghĩa là tin tưởng vào ước lượng có thể không hợp lệ</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Lộ trình nâng cấp -->
+      <section style="margin-top:2rem;">
+        <h2>Lộ trình nâng cấp</h2>
+        <div class="upgrade-block">
+          <h4>Khi nào vượt qua FE bảng cơ bản</h4>
+          <p><strong>Nhiều FE chiều cao (công ty + năm + sản phẩm)?</strong> → Cài <code>reghdfe</code> (SSC) — nhanh hơn nhiều so với xtreg, fe cho dữ liệu lớn với nhiều chiều FE<br>
+            <strong>Biến trễ phụ thuộc trong mô hình?</strong> → Dùng <a href="../commands/command.html?cmd=xtabond2">xtabond2</a> — System GMM sửa chệch Nickell<br>
+            <strong>Thời điểm xử lý theo giai đoạn giữa các đơn vị bảng?</strong> → Dùng <a href="../commands/command.html?cmd=csdid">csdid</a> — TWFE cổ điển bị chệch khi có hiệu ứng không đồng nhất<br>
+            <strong>Biến kết quả bảng nhị phân?</strong> → Dùng <code>xtlogit, fe</code> (có sẵn) — logit có điều kiện cho biến nhị phân bảng
+          </p>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <h4>So sánh</h4>
+        <ul>
+          <li><a href="../comparisons/xtreg-fe-vs-re.html">FE vs RE</a></li>
+          <li><a href="../comparisons/fe-vs-xtabond2.html">FE vs xtabond2</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Danh mục khác</h4>
+        <ul>
+          <li><a href="ols-diagnostics.html">OLS &amp; Kiểm định</a></li>
+          <li><a href="iv-endogeneity.html">Biến công cụ &amp; Nội sinh</a></li>
+          <li><a href="causal-inference.html">Suy diễn nhân quả</a></li>
+          <li><a href="staggered-did.html">DID theo giai đoạn</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Công cụ</h4>
+        <ul>
+          <li><a href="../decision-tree.html">Cây quyết định</a></li>
+          <li><a href="../best-packages.html">Gói tốt nhất</a></li>
+          <li><a href="../common-mistakes.html">Sai lầm phổ biến</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">Stata Kinh Tế Lượng Task View · Tài nguyên học thuật cho kinh tế lượng ứng dụng</div>
+  </footer>
+
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/filter.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      StataFilter.initCategoryFilter({ gridId: 'cmd-grid', countId: 'filter-count', clearId: 'filter-clear' });
+    });
+  </script>
+</body>
+
+</html>

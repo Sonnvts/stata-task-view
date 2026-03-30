@@ -1,0 +1,37 @@
+/* ============================================================
+   Stata Econometrics Task View — Print Stylesheet
+   ============================================================ */
+@media print {
+  .site-nav, .site-footer, .page-sidebar,
+  .copy-btn, .filter-bar, .search-box,
+  .decision-footer, .nav-hamburger,
+  .hero-bg-text, .noise-overlay,
+  .accent-bar::before, .text-layer::before { display: none !important; }
+
+  body { background: white; color: black; font-size: 11pt; }
+
+  .page-container { max-width: 100%; padding: 0; }
+  .content-with-sidebar { grid-template-columns: 1fr; }
+
+  h1 { font-size: 18pt; }
+  h2 { font-size: 14pt; }
+  h3 { font-size: 12pt; }
+
+  pre { background: #f5f5f5; color: black; border: 1px solid #ccc; page-break-inside: avoid; }
+  pre code { color: black; }
+
+  .cmd-card, .vs-card, .callout, .verdict-box { page-break-inside: avoid; }
+
+  a[href]::after { content: " (" attr(href) ")"; font-size: 0.8em; color: #555; }
+  .site-nav a::after, .btn-primary::after, .btn-secondary::after { content: none; }
+
+  .badge, .tag-pill { border: 1px solid #ccc; background: white !important; color: black !important; }
+
+  .vs-cards { grid-template-columns: 1fr 1fr; }
+  .hero { background: #eee; color: black; }
+  .hero h1 { color: black; }
+  .verdict-box { background: #eee; color: black; border: 2px solid #333; }
+  .verdict-box p { color: black; }
+  .verdict-box .verdict-label { color: #333; }
+  .section-num { background: #333; }
+}

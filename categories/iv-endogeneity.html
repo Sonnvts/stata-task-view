@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biến công cụ &amp; Nội sinh — Stata Kinh Tế Lượng Task View</title>
+  <meta name="description"
+    content="Biến công cụ, 2SLS, kiểm định công cụ yếu và chẩn đoán nội sinh trong Stata. ivregress vs ivreg2.">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/print.css" media="print">
+</head>
+
+<body>
+  <div class="noise-overlay" aria-hidden="true"></div>
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="../index.html">Stata <span>Task View</span></a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../index.html">Trang chủ</a></li>
+        <li class="nav-dropdown"><button class="nav-dropdown-btn">Danh mục ▾</button>
+          <div class="nav-dropdown-menu">
+            <a href="ols-diagnostics.html">OLS &amp; Kiểm định</a>
+            <a href="limited-dependent.html">Biến phụ thuộc giới hạn</a>
+            <a href="panel-data.html">Dữ liệu bảng</a>
+            <a href="iv-endogeneity.html" class="active">Biến công cụ &amp; Nội sinh</a>
+            <a href="time-series.html">Chuỗi thời gian</a>
+            <a href="causal-inference.html">Suy diễn nhân quả</a>
+            <a href="staggered-did.html">DID theo giai đoạn</a>
+            <a href="ml-econometrics.html">Kinh tế lượng ML</a>
+          </div>
+        </li>
+        <li><a href="../decision-tree.html">Cây quyết định</a></li>
+        <li><a href="../best-packages.html">Gói tốt nhất</a></li>
+      </ul>
+      <button class="nav-search-btn" id="nav-search-btn">🔍 Tìm kiếm</button>
+      <button class="nav-hamburger" id="nav-hamburger" aria-label="Bật/tắt menu">☰</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-container">
+      <nav class="breadcrumb"><a href="../index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><span
+          class="breadcrumb-current">Biến công cụ &amp; Nội sinh</span></nav>
+
+      <div class="page-title-block">
+        <h1>🔗 Biến công cụ &amp; Nội sinh</h1>
+        <p class="page-subtitle">2SLS, kiểm định công cụ yếu, chẩn đoán nội sinh — và khi nào IV không phải là câu trả lời</p>
+      </div>
+
+      <!-- Tổng quan -->
+      <section style="margin-bottom:2rem;">
+        <h2>Tổng quan</h2>
+        <p>Nội sinh — khi một hoặc nhiều biến giải thích tương quan với phần sai số — là một trong những mối đe dọa phổ biến nhất đối với nhận dạng nhân quả trong dữ liệu cắt ngang. Ba nguồn chính là:</p>
+        <ul>
+          <li><strong>Chệch biến bỏ sót:</strong> Một biến quan trọng bị thiếu trong mô hình và tương quan với cả X và Y</li>
+          <li><strong>Sai số đo lường:</strong> X được đo với sai số, tạo ra chệch làm giảm cổ điển (hệ số chệch về phía không)</li>
+          <li><strong>Nhân quả ngược:</strong> Y cũng gây ra X (chệch phương trình đồng thời)</li>
+        </ul>
+        <p>Biến công cụ (IV) giải quyết các vấn đề này bằng cách sử dụng <strong>công cụ Z</strong> ảnh hưởng đến biến giải thích nội sinh X nhưng không có tác động trực tiếp đến biến kết quả Y (điều kiện loại trừ).</p>
+        <div class="callout callout-danger">
+          <div class="callout-title">⚠ Quy tắc IV quan trọng nhất</div>
+          <p><strong>Luôn dùng <code>ivreg2</code> (SSC) thay vì <code>ivregress</code> cho IV cấp nghiên cứu.</strong>
+            ivreg2 cung cấp thống kê công cụ yếu Kleibergen-Paap rk (bắt buộc với SE cluster), kiểm định ước định thừa Hansen J, và LIML. ivregress không có bất kỳ chẩn đoán quan trọng nào trong số này.</p>
+        </div>
+      </section>
+
+      <!-- Thẻ lệnh -->
+      <div class="cmd-grid" id="cmd-grid">
+
+        <a class="cmd-card" href="../commands/command.html?cmd=ivregress"
+          data-tags='{"difficulty":"intermediate","install":"builtin"}'>
+          <div class="cmd-card-header">
+            <div>
+              <div class="cmd-card-name">ivregress 2sls</div>
+              <div class="cmd-card-title">IV/2SLS chính thức của Stata</div>
+            </div>
+            <span class="badge badge-builtin">Có sẵn</span>
+          </div>
+          <div class="cmd-card-desc">Ước lượng 2SLS nhanh. Tốt để khám phá, nhưng thiếu chẩn đoán công cụ yếu. Cho nghiên cứu công bố, nâng cấp lên ivreg2.</div>
+          <div class="cmd-card-footer"><span class="badge badge-intermediate">Trung cấp</span><span
+              class="tag-pill">2SLS</span><span class="tag-pill">IV</span></div>
+        </a>
+
+        <a class="cmd-card" href="../commands/command.html?cmd=ivreg2"
+          data-tags='{"difficulty":"intermediate","install":"ssc"}'>
+          <div class="cmd-card-header">
+            <div>
+              <div class="cmd-card-name">ivreg2</div>
+              <div class="cmd-card-title">IV/2SLS/GMM/LIML mở rộng</div>
+            </div>
+            <span class="badge badge-ssc">SSC</span>
+          </div>
+          <div class="cmd-card-desc">Tiêu chuẩn vàng cho IV trong nghiên cứu ứng dụng. Thêm kiểm định công cụ yếu Kleibergen-Paap, ước định thừa Hansen J, LIML và ước lượng GMM. Luôn ưu tiên hơn ivregress.</div>
+          <div class="cmd-card-footer"><span class="badge badge-intermediate">Trung cấp</span><span
+              class="tag-pill">IV</span><span class="tag-pill">Kleibergen-Paap</span><span class="tag-pill">LIML</span>
+          </div>
+        </a>
+
+      </div>
+
+      <!-- Hai điều kiện cho biến công cụ hợp lệ -->
+      <section style="margin-top:2.5rem;">
+        <h2>Hai điều kiện cho biến công cụ hợp lệ</h2>
+        <div class="vs-cards">
+          <div class="vs-card vs-recommended">
+            <div class="vs-card-header"><span class="vs-card-name">1. Tính liên quan (có thể kiểm định)</span></div>
+            <p style="font-size:.875rem;">Cov(Z, X) ≠ 0 — công cụ phải tương quan với biến nội sinh.</p>
+            <p style="font-size:.875rem;font-weight:600;color:var(--install-ssc);">Kiểm định: F-thống kê giai đoạn 1. Phải vượt 10 (Stock-Yogo) để tránh chệch công cụ yếu.</p>
+            <p style="font-size:.875rem;color:var(--diff-advanced);font-weight:600;">Với SE cluster: Dùng Kleibergen-Paap rk Wald F (không phải Cragg-Donald).</p>
+          </div>
+          <div class="vs-card">
+            <div class="vs-card-header"><span class="vs-card-name">2. Điều kiện loại trừ (không thể kiểm định)</span></div>
+            <p style="font-size:.875rem;">Cov(Z, ε) = 0 — công cụ ảnh hưởng đến Y chỉ qua X, không có tác động trực tiếp.</p>
+            <p style="font-size:.875rem;font-weight:600;color:var(--diff-intermediate);">Giả định này không thể kiểm định trực tiếp. Nó đòi hỏi lý luận kinh tế và kiến thức về bối cảnh thể chế.</p>
+            <p style="font-size:.875rem;">Với nhiều công cụ, kiểm định ước định thừa J kiểm tra tính nhất quán chung, nhưng không thay thế cho lý luận kinh tế.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quy trình ivreg2 -->
+      <section style="margin-top:2rem;">
+        <h2>Quy trình ivreg2 đầy đủ</h2>
+        <div class="code-wrapper">
+          <pre class="language-stata"><code>* Cài đặt ivreg2 trước
+ssc install ivreg2
+
+* 2SLS cơ bản: educ là nội sinh, college_proximity là công cụ
+ivreg2 lwage (educ = college_proximity) exper tenure, robust
+
+* Với SE cluster (dùng Kleibergen-Paap, KHÔNG Cragg-Donald)
+ivreg2 lwage (educ = college_proximity) exper, robust cluster(county)
+
+* Kết quả hiển thị:
+* - KP rk Wald F-stat → phải > 10 (lý tưởng > 16)
+* - Hansen J p-value → phải > 0.05 nếu ước định thừa
+* - Kiểm định nhận dạng dưới → từ chối H0 nghĩa là công cụ liên quan
+
+* Với công cụ rất yếu: dùng LIML (ổn định hơn 2SLS)
+ivreg2 lwage (educ = prox1 prox2) exper, liml robust
+
+* Luôn hiển thị giai đoạn 1
+ivreg2 lwage (educ = prox1 prox2) exper, robust ffirst</code></pre>
+          <button class="copy-btn">Sao chép</button>
+        </div>
+      </section>
+
+      <!-- So sánh -->
+      <section style="margin-top:2rem;">
+        <h2>ivregress vs ivreg2</h2>
+        <div class="comparison-table-wrapper">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Tính năng</th>
+                <th>ivregress 2sls</th>
+                <th>ivreg2</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Ước lượng</td>
+                <td>2SLS, LIML, GMM</td>
+                <td>2SLS, LIML, GMM, CUE, SJIV</td>
+              </tr>
+              <tr>
+                <td>Nguồn</td>
+                <td><span class="badge badge-builtin">Có sẵn (Stata 10+)</span></td>
+                <td><span class="badge badge-ssc">SSC (miễn phí)</span></td>
+              </tr>
+              <tr>
+                <td>Kiểm định công cụ yếu</td>
+                <td class="bad">Chỉ Cragg-Donald (sai với cluster)</td>
+                <td class="good">Kleibergen-Paap rk (đúng với cluster)</td>
+              </tr>
+              <tr>
+                <td>Kiểm định ước định thừa</td>
+                <td class="ok">Hansen J qua estat overid</td>
+                <td class="good">Hansen J (tích hợp trong kết quả)</td>
+              </tr>
+              <tr>
+                <td>Kiểm định nội sinh</td>
+                <td class="ok">Qua estat endogenous</td>
+                <td class="good">C-statistic (tích hợp trong kết quả)</td>
+              </tr>
+              <tr>
+                <td>LIML</td>
+                <td class="good">✓ Có</td>
+                <td class="good">✓ Có</td>
+              </tr>
+              <tr>
+                <td>SE cluster-robust</td>
+                <td class="good">✓ Có</td>
+                <td class="good">✓ Có (kể cả cluster hai chiều)</td>
+              </tr>
+              <tr>
+                <td>Cho nghiên cứu</td>
+                <td class="bad">Chẩn đoán không đủ</td>
+                <td class="good">✓ Tiêu chuẩn công bố</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="margin-top:1rem;"><a href="../comparisons/ivregress-vs-ivreg2.html" class="btn-secondary">So sánh đầy đủ →</a></p>
+      </section>
+
+      <!-- Sai lầm phổ biến -->
+      <section style="margin-top:2rem;">
+        <h2>Sai lầm phổ biến trong IV</h2>
+        <div class="callout callout-danger">
+          <div class="callout-title">Sai lầm hàng đầu</div>
+          <ul>
+            <li><strong>Không báo cáo F-thống kê giai đoạn 1</strong> — Điều này là bắt buộc. Công cụ yếu (F &lt; 10) làm 2SLS chệch nghiêm trọng về phía OLS</li>
+            <li><strong>Dùng Cragg-Donald F với SE cluster</strong> — Luôn dùng Kleibergen-Paap rk F khi SE cluster. ivreg2 báo cáo cả hai; dùng cái đúng</li>
+            <li><strong>Nhầm lẫn tính liên quan với điều kiện loại trừ</strong> — Bạn có thể kiểm định tính liên quan công cụ (giai đoạn 1) nhưng KHÔNG kiểm định điều kiện loại trừ. Vượt qua kiểm định giai đoạn 1 không xác nhận công cụ của bạn</li>
+            <li><strong>Dùng kiểm định ước định thừa để xác nhận tất cả công cụ</strong> — Kiểm định Hansen J chỉ kiểm tra xem các công cụ có nhất quán chung không, không phải từng công cụ riêng lẻ có hợp lệ không</li>
+            <li><strong>IV khi điều kiện loại trừ không hợp lý</strong> — Ước lượng IV chệch (từ công cụ không hợp lệ) tệ hơn OLS. Đừng dùng IV chỉ vì có công cụ "sáng tạo"</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Khi nào IV không phải giải pháp -->
+      <section style="margin-top:2rem;">
+        <h2>Khi nào IV không phải giải pháp</h2>
+        <div class="upgrade-block">
+          <h4>Các chiến lược nhận dạng thay thế</h4>
+          <p><strong>Thí nghiệm tự nhiên với thay đổi chính sách?</strong> → Dùng <a href="../commands/command.html?cmd=diff">diff</a> (DID) hoặc <a href="../commands/command.html?cmd=csdid">csdid</a> (DID theo giai đoạn)<br>
+            <strong>Ngưỡng trong biến chạy?</strong> → Dùng <a href="../commands/command.html?cmd=rdrobust">rdrobust</a> (Gián đoạn hồi quy)<br>
+            <strong>Chỉ lựa chọn theo biến quan sát được?</strong> → Dùng <a href="../commands/command.html?cmd=psmatch2">psmatch2</a> + kiểm định cân bằng<br>
+            <strong>Dữ liệu bảng với FE đơn vị?</strong> → Dùng <a href="../commands/command.html?cmd=xtreg-fe">xtreg, fe</a> — kiểm soát các yếu tố gây nhiễu bất biến theo thời gian<br>
+            <strong>Công cụ yếu (F &lt; 10)?</strong> → Dùng weakiv (SSC) cho tập tin cậy Anderson-Rubin; hợp lệ dưới công cụ yếu
+          </p>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <h4>So sánh IV</h4>
+        <ul>
+          <li><a href="../comparisons/ivregress-vs-ivreg2.html">ivregress vs ivreg2</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Công cụ liên quan</h4>
+        <ul>
+          <li><a href="../decision-tree.html">Cây quyết định</a></li>
+          <li><a href="../best-packages.html">Gói tốt nhất</a></li>
+          <li><a href="../common-mistakes.html">Sai lầm phổ biến</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Danh mục khác</h4>
+        <ul>
+          <li><a href="panel-data.html">Dữ liệu bảng</a></li>
+          <li><a href="causal-inference.html">Suy diễn nhân quả</a></li>
+          <li><a href="staggered-did.html">DID theo giai đoạn</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">Stata Kinh Tế Lượng Task View · Tài nguyên học thuật cho kinh tế lượng ứng dụng</div>
+  </footer>
+
+  <script src="../assets/js/navigation.js"></script>
+  <script src="../assets/js/filter.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      StataFilter.initCategoryFilter({ gridId: 'cmd-grid', countId: 'filter-count', clearId: 'filter-clear' });
+    });
+  </script>
+</body>
+
+</html>

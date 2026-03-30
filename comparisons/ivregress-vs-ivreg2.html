@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ivregress vs ivreg2 — Stata Kinh Tế Lượng Task View</title>
+  <meta name="description"
+    content="Tại sao ivreg2 luôn được ưu tiên hơn ivregress cho nghiên cứu biến công cụ. Kleibergen-Paap, Hansen J và LIML được giải thích.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+</head>
+
+<body>
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="../index.html">Stata <span>Task View</span></a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../index.html">Trang chủ</a></li>
+        <li><a href="../categories/iv-endogeneity.html">Biến công cụ &amp; Nội sinh</a></li>
+        <li><a href="../comparison-index.html">Tất cả so sánh</a></li>
+      </ul>
+      <button class="nav-hamburger" id="nav-hamburger">☰</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-container" style="max-width:960px;">
+      <nav class="breadcrumb"><a href="../index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><a
+          href="../comparison-index.html">So sánh</a><span class="breadcrumb-sep">›</span><span
+          class="breadcrumb-current">ivregress vs ivreg2</span></nav>
+
+      <div class="page-title-block">
+        <h1><code>ivregress</code> vs. <code>ivreg2</code></h1>
+        <p class="page-subtitle">Tại sao ivreg2 là tiêu chuẩn vàng cho nghiên cứu IV — và các chẩn đoán nó cung cấp mà
+          ivregress thiếu</p>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-title">Câu trả lời ngắn</div>
+        <p><strong>Luôn dùng ivreg2 cho nghiên cứu IV chất lượng xuất bản.</strong> ivregress (có sẵn) thiếu thống kê
+          Kleibergen-Paap về biến công cụ yếu, đây là kiểm định đúng khi dùng SE vững với cụm. ivreg2 cung cấp bộ công cụ chẩn đoán đầy đủ cần thiết để đánh giá đáng tin cậy chiến lược IV của bạn.</p>
+      </div>
+
+      <!-- VS cards -->
+      <div class="vs-cards">
+        <div class="vs-card">
+          <div class="vs-card-header"><span class="vs-card-name">ivregress 2sls</span><span
+              class="badge badge-builtin">Có sẵn (Stata 10+)</span></div>
+          <ul class="vs-pro">
+            <li>Không cần cài đặt — có sẵn trong Stata cơ bản</li>
+            <li>Cú pháp rõ ràng, được ghi chép tốt trong sổ tay Stata</li>
+            <li>Có ước lượng 2SLS, LIML, GMM</li>
+          </ul>
+          <ul class="vs-con">
+            <li>Chỉ báo cáo F Cragg-Donald cho biến công cụ yếu — sai khi có SE phân cụm</li>
+            <li>Kiểm định nhận dạng thừa cần lệnh <code>estat overid</code> riêng</li>
+            <li>Kiểm định nội sinh cần <code>estat endogenous</code></li>
+            <li>Không có thống kê Kleibergen-Paap rk tích hợp</li>
+            <li>Không đủ cho kinh tế lượng ứng dụng được phản biện</li>
+          </ul>
+        </div>
+        <div class="vs-card vs-recommended">
+          <div class="vs-card-header"><span class="vs-card-name">ivreg2</span><span class="badge badge-ssc">SSC
+              (miễn phí)</span></div>
+          <ul class="vs-pro">
+            <li>Kleibergen-Paap rk Wald F — thống kê biến công cụ yếu đúng với SE phân cụm</li>
+            <li>Kiểm định nhận dạng thừa Hansen J tích hợp trong kết quả chính</li>
+            <li>C-statistic (kiểm định ngoại sinh tập con) — kiểm tra liệu một tập con biến công cụ có hợp lệ không</li>
+            <li>Ước lượng LIML và CUE cho sự vững biến công cụ yếu</li>
+            <li>Kết quả bước một với tùy chọn <code>ffirst</code></li>
+            <li>Phân cụm hai chiều qua gói <code>cluster2</code></li>
+            <li>Tiêu chuẩn ngành cho kinh tế lượng ứng dụng từ 2003</li>
+          </ul>
+          <ul class="vs-con">
+            <li>Cần cài đặt SSC (<code>ssc install ivreg2</code>)</li>
+            <li>Nhiều kết quả cần giải thích hơn — cần hiểu các chẩn đoán</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Key diagnostic: KP vs CD -->
+      <h2 style="margin-top:2rem;">Sự khác biệt Kleibergen-Paap vs Cragg-Donald</h2>
+      <p>Đây là lý do kỹ thuật quan trọng nhất để dùng ivreg2 thay vì ivregress:</p>
+      <div class="comparison-table-wrapper">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Thống kê</th>
+              <th>Hợp lệ với SE đồng phương sai?</th>
+              <th>Hợp lệ với SE vững/cụm?</th>
+              <th>Trong ivregress?</th>
+              <th>Trong ivreg2?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Cragg-Donald F</td>
+              <td class="good">✓ Có</td>
+              <td class="bad">✗ Không (sai)</td>
+              <td class="good">✓ Có</td>
+              <td class="good">✓ Có</td>
+            </tr>
+            <tr>
+              <td>Kleibergen-Paap rk Wald F</td>
+              <td class="good">✓ Có</td>
+              <td class="good">✓ Có (vững với cụm)</td>
+              <td class="bad">✗ Không báo cáo</td>
+              <td class="good">✓ Có (mặc định)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout callout-danger" style="margin-top:1rem;">
+        <div class="callout-title">⚠ Lỗi phổ biến</div>
+        <p>Nhiều nhà nghiên cứu dùng <code>ivregress</code>, thêm <code>vce(cluster)</code>, rồi trích dẫn F-statistic
+          từ bước một như kiểm định biến công cụ yếu của họ. Điều này sai — F-statistic đó là thống kê Cragg-Donald,
+          không hợp lệ dưới phân cụm. Phải dùng ivreg2 và trích dẫn Kleibergen-Paap rk Wald F.
+        </p>
+      </div>
+
+      <!-- Complete code -->
+      <h2 style="margin-top:1.5rem;">Cạnh nhau: cùng hồi quy, hai lệnh</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div>
+          <h4 style="margin-bottom:.5rem;color:var(--muted-fg);">ivregress (chấp nhận được để khám phá)</h4>
+          <div class="code-wrapper">
+            <pre class="language-stata"><code>ivregress 2sls lwage ///
+  (educ = prox1 prox2) ///
+  exper tenure, ///
+  robust cluster(county)
+
+* Phải chạy các lệnh bổ sung:
+estat overid      // Hansen J
+estat endogenous  // Kiểm định DWH
+
+* F-stat hiển thị SAI ở đây
+* Dùng ivreg2 thay thế</code></pre><button class="copy-btn">Sao chép</button>
+          </div>
+        </div>
+        <div>
+          <h4 style="margin-bottom:.5rem;color:var(--install-ssc);">ivreg2 (bắt buộc cho nghiên cứu)</h4>
+          <div class="code-wrapper">
+            <pre class="language-stata"><code>* Cài đặt: ssc install ivreg2
+ivreg2 lwage ///
+  (educ = prox1 prox2) ///
+  exper tenure, ///
+  robust cluster(county) ffirst
+
+* Kết quả cung cấp:
+* - Kleibergen-Paap rk Wald F ✓
+* - Hansen J (p-value) ✓
+* - Kiểm định nội sinh ✓
+* - Kết quả bước một (ffirst) ✓
+
+* Cho LIML (vững với biến công cụ yếu):
+ivreg2 lwage (educ=prox1 prox2) ///
+  exper, liml robust</code></pre><button class="copy-btn">Sao chép</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- What to report -->
+      <h2 style="margin-top:2rem;">Cần báo cáo gì trong bài báo (kết quả ivreg2)</h2>
+      <div class="comparison-table-wrapper">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Thống kê</th>
+              <th>Ngưỡng / Giải thích</th>
+              <th>Tại sao quan trọng</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Kleibergen-Paap rk Wald F</strong></td>
+              <td>Phải vượt giá trị tới hạn Stock-Yogo (thường 10–16 cho một biến hồi quy nội sinh)</td>
+              <td>Kiểm định biến công cụ yếu với phân cụm — bắt buộc cho tất cả bài báo IV</td>
+            </tr>
+            <tr>
+              <td><strong>p-value Hansen J</strong></td>
+              <td>Phải &gt; 0,05 (không bác bỏ tính hợp lệ biến công cụ)</td>
+              <td>Kiểm định ngoại sinh biến công cụ kết hợp khi nhận dạng thừa (nhiều biến công cụ)</td>
+            </tr>
+            <tr>
+              <td><strong>F-statistic bước một</strong></td>
+              <td>Báo cáo cho mỗi biến nội sinh (từ tùy chọn ffirst)</td>
+              <td>Cho thấy tính liên quan của biến công cụ cho từng biến hồi quy nội sinh riêng</td>
+            </tr>
+            <tr>
+              <td><strong>p-value kiểm định nội sinh</strong></td>
+              <td>Có ý nghĩa → OLS không nhất quán; IV là cần thiết</td>
+              <td>Kiểm định Durbin-Wu-Hausman liệu biến nghi ngờ có thực sự nội sinh không</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="verdict-box" style="margin-top:1.5rem;">
+        <div class="verdict-label">Kết luận</div>
+        <p><strong>Cài đặt ivreg2 và dùng nó cho tất cả nghiên cứu IV.</strong> Không có lý do để dùng <code>ivregress</code>
+          trong kết quả chất lượng nghiên cứu — nó thiếu thống kê Kleibergen-Paap rk, đây là kiểm định biến công cụ yếu đúng
+          bất cứ khi nào bạn dùng SE vững hoặc phân cụm. Một bài báo chỉ báo cáo Cragg-Donald F khi có phân cụm mắc lỗi phương pháp sẽ bị phát hiện trong phản biện.</p>
+      </div>
+      <div style="margin-top:1.5rem;display:flex;gap:1rem;flex-wrap:wrap;">
+        <a href="../commands/command.html?cmd=ivreg2" class="btn-primary">Hướng dẫn đầy đủ ivreg2 →</a>
+        <a href="../commands/command.html?cmd=ivregress" class="btn-secondary">Hướng dẫn ivregress →</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <h4>Liên quan</h4>
+        <ul>
+          <li><a href="../categories/iv-endogeneity.html">Biến công cụ &amp; Nội sinh</a></li>
+          <li><a href="../commands/command.html?cmd=ivreg2">Hướng dẫn ivreg2</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">Stata Kinh Tế Lượng Task View · Tài nguyên học thuật cho kinh tế lượng ứng dụng</div>
+  </footer>
+  <script src="../assets/js/navigation.js"></script>
+</body>
+
+</html>

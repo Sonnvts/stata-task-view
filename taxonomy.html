@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phân loại gói — Stata Econometrics Task View</title>
+  <meta name="description"
+    content="Phân loại đầy đủ 4 cấp độ của các gói kinh tế lượng Stata được tổ chức theo vấn đề thực nghiệm, họ phương pháp, nguồn và độ khó.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <style>
+    .taxonomy-level {
+      margin-bottom: 2.5rem;
+    }
+
+    .taxonomy-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-bottom: var(--space-xl);
+    }
+
+    .taxonomy-card {
+      background: var(--card-bg);
+      border-radius: 0;
+      padding: var(--space-lg);
+    }
+
+    .taxonomy-card-name {
+      font-family: var(--font-display);
+      font-size: var(--text-base);
+      font-weight: 700;
+      letter-spacing: var(--tracking-tight);
+      color: var(--fg);
+      margin-bottom: .5rem;
+    }
+
+    .taxonomy-card-cmds {
+      font-size: var(--text-sm);
+      color: var(--muted-fg);
+    }
+
+    .taxonomy-card-cmds ul {
+      padding-left: 1rem;
+      margin: .5rem 0 0;
+    }
+
+    .taxonomy-card-cmds li {
+      margin-bottom: .25rem;
+    }
+
+    .level-label {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      letter-spacing: var(--tracking-wider);
+      text-transform: uppercase;
+      padding: .2rem .6rem;
+      border-radius: 0;
+      margin-bottom: 1rem;
+      border: 1px solid;
+    }
+
+    .level-1 {
+      background: rgba(143,215,255,0.08);
+      color: var(--install-builtin);
+      border-color: rgba(143,215,255,0.3);
+    }
+
+    .level-2 {
+      background: rgba(135,240,202,0.08);
+      color: var(--install-ssc);
+      border-color: rgba(135,240,202,0.3);
+    }
+
+    .level-3 {
+      background: rgba(255,171,64,0.08);
+      color: var(--diff-intermediate);
+      border-color: rgba(255,171,64,0.3);
+    }
+
+    .level-4 {
+      background: rgba(201,222,243,0.08);
+      color: var(--install-github);
+      border-color: rgba(201,222,243,0.3);
+    }
+
+    .full-table-wrapper {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+    }
+
+    .full-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--text-sm);
+    }
+
+    .full-table th {
+      background: var(--muted);
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-wider);
+      color: var(--muted-fg);
+      padding: var(--space-md) var(--space-lg);
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .full-table td {
+      padding: var(--space-sm) var(--space-lg);
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      color: var(--fg);
+    }
+
+    .full-table tr:last-child td { border-bottom: none; }
+
+    .full-table tr:hover td {
+      background: var(--muted);
+    }
+
+    .full-table a {
+      color: var(--accent);
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="index.html">Stata <span>Task View</span></a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html">Trang chủ</a></li>
+        <li class="nav-dropdown"><button class="nav-dropdown-btn">Danh mục ▾</button>
+          <div class="nav-dropdown-menu">
+            <a href="categories/ols-diagnostics.html">OLS &amp; Chẩn đoán</a>
+            <a href="categories/limited-dependent.html">Biến phụ thuộc hạn chế</a>
+            <a href="categories/panel-data.html">Dữ liệu bảng</a>
+            <a href="categories/iv-endogeneity.html">IV &amp; Nội sinh</a>
+            <a href="categories/time-series.html">Chuỗi thời gian</a>
+            <a href="categories/causal-inference.html">Suy luận nhân quả</a>
+            <a href="categories/staggered-did.html">Staggered DID</a>
+            <a href="categories/ml-econometrics.html">ML Econometrics</a>
+          </div>
+        </li>
+        <li><a href="decision-tree.html">Cây quyết định</a></li>
+        <li><a href="best-packages.html">Gói lệnh tốt nhất</a></li>
+      </ul>
+      <button class="nav-hamburger" id="nav-hamburger">☰</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-container">
+      <nav class="breadcrumb"><a href="index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><span
+          class="breadcrumb-current">Phân loại gói</span></nav>
+      <div class="page-title-block">
+        <h1>Phân loại gói Stata</h1>
+        <p class="page-subtitle">Phân loại 4 cấp độ của các gói kinh tế lượng Stata</p>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-title">Cách hoạt động của phân loại này</div>
+        <p>Mỗi lệnh Stata được phân loại theo bốn khía cạnh độc lập: (1) vấn đề thực nghiệm mà nó giải quyết, (2) họ
+          phương pháp mà nó thuộc về, (3) nguồn cài đặt, và (4) cấp độ kỹ năng người dùng yêu cầu. Hãy sử dụng trang này
+          để tìm lệnh theo bối cảnh nghiên cứu của bạn, không chỉ theo tên gọi.</p>
+      </div>
+
+      <!-- Level 1: By Empirical Problem -->
+      <section class="taxonomy-level" id="by-problem">
+        <div class="level-label level-1">Cấp độ 1 — Theo vấn đề thực nghiệm</div>
+        <h2>Tổ chức theo câu hỏi nghiên cứu</h2>
+        <div class="taxonomy-grid">
+
+          <div class="taxonomy-card">
+            <div class="taxonomy-card-name">Biến kết quả liên tục</div>
+            <div class="taxonomy-card-cmds">Mô hình hóa biến phụ thuộc liên tục (tiền lương, GDP, điểm kiểm tra)
+              <ul>
+                <li><a href="commands/command.html?cmd=reg">reg</a> — OLS cơ sở</li>
+                <li><a href="commands/command.html?cmd=robust-se">vce(robust/cluster)</a> — hiệu chỉnh SE</li>
+                <li><a href="commands/command.html?cmd=xtreg-fe">xtreg, fe</a> — định danh bên trong đơn vị</li>
+                <li><a href="commands/command.html?cmd=ivreg2">ivreg2</a> — biến giải thích nội sinh</li>
+                <li><a href="commands/command.html?cmd=ddml">ddml</a> — kiểm soát chiều cao</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="taxonomy-card">
+            <div class="taxonomy-card-name">Biến kết quả nhị phân</div>
+            <div class="taxonomy-card-cmds">Mô hình hóa biến phụ thuộc 0/1 (việc làm, vỡ nợ, chấp nhận)
+              <ul>
+                <li><a href="commands/command.html?cmd=logit">logit</a> — hồi quy logistic</li>
+                <li><a href="commands/command.html?cmd=probit">probit</a> — mô hình probit</li>
+                <li><a href="commands/command.html?cmd=margins">margins</a> — tác động biên</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="taxonomy-card">
+            <div class="taxonomy-card-name">Biến kết quả bị kiểm duyệt / rút cụt</div>
+            <div class="taxonomy-card-cmds">Biến kết quả bị giới hạn (giờ làm việc, quyên góp, độ bền)
+              <ul>
+                <li><a href="commands/command.html?cmd=tobit">tobit</a> — hồi quy bị kiểm duyệt</li>
+                <li><a href="commands/command.html?cmd=margins">margins</a> — tác động tiềm ẩn vs quan sát</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="taxonomy-card">
+            <div class="taxonomy-card-name">Biến giải thích nội sinh</div>
+            <div class="taxonomy-card-cmds">Biến giải thích tương quan với sai số (biến bị bỏ sót, đồng thời)
+              <ul>
+                <li><a href="commands/command.html?cmd=ivreg2">ivreg2</a> — 2SLS với chẩn đoán</li>
+                <li><a href="commands/command.html?cmd=ivregress">ivregress</a> — lựa chọn thay thế tích hợp sẵn</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="taxonomy-card">
+            <div class="taxonomy-card-name">Dữ liệu bảng / dữ liệu dọc</div>
+            <div class="taxonomy-card-cmds">Các quan sát lặp lại trên cùng đơn vị theo thời gian
+              <ul>
+                <li><a href="commands/command.html?cmd=xtreg-fe">xtreg, fe</a> — hiệu ứng cố định</li>
+                <li><a href="commands/command.html?cmd=xtreg-re">xtreg, re</a> — hiệu ứng ngẫu nhiên</li>
+                <li><a href="commands/command.html?cmd=xtabond2">xtabond2</a> — GMM động</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="taxonomy-card">
+            <div class="taxonomy-card-name">Tác động can thiệp nhân quả</div>
+            <div class="taxonomy-card-cmds">Ước lượng tác động của chính sách hoặc can thiệp
+              <ul>
+                <li><a href="commands/command.html?cmd=diff">diff</a> — DID đơn giản</li>
+                <li><a href="commands/command.html?cmd=csdid">csdid</a> — DID so le</li>
+                <li><a href="commands/command.html?cmd=rdrobust">rdrobust</a> — gián đoạn hồi quy</li>
+                <li><a href="commands/command.html?cmd=psmatch2">psmatch2</a> — ghép cặp điểm xu hướng</li>
+                <li><a href="commands/command.html?cmd=synth">synth</a> — kiểm soát tổng hợp</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="taxonomy-card">
+            <div class="taxonomy-card-name">Động thái chuỗi thời gian</div>
+            <div class="taxonomy-card-cmds">Mô hình hóa sự phụ thuộc và các mối quan hệ động theo thời gian
+              <ul>
+                <li><a href="commands/command.html?cmd=dfuller">dfuller</a> — kiểm định nghiệm đơn vị</li>
+                <li><a href="commands/command.html?cmd=arima">arima</a> — ARIMA đơn biến</li>
+                <li><a href="commands/command.html?cmd=var">var</a> — tự hồi quy vector</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="taxonomy-card">
+            <div class="taxonomy-card-name">Các biến kiểm soát chiều cao</div>
+            <div class="taxonomy-card-cmds">Nhiều biến kiểm soát tiềm năng so với kích thước mẫu (p/n đáng kể)
+              <ul>
+                <li><a href="commands/command.html?cmd=ddml">ddml</a> — Double ML với cross-fitting</li>
+                <li><a href="commands/command.html?cmd=lasso-tools">lasso2 / pdslasso</a> — Lasso &amp; sau lựa chọn
+                </li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Level 2: By Method Family -->
+      <section class="taxonomy-level" id="by-method">
+        <div class="level-label level-2">Cấp độ 2 — Theo họ phương pháp</div>
+        <h2>Tổ chức theo phương pháp thống kê</h2>
+        <div class="taxonomy-grid">
+
+          <div class="taxonomy-card">
+            <div class="taxonomy-card-name">OLS / Hồi quy tuyến tính</div>
+            <div class="taxonomy-card-cmds"><a href="commands/command.html?cmd=reg">reg</a>, <a
+                href="commands/command.html?cmd=robust-se">robust SEs</a>, <a href="commands/command.html?cmd=vif">estat
+                vif</a>, <a href="commands/command.html?cmd=hettest">hettest</a>, <a
+                href="commands/command.html?cmd=ovtest">ovtest</a></div>
+          </div>
+
+          <div class="taxonomy-card">
+            <div class="taxonomy-card-name">Hợp lý cực đại (Lựa chọn rời rạc)</div>
+            <div class="taxonomy-card-cmds"><a href="commands/command.html?cmd=logit">logit</a>, <a
+                href="commands/command.html?cmd=probit">probit</a>, <a href="commands/command.html?cmd=tobit">tobit</a>,
+              <a href="commands/command.html?cmd=margins">margins</a></div>
+          </div>
+
+          <div class="taxonomy-card">
+            <div class="taxonomy-card-name">Bảng / Hiệu ứng cố định &amp; Ngẫu nhiên</div>
+            <div class="taxonomy-card-cmds"><a href="commands/command.html?cmd=xtreg-fe">xtreg, fe</a>, <a
+                href="commands/command.html?cmd=xtreg-re">xtreg, re</a></div>
+          </div>
+
+          <div class="taxonomy-card">
+            <div class="taxonomy-card-name">GMM / Phương pháp mô-men</div>
+            <div class="taxonomy-card-cmds"><a href="commands/command.html?cmd=xtabond2">xtabond2</a>, <a
+                href="commands/command.html?cmd=ivreg2">ivreg2</a></div>
+          </div>
+
+          <div class="taxonomy-card">
+            <div class="taxonomy-card-name">Biến công cụ (2SLS)</div>
+            <div class="taxonomy-card-cmds"><a href="commands/command.html?cmd=ivreg2">ivreg2</a>, <a
+                href="commands/command.html?cmd=ivregress">ivregress</a></div>
+          </div>
+
+          <div class="taxonomy-card">
+            <div class="taxonomy-card-name">Sai biệt trong sai biệt (DID)</div>
+            <div class="taxonomy-card-cmds"><a href="commands/command.html?cmd=diff">diff</a>, <a
+                href="commands/command.html?cmd=csdid">csdid</a>, <a href="commands/command.html?cmd=drdid">drdid</a>
+            </div>
+          </div>
+
+          <div class="taxonomy-card">
+            <div class="taxonomy-card-name">Các phương pháp ghép cặp</div>
+            <div class="taxonomy-card-cmds"><a href="commands/command.html?cmd=psmatch2">psmatch2</a></div>
+          </div>
+
+          <div class="taxonomy-card">
+            <div class="taxonomy-card-name">Gián đoạn hồi quy (RD)</div>
+            <div class="taxonomy-card-cmds"><a href="commands/command.html?cmd=rdrobust">rdrobust</a> (+ rdplot,
+              rddensity)</div>
+          </div>
+
+          <div class="taxonomy-card">
+            <div class="taxonomy-card-name">Kiểm soát tổng hợp</div>
+            <div class="taxonomy-card-cmds"><a href="commands/command.html?cmd=synth">synth</a></div>
+          </div>
+
+          <div class="taxonomy-card">
+            <div class="taxonomy-card-name">Chuỗi thời gian (đơn biến)</div>
+            <div class="taxonomy-card-cmds"><a href="commands/command.html?cmd=dfuller">dfuller</a>, <a
+                href="commands/command.html?cmd=arima">arima</a></div>
+          </div>
+
+          <div class="taxonomy-card">
+            <div class="taxonomy-card-name">Tự hồi quy vector (VAR)</div>
+            <div class="taxonomy-card-cmds"><a href="commands/command.html?cmd=var">var</a> (+ vargranger, irf,
+              varstable)</div>
+          </div>
+
+          <div class="taxonomy-card">
+            <div class="taxonomy-card-name">Suy luận hỗ trợ ML</div>
+            <div class="taxonomy-card-cmds"><a href="commands/command.html?cmd=ddml">ddml</a>, <a
+                href="commands/command.html?cmd=lasso-tools">lasso2, pdslasso</a></div>
+          </div>
+
+          <div class="taxonomy-card">
+            <div class="taxonomy-card-name">Chẩn đoán</div>
+            <div class="taxonomy-card-cmds"><a href="commands/command.html?cmd=vif">estat vif</a>, <a
+                href="commands/command.html?cmd=hettest">hettest</a>, <a
+                href="commands/command.html?cmd=ovtest">ovtest</a></div>
+          </div>
+
+          <div class="taxonomy-card">
+            <div class="taxonomy-card-name">Báo cáo &amp; Trực quan hóa</div>
+            <div class="taxonomy-card-cmds"><a href="commands/command.html?cmd=estout">estout/esttab</a>, <a
+                href="commands/command.html?cmd=outreg2">outreg2</a>, <a
+                href="commands/command.html?cmd=binscatter2">binscatter2</a></div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Level 3 & 4: Source and Difficulty — Full Table -->
+      <section class="taxonomy-level" id="full-table">
+        <div class="level-label level-3">Cấp độ 3 &amp; 4 — Theo nguồn cài đặt &amp; Độ khó</div>
+        <h2>Tham chiếu lệnh đầy đủ</h2>
+        <div class="full-table-wrapper">
+          <table class="full-table">
+            <thead>
+              <tr>
+                <th>Lệnh</th>
+                <th>Tên đầy đủ</th>
+                <th>Danh mục</th>
+                <th>Nguồn</th>
+                <th>Độ khó</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><a href="commands/command.html?cmd=reg">reg</a></td>
+                <td>Hồi quy OLS</td>
+                <td>OLS &amp; Chẩn đoán</td>
+                <td><span class="badge badge-builtin">Tích hợp</span></td>
+                <td><span class="badge badge-beginner">Cơ bản</span></td>
+              </tr>
+              <tr>
+                <td><a href="commands/command.html?cmd=robust-se">vce(robust/cluster)</a></td>
+                <td>SE Vững &amp; Phân cụm</td>
+                <td>OLS &amp; Chẩn đoán</td>
+                <td><span class="badge badge-builtin">Tích hợp</span></td>
+                <td><span class="badge badge-beginner">Cơ bản</span></td>
+              </tr>
+              <tr>
+                <td><a href="commands/command.html?cmd=vif">estat vif</a></td>
+                <td>Hệ số phóng đại phương sai</td>
+                <td>OLS &amp; Chẩn đoán</td>
+                <td><span class="badge badge-builtin">Tích hợp</span></td>
+                <td><span class="badge badge-beginner">Cơ bản</span></td>
+              </tr>
+              <tr>
+                <td><a href="commands/command.html?cmd=hettest">hettest</a></td>
+                <td>Kiểm định phương sai thay đổi Breusch-Pagan</td>
+                <td>OLS &amp; Chẩn đoán</td>
+                <td><span class="badge badge-builtin">Tích hợp</span></td>
+                <td><span class="badge badge-beginner">Cơ bản</span></td>
+              </tr>
+              <tr>
+                <td><a href="commands/command.html?cmd=ovtest">ovtest</a></td>
+                <td>Kiểm định Ramsey RESET</td>
+                <td>OLS &amp; Chẩn đoán</td>
+                <td><span class="badge badge-builtin">Tích hợp</span></td>
+                <td><span class="badge badge-intermediate">Trung cấp</span></td>
+              </tr>
+              <tr>
+                <td><a href="commands/command.html?cmd=outreg2">outreg2</a></td>
+                <td>Xuất sang Word/Excel/LaTeX</td>
+                <td>OLS &amp; Chẩn đoán</td>
+                <td><span class="badge badge-ssc">SSC</span></td>
+                <td><span class="badge badge-beginner">Cơ bản</span></td>
+              </tr>
+              <tr>
+                <td><a href="commands/command.html?cmd=estout">estout / esttab</a></td>
+                <td>Bảng hồi quy linh hoạt</td>
+                <td>OLS &amp; Chẩn đoán</td>
+                <td><span class="badge badge-ssc">SSC</span></td>
+                <td><span class="badge badge-intermediate">Trung cấp</span></td>
+              </tr>
+              <tr>
+                <td><a href="commands/command.html?cmd=binscatter2">binscatter2</a></td>
+                <td>Biểu đồ phân tán theo thùng (Binned)</td>
+                <td>OLS &amp; Chẩn đoán</td>
+                <td><span class="badge badge-ssc">SSC</span></td>
+                <td><span class="badge badge-beginner">Cơ bản</span></td>
+              </tr>
+              <tr>
+                <td><a href="commands/command.html?cmd=logit">logit</a></td>
+                <td>Hồi quy Logistic</td>
+                <td>Biến phụ thuộc hạn chế</td>
+                <td><span class="badge badge-builtin">Tích hợp</span></td>
+                <td><span class="badge badge-beginner">Cơ bản</span></td>
+              </tr>
+              <tr>
+                <td><a href="commands/command.html?cmd=probit">probit</a></td>
+                <td>Mô hình Probit</td>
+                <td>Biến phụ thuộc hạn chế</td>
+                <td><span class="badge badge-builtin">Tích hợp</span></td>
+                <td><span class="badge badge-beginner">Cơ bản</span></td>
+              </tr>
+              <tr>
+                <td><a href="commands/command.html?cmd=tobit">tobit</a></td>
+                <td>Hồi quy bị kiểm duyệt</td>
+                <td>Biến phụ thuộc hạn chế</td>
+                <td><span class="badge badge-builtin">Tích hợp</span></td>
+                <td><span class="badge badge-intermediate">Trung cấp</span></td>
+              </tr>
+              <tr>
+                <td><a href="commands/command.html?cmd=margins">margins</a></td>
+                <td>Tác động biên</td>
+                <td>Biến phụ thuộc hạn chế</td>
+                <td><span class="badge badge-builtin">Tích hợp</span></td>
+                <td><span class="badge badge-intermediate">Trung cấp</span></td>
+              </tr>
+              <tr>
+                <td><a href="commands/command.html?cmd=xtreg-fe">xtreg, fe</a></td>
+                <td>Bảng hiệu ứng cố định</td>
+                <td>Dữ liệu bảng</td>
+                <td><span class="badge badge-builtin">Tích hợp</span></td>
+                <td><span class="badge badge-intermediate">Trung cấp</span></td>
+              </tr>
+              <tr>
+                <td><a href="commands/command.html?cmd=xtreg-re">xtreg, re</a></td>
+                <td>Bảng hiệu ứng ngẫu nhiên</td>
+                <td>Dữ liệu bảng</td>
+                <td><span class="badge badge-builtin">Tích hợp</span></td>
+                <td><span class="badge badge-intermediate">Trung cấp</span></td>
+              </tr>
+              <tr>
+                <td><a href="commands/command.html?cmd=xtabond2">xtabond2</a></td>
+                <td>GMM bảng động</td>
+                <td>Dữ liệu bảng</td>
+                <td><span class="badge badge-ssc">SSC</span></td>
+                <td><span class="badge badge-advanced">Nâng cao</span></td>
+              </tr>
+              <tr>
+                <td><a href="commands/command.html?cmd=ivregress">ivregress</a></td>
+                <td>Biến công cụ (tích hợp)</td>
+                <td>IV &amp; Nội sinh</td>
+                <td><span class="badge badge-builtin">Tích hợp</span></td>
+                <td><span class="badge badge-intermediate">Trung cấp</span></td>
+              </tr>
+              <tr>
+                <td><a href="commands/command.html?cmd=ivreg2">ivreg2</a></td>
+                <td>IV với chẩn đoán đầy đủ</td>
+                <td>IV &amp; Nội sinh</td>
+                <td><span class="badge badge-ssc">SSC</span></td>
+                <td><span class="badge badge-intermediate">Trung cấp</span></td>
+              </tr>
+              <tr>
+                <td><a href="commands/command.html?cmd=dfuller">dfuller</a></td>
+                <td>Kiểm định Dickey-Fuller tăng cường</td>
+                <td>Chuỗi thời gian</td>
+                <td><span class="badge badge-builtin">Tích hợp</span></td>
+                <td><span class="badge badge-intermediate">Trung cấp</span></td>
+              </tr>
+              <tr>
+                <td><a href="commands/command.html?cmd=arima">arima</a></td>
+                <td>Mô hình chuỗi thời gian ARIMA</td>
+                <td>Chuỗi thời gian</td>
+                <td><span class="badge badge-builtin">Tích hợp</span></td>
+                <td><span class="badge badge-intermediate">Trung cấp</span></td>
+              </tr>
+              <tr>
+                <td><a href="commands/command.html?cmd=var">var</a></td>
+                <td>Tự hồi quy Vector</td>
+                <td>Chuỗi thời gian</td>
+                <td><span class="badge badge-builtin">Tích hợp</span></td>
+                <td><span class="badge badge-intermediate">Trung cấp</span></td>
+              </tr>
+              <tr>
+                <td><a href="commands/command.html?cmd=diff">diff</a></td>
+                <td>DID đơn giản</td>
+                <td>Suy luận nhân quả</td>
+                <td><span class="badge badge-ssc">SSC</span></td>
+                <td><span class="badge badge-beginner">Cơ bản</span></td>
+              </tr>
+              <tr>
+                <td><a href="commands/command.html?cmd=psmatch2">psmatch2</a></td>
+                <td>Ghép cặp điểm xu hướng</td>
+                <td>Suy luận nhân quả</td>
+                <td><span class="badge badge-ssc">SSC</span></td>
+                <td><span class="badge badge-intermediate">Trung cấp</span></td>
+              </tr>
+              <tr>
+                <td><a href="commands/command.html?cmd=rdrobust">rdrobust</a></td>
+                <td>Gián đoạn hồi quy</td>
+                <td>Suy luận nhân quả</td>
+                <td><span class="badge badge-ssc">SSC</span></td>
+                <td><span class="badge badge-intermediate">Trung cấp</span></td>
+              </tr>
+              <tr>
+                <td><a href="commands/command.html?cmd=csdid">csdid</a></td>
+                <td>DID so le Callaway-Sant'Anna</td>
+                <td>Staggered DID</td>
+                <td><span class="badge badge-ssc">SSC</span></td>
+                <td><span class="badge badge-advanced">Nâng cao</span></td>
+              </tr>
+              <tr>
+                <td><a href="commands/command.html?cmd=drdid">drdid</a></td>
+                <td>DID Doubly-Robust</td>
+                <td>Staggered DID</td>
+                <td><span class="badge badge-ssc">SSC</span></td>
+                <td><span class="badge badge-advanced">Nâng cao</span></td>
+              </tr>
+              <tr>
+                <td><a href="commands/command.html?cmd=synth">synth</a></td>
+                <td>Kiểm soát tổng hợp</td>
+                <td>Staggered DID</td>
+                <td><span class="badge badge-ssc">SSC</span></td>
+                <td><span class="badge badge-advanced">Nâng cao</span></td>
+              </tr>
+              <tr>
+                <td><a href="commands/command.html?cmd=ddml">ddml</a></td>
+                <td>Double Machine Learning</td>
+                <td>ML Econometrics</td>
+                <td><span class="badge badge-ssc">SSC</span></td>
+                <td><span class="badge badge-advanced">Nâng cao</span></td>
+              </tr>
+              <tr>
+                <td><a href="commands/command.html?cmd=lasso-tools">lasso2 / pdslasso</a></td>
+                <td>Lasso &amp; Post-Double-Selection</td>
+                <td>ML Econometrics</td>
+                <td><span class="badge badge-ssc">SSC</span></td>
+                <td><span class="badge badge-advanced">Nâng cao</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Level 4 summary -->
+      <section class="taxonomy-level" id="by-difficulty">
+        <div class="level-label level-4">Cấp độ 4 — Theo độ khó</div>
+        <h2>Tiến trình học tập</h2>
+        <div class="taxonomy-grid">
+          <div class="taxonomy-card">
+            <div class="taxonomy-card-name"><span class="badge badge-beginner">Cơ bản</span> — Bắt đầu tại đây</div>
+            <div class="taxonomy-card-cmds">
+              <ul>
+                <li><a href="commands/command.html?cmd=reg">reg</a> — nắm vững OLS trước tiên</li>
+                <li><a href="commands/command.html?cmd=robust-se">robust/cluster SEs</a> — tạo thành thói quen</li>
+                <li><a href="commands/command.html?cmd=logit">logit</a> + <a
+                    href="commands/command.html?cmd=margins">margins</a> — kết quả nhị phân</li>
+                <li><a href="commands/command.html?cmd=vif">estat vif</a>, <a
+                    href="commands/command.html?cmd=hettest">hettest</a> — chẩn đoán</li>
+                <li><a href="commands/command.html?cmd=outreg2">outreg2</a> — bảng biểu cơ bản</li>
+                <li><a href="commands/command.html?cmd=diff">diff</a> — DID đơn giản</li>
+                <li><a href="commands/command.html?cmd=binscatter2">binscatter2</a> — trực quan hóa</li>
+              </ul>
+            </div>
+          </div>
+          <div class="taxonomy-card">
+            <div class="taxonomy-card-name"><span class="badge badge-intermediate">Trung cấp</span> — Bộ công cụ cốt lõi
+            </div>
+            <div class="taxonomy-card-cmds">
+              <ul>
+                <li><a href="commands/command.html?cmd=xtreg-fe">xtreg, fe/re</a> — dữ liệu bảng</li>
+                <li><a href="commands/command.html?cmd=ivreg2">ivreg2</a> — hồi quy IV</li>
+                <li><a href="commands/command.html?cmd=estout">estout/esttab</a> — bảng chuyên nghiệp</li>
+                <li><a href="commands/command.html?cmd=psmatch2">psmatch2</a> — ghép cặp</li>
+                <li><a href="commands/command.html?cmd=rdrobust">rdrobust</a> — thiết kế RD</li>
+                <li><a href="commands/command.html?cmd=dfuller">dfuller</a>, <a
+                    href="commands/command.html?cmd=arima">arima</a>, <a href="commands/command.html?cmd=var">var</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="taxonomy-card">
+            <div class="taxonomy-card-name"><span class="badge badge-advanced">Nâng cao</span> — Chuẩn nghiên cứu</div>
+            <div class="taxonomy-card-cmds">
+              <ul>
+                <li><a href="commands/command.html?cmd=csdid">csdid</a> — DID so le</li>
+                <li><a href="commands/command.html?cmd=drdid">drdid</a> — DID doubly-robust</li>
+                <li><a href="commands/command.html?cmd=xtabond2">xtabond2</a> — GMM bảng động</li>
+                <li><a href="commands/command.html?cmd=synth">synth</a> — kiểm soát tổng hợp</li>
+                <li><a href="commands/command.html?cmd=ddml">ddml</a> — double machine learning</li>
+                <li><a href="commands/command.html?cmd=lasso-tools">lasso2/pdslasso</a> — Lasso chiều cao</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <h4>Công cụ</h4>
+        <ul>
+          <li><a href="decision-tree.html">Cây quyết định</a></li>
+          <li><a href="best-packages.html">Gói lệnh tốt nhất</a></li>
+          <li><a href="common-mistakes.html">Các sai lầm phổ biến</a></li>
+          <li><a href="comparison-index.html">Tất cả so sánh</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Danh mục</h4>
+        <ul>
+          <li><a href="categories/ols-diagnostics.html">OLS &amp; Chẩn đoán</a></li>
+          <li><a href="categories/causal-inference.html">Suy luận nhân quả</a></li>
+          <li><a href="categories/staggered-did.html">Staggered DID</a></li>
+          <li><a href="categories/ml-econometrics.html">ML Econometrics</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">Stata Econometrics Task View — Bản tiếng Việt</div>
+  </footer>
+  <script src="assets/js/navigation.js"></script>
+</body>
+
+</html>

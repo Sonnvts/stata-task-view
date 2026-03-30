@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chuỗi thời gian — Stata Kinh Tế Lượng Task View</title>
+  <meta name="description"
+    content="Kiểm định nghiệm đơn vị, ARIMA và VAR trong Stata. dfuller, arima, var — khi nào và cách sử dụng đúng.">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/print.css" media="print">
+</head>
+
+<body>
+  <div class="noise-overlay" aria-hidden="true"></div>
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="../index.html">Stata <span>Task View</span></a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../index.html">Trang chủ</a></li>
+        <li class="nav-dropdown"><button class="nav-dropdown-btn">Danh mục ▾</button>
+          <div class="nav-dropdown-menu">
+            <a href="ols-diagnostics.html">OLS &amp; Kiểm định</a>
+            <a href="limited-dependent.html">Biến phụ thuộc giới hạn</a>
+            <a href="panel-data.html">Dữ liệu bảng</a>
+            <a href="iv-endogeneity.html">Biến công cụ &amp; Nội sinh</a>
+            <a href="time-series.html" class="active">Chuỗi thời gian</a>
+            <a href="causal-inference.html">Suy diễn nhân quả</a>
+            <a href="staggered-did.html">DID theo giai đoạn</a>
+            <a href="ml-econometrics.html">Kinh tế lượng ML</a>
+          </div>
+        </li>
+        <li><a href="../decision-tree.html">Cây quyết định</a></li>
+        <li><a href="../best-packages.html">Gói tốt nhất</a></li>
+      </ul>
+      <button class="nav-search-btn" id="nav-search-btn">🔍 Tìm kiếm</button>
+      <button class="nav-hamburger" id="nav-hamburger" aria-label="Bật/tắt menu">☰</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-container">
+      <nav class="breadcrumb"><a href="../index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><span
+          class="breadcrumb-current">Chuỗi thời gian</span></nav>
+
+      <div class="page-title-block">
+        <h1>📈 Phân tích chuỗi thời gian</h1>
+        <p class="page-subtitle">Kiểm định nghiệm đơn vị, ARIMA và VAR — quy trình đúng từ kiểm định dừng đến lựa chọn mô hình</p>
+      </div>
+
+      <!-- Tổng quan -->
+      <section style="margin-bottom:2rem;">
+        <h2>Tổng quan</h2>
+        <p>Phân tích chuỗi thời gian đòi hỏi cách tiếp cận nền tảng khác với công việc cắt ngang. Bước đầu tiên và không thể bỏ qua luôn là <strong>kiểm định tính dừng</strong> — liệu các cú sốc đối với chuỗi là tạm thời hay vĩnh viễn.</p>
+        <p>Hồi quy một chuỗi không dừng (nghiệm đơn vị) trên chuỗi khác mà không kiểm định đồng tích hợp tạo ra <strong>hồi quy giả</strong> — R² cao và t-thống kê có ý nghĩa hoàn toàn vô nghĩa. Đây là một trong những lỗi nguy hiểm nhất trong kinh tế lượng ứng dụng.</p>
+        <div class="callout callout-danger">
+          <div class="callout-title">⚠ Luôn kiểm định trước khi mô hình hóa</div>
+          <p><strong>Trình tự đúng là bắt buộc:</strong> (1) Vẽ đồ thị chuỗi, (2) Kiểm định nghiệm đơn vị (dfuller/kpss), (3) Nếu I(1), kiểm định đồng tích hợp, (4) Chọn ARIMA/VAR (dừng) hoặc VEC (đồng tích hợp). Bỏ qua bước 2 là một trong những lỗi phổ biến và nghiêm trọng nhất trong phân tích chuỗi thời gian.</p>
+        </div>
+      </section>
+
+      <!-- Thẻ lệnh -->
+      <div class="cmd-grid" id="cmd-grid">
+
+        <a class="cmd-card" href="../commands/command.html?cmd=dfuller"
+          data-tags='{"difficulty":"beginner","install":"builtin"}'>
+          <div class="cmd-card-header">
+            <div>
+              <div class="cmd-card-name">dfuller / kpss</div>
+              <div class="cmd-card-title">Kiểm định nghiệm đơn vị</div>
+            </div>
+            <span class="badge badge-builtin">Có sẵn</span>
+          </div>
+          <div class="cmd-card-desc">Kiểm định Augmented Dickey-Fuller (H0: nghiệm đơn vị) và kiểm định KPSS (H0: dừng). Luôn chạy cả hai — chúng có giả thuyết không bổ sung cho nhau. Bỏ qua bước này gây hồi quy giả.</div>
+          <div class="cmd-card-footer"><span class="badge badge-beginner">Cơ bản</span><span
+              class="tag-pill">tính dừng</span><span class="tag-pill">nghiệm đơn vị</span><span
+              class="tag-pill">ADF</span></div>
+        </a>
+
+        <a class="cmd-card" href="../commands/command.html?cmd=arima"
+          data-tags='{"difficulty":"intermediate","install":"builtin"}'>
+          <div class="cmd-card-header">
+            <div>
+              <div class="cmd-card-name">arima</div>
+              <div class="cmd-card-title">Mô hình đơn biến ARIMA</div>
+            </div>
+            <span class="badge badge-builtin">Có sẵn</span>
+          </div>
+          <div class="cmd-card-desc">Cho chuỗi thời gian đơn biến dừng. Mô hình hóa các thành phần tự hồi quy (AR), tích phân (I) và trung bình động (MA). Dùng AIC/BIC để chọn bậc. Luôn kiểm tra tự tương quan phần dư.</div>
+          <div class="cmd-card-footer"><span class="badge badge-intermediate">Trung cấp</span><span
+              class="tag-pill">ARIMA</span><span class="tag-pill">dự báo</span><span
+              class="tag-pill">đơn biến</span></div>
+        </a>
+
+        <a class="cmd-card" href="../commands/command.html?cmd=var"
+          data-tags='{"difficulty":"intermediate","install":"builtin"}'>
+          <div class="cmd-card-header">
+            <div>
+              <div class="cmd-card-name">var</div>
+              <div class="cmd-card-title">Tự hồi quy véc-tơ</div>
+            </div>
+            <span class="badge badge-builtin">Có sẵn</span>
+          </div>
+          <div class="cmd-card-desc">Tự hồi quy đa biến để mô hình hóa đồng thời nhiều chuỗi thời gian dừng. Dùng cho nhân quả Granger, hàm phản ứng xung (IRF) và phân rã phương sai dự báo (FEVD).</div>
+          <div class="cmd-card-footer"><span class="badge badge-intermediate">Trung cấp</span><span
+              class="tag-pill">VAR</span><span class="tag-pill">IRF</span><span class="tag-pill">Granger</span></div>
+        </a>
+
+      </div>
+
+      <!-- Sơ đồ lựa chọn mô hình -->
+      <section style="margin-top:2.5rem;">
+        <h2>Sơ đồ lựa chọn mô hình chuỗi thời gian</h2>
+        <div class="learning-path">
+          <div class="learning-step">
+            <div class="learning-step-content">
+              <h4>Bước 1: Vẽ đồ thị chuỗi</h4>
+              <p>Dùng <code>tsline var1</code>. Tìm xu hướng, mùa vụ, gián đoạn cấu trúc, không dừng rõ ràng. Không bao giờ bỏ qua kiểm tra trực quan.</p>
+            </div>
+          </div>
+          <div class="learning-step">
+            <div class="learning-step-content">
+              <h4>Bước 2: Kiểm định nghiệm đơn vị</h4>
+              <p><code>dfuller y, lags(k)</code> — dùng AIC/BIC để chọn độ trễ. Cũng chạy <code>kpss y</code> để xác nhận. Cả ADF từ chối và KPSS không từ chối → có khả năng dừng.</p>
+            </div>
+          </div>
+          <div class="learning-step">
+            <div class="learning-step-content">
+              <h4>Bước 3: Nhánh quyết định</h4>
+              <p><strong>Dừng I(0):</strong> Tiến hành ARIMA hoặc VAR. <strong>Không dừng I(1):</strong> Kiểm định đồng tích hợp trước khi chọn VEC vs lấy sai phân.</p>
+            </div>
+          </div>
+          <div class="learning-step">
+            <div class="learning-step-content">
+              <h4>Bước 4a: Chuỗi đơn → ARIMA</h4>
+              <p>Dùng <code>corrgram y</code> để kiểm tra ACF/PACF. Chọn bậc ARIMA(p,d,q) dùng AIC. Xác nhận bằng kiểm định Portmanteau/LB trên phần dư: <code>estat portmanteau</code></p>
+            </div>
+          </div>
+          <div class="learning-step">
+            <div class="learning-step-content">
+              <h4>Bước 4b: Nhiều chuỗi → VAR hoặc VEC</h4>
+              <p>Dừng → <code>var y1 y2, lags(1/4)</code>. Đồng tích hợp I(1) → <code>vec</code>. Không đồng tích hợp I(1) → lấy sai phân trước, rồi VAR.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quy trình kiểm định nghiệm đơn vị -->
+      <section style="margin-top:2rem;">
+        <h2>Quy trình kiểm định nghiệm đơn vị</h2>
+        <div class="code-wrapper">
+          <pre class="language-stata"><code>* Thiết lập định dạng chuỗi thời gian
+tsset date, quarterly  // hoặc monthly, daily, v.v.
+
+* Kiểm tra trực quan trước
+tsline gdp inflation
+
+* Kiểm định ADF: H0 = nghiệm đơn vị (I(1))
+dfuller gdp                    // không có độ trễ
+dfuller gdp, lags(4)           // với 4 độ trễ (chọn AIC)
+dfuller gdp, trend lags(4)     // với xu hướng tất định
+dfuller gdp, drift lags(4)     // chỉ với hệ số trôi dạt
+* Từ chối H0 → chuỗi dừng
+
+* Kiểm định KPSS: H0 = tính dừng
+kpss gdp                       // dừng xu hướng
+kpss gdp, notrend              // dừng mức độ
+* Không từ chối H0 → nhất quán với tính dừng
+
+* Nếu cả ADF từ chối và KPSS không từ chối:
+* → Tính dừng xác nhận → tiến hành ARIMA/VAR
+
+* Nếu ADF không từ chối:
+* → Kiểm định sai phân bậc 1 để xác định I(1) vs I(2)
+dfuller D.gdp, lags(3)         // Từ chối → chuỗi là I(1)</code></pre>
+          <button class="copy-btn">Sao chép</button>
+        </div>
+      </section>
+
+      <!-- Quy trình VAR -->
+      <section style="margin-top:2rem;">
+        <h2>Quy trình VAR: Nhân quả Granger &amp; IRF</h2>
+        <div class="code-wrapper">
+          <pre class="language-stata"><code>* Chọn độ trễ
+varsoc gdp inflation interest, maxlag(8)
+* Dùng tiêu chí AIC/SIC (BIC) — chọn p độ trễ
+
+* Ước lượng VAR
+var gdp inflation interest, lags(1/2)
+
+* Kiểm định ổn định
+varstable, graph  // giá trị riêng phải trong vòng tròn đơn vị
+
+* Nhân quả Granger
+vargranger
+
+* Hàm phản ứng xung
+irf create myirf, step(12) set(myirf) replace
+irf graph oirf, impulse(interest) response(gdp) ///
+  title("Phản ứng của GDP với cú sốc lãi suất")
+
+* Phân rã phương sai dự báo
+irf graph fevd, impulse(interest) response(gdp)</code></pre>
+          <button class="copy-btn">Sao chép</button>
+        </div>
+      </section>
+
+      <!-- So sánh ARIMA vs VAR -->
+      <section style="margin-top:2rem;">
+        <h2>ARIMA vs VAR</h2>
+        <div class="comparison-table-wrapper">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Tiêu chí</th>
+                <th>ARIMA</th>
+                <th>VAR</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Số chuỗi</td>
+                <td class="good">Đơn (đơn biến)</td>
+                <td class="good">Nhiều (đa biến)</td>
+              </tr>
+              <tr>
+                <td>Phân tích nhân quả</td>
+                <td class="bad">Không thể</td>
+                <td class="good">Nhân quả Granger, IRF, FEVD</td>
+              </tr>
+              <tr>
+                <td>Dự báo</td>
+                <td class="good">Dự báo một biến mạnh</td>
+                <td class="good">Dự báo chung</td>
+              </tr>
+              <tr>
+                <td>Khả năng giải thích</td>
+                <td class="good">Cấu trúc AR/MA rõ ràng</td>
+                <td class="ok">Phức tạp (nhiều tham số)</td>
+              </tr>
+              <tr>
+                <td>Yêu cầu tính dừng</td>
+                <td class="good">Có (hoặc lấy sai phân chuỗi: I d)</td>
+                <td class="good">Có (hoặc dùng VEC cho đồng tích hợp)</td>
+              </tr>
+              <tr>
+                <td>Chọn độ trễ</td>
+                <td>ACF/PACF + AIC</td>
+                <td>varsoc + AIC/SIC</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="margin-top:1rem;"><a href="../comparisons/arima-vs-var.html" class="btn-secondary">So sánh đầy đủ ARIMA vs VAR →</a></p>
+      </section>
+
+      <!-- Sai lầm phổ biến -->
+      <section style="margin-top:2rem;">
+        <h2>Sai lầm phổ biến trong chuỗi thời gian</h2>
+        <div class="callout callout-danger">
+          <div class="callout-title">Sai lầm hàng đầu</div>
+          <ul>
+            <li><strong>Bỏ qua hoàn toàn kiểm định nghiệm đơn vị</strong> — Hồi quy chuỗi không dừng tạo ra kết quả giả. R² cao với dữ liệu có xu hướng không có nghĩa gì nếu không kiểm định tính dừng</li>
+            <li><strong>Chỉ dùng ADF (không dùng KPSS)</strong> — ADF và KPSS có giả thuyết không bổ sung cho nhau. Một kiểm định là không đủ — dùng cả hai</li>
+            <li><strong>Không kiểm định ổn định VAR</strong> — VAR không ổn định có giá trị riêng ngoài vòng tròn đơn vị. IRF từ VAR không ổn định vô nghĩa</li>
+            <li><strong>Dùng VAR với chuỗi không dừng không kiểm định đồng tích hợp</strong> — Nếu chuỗi là I(1), hoặc lấy sai phân hoặc kiểm định đồng tích hợp; VAR không hạn chế trên mức I(1) là lỗi đặc tả</li>
+            <li><strong>Chọn bậc ARIMA chỉ bằng kiểm tra trực quan</strong> — Luôn dùng lựa chọn độ trễ dựa trên AIC/BIC và xác nhận phần dư bằng kiểm định Portmanteau</li>
+          </ul>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <h4>So sánh</h4>
+        <ul>
+          <li><a href="../comparisons/arima-vs-var.html">ARIMA vs VAR</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Công cụ</h4>
+        <ul>
+          <li><a href="../decision-tree.html">Cây quyết định</a></li>
+          <li><a href="../common-mistakes.html">Sai lầm phổ biến</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">Stata Kinh Tế Lượng Task View · Tài nguyên học thuật cho kinh tế lượng ứng dụng</div>
+  </footer>
+
+  <script src="../assets/js/navigation.js"></script>
+</body>
+
+</html>

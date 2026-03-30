@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lộ trình nghiên cứu 2026 — Stata Econometrics Task View</title>
+  <meta name="description"
+    content="Lộ trình triển khai từ tài liệu kinh tế lượng Stata toàn diện: các phương pháp quan trọng, so sánh mới và danh sách kiểm tra triển khai.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+</head>
+
+<body>
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="index.html">Stata <span>Task View</span></a>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html">Trang chủ</a></li>
+        <li><a href="decision-tree.html">Cây quyết định</a></li>
+        <li><a href="comparison-index.html">So sánh</a></li>
+        <li><a href="best-packages.html">Gói tốt nhất</a></li>
+      </ul>
+      <button class="nav-hamburger" id="nav-hamburger">☰</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-container">
+      <nav class="breadcrumb"><a href="index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><span
+          class="breadcrumb-current">Lộ trình nghiên cứu 2026</span></nav>
+
+      <div class="page-title-block">
+        <h1>Lộ trình nghiên cứu 2026</h1>
+        <p class="page-subtitle">Được cụ thể hóa từ <code>stata_comprehensive_documentation.md</code> vào các trang web,
+          hướng dẫn lệnh, so sánh và logic quyết định.</p>
+      </div>
+
+      <div class="callout callout-tip">
+        <div class="callout-title">Trạng thái triển khai</div>
+        <p>Các mục ưu tiên quan trọng, cao và trung bình từ bản đồ kiến trúc hiện đã được phản ánh trong các trang lệnh,
+          trang so sánh và các nhánh của cây quyết định.</p>
+      </div>
+
+      <h2 style="margin-top:1.5rem;">Các phương pháp ưu tiên đã triển khai</h2>
+      <div class="comparison-table-wrapper">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Ưu tiên</th>
+              <th>Trang phương pháp</th>
+              <th>Tại sao cần lúc này</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Rất quan trọng</td>
+              <td><a href="commands/command.html?cmd=staggered-did-complete"><code>staggered-did-complete</code></a>
+              </td>
+              <td>Quy trình DID so le đầy đủ được kỳ vọng trong các chu kỳ bình duyệt hiện nay</td>
+            </tr>
+            <tr>
+              <td>Rất quan trọng</td>
+              <td><a href="commands/command.html?cmd=honestdid"><code>honestdid</code></a></td>
+              <td>Độ nhạy đối với các vi phạm xu hướng gần song song</td>
+            </tr>
+            <tr>
+              <td>Rất quan trọng</td>
+              <td><a href="commands/command.html?cmd=reghdfe"><code>reghdfe</code></a></td>
+              <td>FE đa chiều đã thay thế FE đơn biến trong nhiều bài báo</td>
+            </tr>
+            <tr>
+              <td>Rất quan trọng</td>
+              <td><a href="commands/command.html?cmd=boottest"><code>boottest</code></a></td>
+              <td>Hiệu chỉnh suy luận khi số lượng cụm (cluster) ít</td>
+            </tr>
+            <tr>
+              <td>Cao</td>
+              <td><a href="commands/command.html?cmd=ivreghdfe"><code>ivreghdfe</code></a></td>
+              <td>IV với hiệu ứng cố định chiều cao</td>
+            </tr>
+            <tr>
+              <td>Cao</td>
+              <td><a href="commands/command.html?cmd=rdrobust-advanced"><code>rdrobust-advanced</code></a></td>
+              <td>Quy trình xác thực RD đầy đủ</td>
+            </tr>
+            <tr>
+              <td>Cao</td>
+              <td><a href="commands/command.html?cmd=xtabond2-advanced"><code>xtabond2-advanced</code></a></td>
+              <td>Hiệu chỉnh các lỗi chẩn đoán phổ biến</td>
+            </tr>
+            <tr>
+              <td>Cao</td>
+              <td><a href="commands/command.html?cmd=psacalc"><code>psacalc</code></a></td>
+              <td>Độ nhạy ổn định hệ số được các bình duyệt viên yêu cầu</td>
+            </tr>
+            <tr>
+              <td>Trung bình</td>
+              <td><a href="commands/command.html?cmd=mi-impute"><code>mi-impute</code></a></td>
+              <td>Xử lý dữ liệu thiếu nhất quán với MAR</td>
+            </tr>
+            <tr>
+              <td>Trung bình</td>
+              <td><a href="commands/command.html?cmd=xtscc"><code>xtscc</code></a> / <a
+                  href="commands/command.html?cmd=xtcd2"><code>xtcd2</code></a></td>
+              <td>Chẩn đoán phụ thuộc bảng vĩ mô và suy luận vững</td>
+            </tr>
+            <tr>
+              <td>Trung bình</td>
+              <td><a href="commands/command.html?cmd=wyoung"><code>wyoung</code></a> / <a
+                  href="commands/command.html?cmd=rwolf"><code>rwolf</code></a></td>
+              <td>Hiệu chỉnh kiểm định bội (multiple-testing)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 style="margin-top:1.5rem;">Các trang so sánh mới</h2>
+      <ul>
+        <li><a href="comparisons/csdid-vs-eventstudyinteract.html"><code>csdid-vs-eventstudyinteract</code></a></li>
+        <li><a href="comparisons/pdslasso-vs-ddml.html"><code>pdslasso-vs-ddml</code></a></li>
+        <li><a href="comparisons/reghdfe-vs-xtreg.html"><code>reghdfe-vs-xtreg</code></a></li>
+        <li><a href="comparisons/boottest-vs-cluster-se.html"><code>boottest-vs-cluster-se</code></a></li>
+        <li><a href="comparisons/synth-vs-scpi.html"><code>synth-vs-scpi</code></a></li>
+        <li><a href="comparisons/rdrobust-vs-rdlocrand.html"><code>rdrobust-vs-rdlocrand</code></a></li>
+      </ul>
+
+      <h2 style="margin-top:1.5rem;">Nâng cấp cây quyết định</h2>
+      <ul>
+        <li>Nhánh Bảng (Panel) hiện kiểm tra số lượng cụm và chuyển hướng đến <code>boottest</code> khi số cụm ít.</li>
+        <li>Nhánh So le (Staggered) hiện hỏi về ưu tiên nhóm đối chứng cho <code>csdid</code>.</li>
+        <li>Nhánh IV hiện thêm một kiểm tra hiệu chỉnh cho số cụm ít.</li>
+        <li>Nhánh Dữ liệu chéo chiều cao hiện phân biệt giữa <code>pdslasso</code> và <code>ddml</code>.</li>
+      </ul>
+
+      <h2 style="margin-top:1.5rem;">Mã cài đặt tổng hợp (Master install script)</h2>
+      <div class="code-wrapper">
+        <pre class="language-stata"><code>* Cài đặt một lần cho bộ công cụ kinh tế lượng ứng dụng hiện đại
+local packages ///
+  reghdfe ftools boottest ///
+  ivreg2 ranktest ivreghdfe ///
+  xtabond2 xtscc xtcd2 ///
+  csdid drdid eventstudyinteract did_multiplegt_dyn honestdid did2s ///
+  rdrobust rddensity rdlocrand rdmulti ///
+  pdslasso rlasso ddml ///
+  psacalc wyoung rwolf ///
+  synth scpi
+
+foreach p of local packages {
+  capture noisily ssc install `p'
+}</code></pre><button class="copy-btn">Sao chép</button>
+      </div>
+
+      <h2 style="margin-top:1.5rem;">Ghi chú triển khai Netlify</h2>
+      <div class="callout callout-info">
+        <div class="callout-title">Triển khai tĩnh</div>
+        <p>Triển khai dự án này dưới dạng trang web tĩnh. Trong Netlify, đặt <strong>Publish directory</strong> là thư
+          mục gốc của dự án (<code>.</code>) và để trống lệnh build.</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <h4>Liên kết nhanh</h4>
+        <ul>
+          <li><a href="decision-tree.html">Cây quyết định</a></li>
+          <li><a href="comparison-index.html">Tất cả so sánh</a></li>
+          <li><a href="search.html">Tìm kiếm</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">Stata Econometrics Task View — Bản tiếng Việt</div>
+  </footer>
+
+  <script src="assets/js/navigation.js"></script>
+</body>
+
+</html>

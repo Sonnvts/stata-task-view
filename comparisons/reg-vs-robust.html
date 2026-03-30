@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>reg vs. SE vững — Stata Kinh Tế Lượng Task View</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.classless.min.css">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+</head>
+<body>
+<nav class="site-nav"><div class="nav-inner">
+  <a class="nav-brand" href="../index.html">Stata <span>Task View</span></a>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="../index.html">Trang chủ</a></li>
+    <li><a href="../categories/ols-diagnostics.html">OLS &amp; Kiểm định</a></li>
+    <li><a href="../comparison-index.html">Tất cả so sánh</a></li>
+  </ul>
+  <button class="nav-hamburger" id="nav-hamburger">☰</button>
+</div></nav>
+
+<main><div class="page-container" style="max-width:960px;">
+<nav class="breadcrumb"><a href="../index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><a href="../comparison-index.html">So sánh</a><span class="breadcrumb-sep">›</span><span class="breadcrumb-current">reg vs. SE vững</span></nav>
+<div class="page-title-block">
+  <h1><code>reg</code> vs. <code>vce(robust)</code> / <code>vce(cluster)</code></h1>
+  <p class="page-subtitle">SE cổ điển vs. suy diễn vững với phương sai không đồng đều và cụm</p>
+</div>
+
+<div class="callout callout-danger"><div class="callout-title">Thói quen Stata quan trọng nhất</div>
+  <p><strong>Không bao giờ dùng SE cổ điển trong kinh tế lượng ứng dụng.</strong> Giả định OLS cổ điển về sai số đồng phương sai, độc lập hầu như luôn bị vi phạm với dữ liệu thực. Dùng <code>reg y x</code> mà không có tùy chọn <code>robust</code> cho t-statistic và p-value sai có hệ thống. Đây không phải vấn đề nhỏ — đó là nguồn gốc cơ bản của suy diễn không hợp lệ.</p>
+</div>
+
+<div class="vs-cards">
+  <div class="vs-card">
+    <div class="vs-card-header"><span class="vs-card-name">reg y x</span><span class="badge badge-builtin">Có sẵn</span></div>
+    <p style="font-size:.875rem;color:var(--muted-fg);">OLS cổ điển — giả định sai số đồng phương sai, không tương quan</p>
+    <ul class="vs-pro">
+      <li>Hiệu quả về lý thuyết dưới các giả định mạnh</li>
+      <li>Kết quả mặc định của Stata</li>
+    </ul>
+    <ul class="vs-con" style="margin-top:.5rem;">
+      <li>Giả định phương sai sai số không đổi — hiếm khi đúng</li>
+      <li>SE lệch dưới phương sai không đồng đều</li>
+      <li>Kiểm định t và khoảng tin cậy không hợp lệ với hầu hết dữ liệu thực</li>
+      <li>Không nên dùng làm mặc định trong nghiên cứu ứng dụng</li>
+    </ul>
+  </div>
+  <div class="vs-card vs-recommended">
+    <div class="vs-card-header"><span class="vs-card-name">reg y x, robust</span><span class="badge badge-builtin">Có sẵn</span></div>
+    <p style="font-size:.875rem;color:var(--muted-fg);">Vững với phương sai không đồng đều (HC1) — đúng cho dữ liệu chéo</p>
+    <ul class="vs-pro">
+      <li>Suy diễn đúng bất kể cấu trúc phương sai sai số</li>
+      <li>Hợp lệ tiệm cận không mất hiệu quả khi N lớn</li>
+      <li>Mặc định hiện đại của kinh tế lượng ứng dụng</li>
+      <li>Ước lượng điểm giống hệt OLS cổ điển</li>
+    </ul>
+  </div>
+  <div class="vs-card vs-recommended">
+    <div class="vs-card-header"><span class="vs-card-name">reg y x, vce(cluster id)</span><span class="badge badge-builtin">Có sẵn</span></div>
+    <p style="font-size:.875rem;color:var(--muted-fg);">Vững với cụm — tính đến tương quan sai số trong nhóm</p>
+    <ul class="vs-pro">
+      <li>Đúng khi các quan sát trong nhóm có tương quan</li>
+      <li>Bắt buộc khi can thiệp ở cấp cao hơn so với kết quả</li>
+      <li>Xử lý cả phương sai không đồng đều lẫn tương quan trong cụm</li>
+    </ul>
+    <ul class="vs-con" style="margin-top:.5rem;">
+      <li>Cần số cụm đủ (nguyên tắc thực hành: &gt;30–50)</li>
+      <li>Có thể quá bảo thủ với ít cụm</li>
+    </ul>
+  </div>
+</div>
+
+<section style="margin-top:2rem;">
+  <h2>Toán học: điều gì thay đổi?</h2>
+  <p>Ước lượng điểm OLS <strong>giống hệt nhau</strong> bất kể công thức SE — chỉ các SE ước lượng là khác nhau.</p>
+
+  <div class="callout callout-info"><div class="callout-title">Ước lượng sandwich làm gì</div>
+    <p>SE cổ điển giả định Var(ε) = σ²I. SE vững dùng <strong>ước lượng sandwich</strong>: V = (X'X)⁻¹ X'diag(e²ᵢ)X (X'X)⁻¹, trong đó eᵢ là phần dư OLS. Điều này nhất quán ngay cả khi sai số không đồng phương sai.</p>
+    <p>SE vững với cụm thay ma trận giữa bằng tổng tích ngoài của các vector phần dư trong mỗi cụm, cho phép tương quan trong cụm tùy ý.</p>
+  </div>
+</section>
+
+<div class="comparison-table-wrapper">
+  <table class="comparison-table">
+    <thead><tr><th class="feature-name">Tiêu chí</th><th>Cổ điển (mặc định)</th><th>Vững (vce(robust))</th><th>Cụm (vce(cluster))</th></tr></thead>
+    <tbody>
+      <tr><td class="feature-name">Ước lượng điểm</td><td class="good">Giống nhau</td><td class="good">Giống nhau</td><td class="good">Giống nhau</td></tr>
+      <tr><td class="feature-name">Phương sai không đồng đều</td><td>SE lệch</td><td class="good">Nhất quán</td><td class="good">Nhất quán</td></tr>
+      <tr><td class="feature-name">Tương quan trong nhóm</td><td>SE lệch</td><td>SE lệch</td><td class="good">Nhất quán</td></tr>
+      <tr><td class="feature-name">Hiệu chỉnh mẫu hữu hạn</td><td>Chuẩn</td><td>HC1 (n/(n-k))</td><td>Hiệu chỉnh cụm G/(G-1)</td></tr>
+      <tr><td class="feature-name">Cỡ mẫu cần</td><td>Bất kỳ</td><td>N vừa phải</td><td>≥30–50 cụm</td></tr>
+      <tr><td class="feature-name">Mặc định trong nghiên cứu ứng dụng?</td><td>Không</td><td class="good">Có (dữ liệu chéo)</td><td class="good">Có (khi có cụm)</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="code-wrapper">
+  <pre class="language-stata"><code>* ── OLS cổ điển (KHÔNG dùng trong nghiên cứu ứng dụng) ────────
+reg wage educ exper
+
+* ── Mặc định đúng ───────────────────────────────────────────────
+* Dữ liệu chéo — luôn dùng robust
+reg wage educ exper, robust
+
+* Dữ liệu bảng — phân cụm ở cấp đơn vị
+reg wage educ exper i.year, vce(cluster personid)
+
+* Chính sách cấp bang + dữ liệu cá nhân — phân cụm theo bang
+reg outcome treated post i.state i.year, vce(cluster stateid)
+
+* ── Tương đương ────────────────────────────────────────────────
+* Hai lệnh này giống nhau:
+reg wage educ, robust
+reg wage educ, vce(robust)
+
+* ── Kiểm tra liệu phương sai không đồng đều có quan trọng không ─
+reg wage educ exper
+estat hettest            // Kiểm định Breusch-Pagan
+* (Nhưng dùng SE vững bất kể kết quả kiểm định)
+
+* ── Bootstrap cụm hoang dã cho ít cụm ──────────────────────────
+* Khi G < 30, dùng boottest (SSC) thay thế
+ssc install boottest
+reg wage educ, vce(cluster stateid)
+boottest treated, boottype(wild) cluster(stateid) reps(999)</code></pre>
+  <button class="copy-btn">Sao chép</button>
+</div>
+
+<div class="choose-when-grid">
+  <div class="choose-when-box cmd-a">
+    <div class="choose-when-title">Dùng SE cổ điển khi...</div>
+    <ul>
+      <li>Bạn đang trình diễn lý thuyết OLS trong lớp học</li>
+      <li>Bạn đang chạy mô phỏng Monte Carlo dưới các giả định đã biết</li>
+      <li>Bạn có lý do lý thuyết cụ thể để tin rằng đồng phương sai thỏa mãn</li>
+    </ul>
+    <p style="font-size:.8rem;color:var(--muted-fg);margin-top:.75rem;"><em>Về cơ bản không bao giờ trong nghiên cứu thực nghiệm ứng dụng.</em></p>
+  </div>
+  <div class="choose-when-box cmd-b">
+    <div class="choose-when-title">Dùng SE vững/cụm khi...</div>
+    <ul>
+      <li>Tất cả nghiên cứu kinh tế lượng ứng dụng (dùng robust làm mặc định)</li>
+      <li>Can thiệp hoặc chính sách thay đổi ở cấp nhóm → phân cụm ở cấp đó</li>
+      <li>Dùng dữ liệu bảng → phân cụm ở cấp đơn vị bảng</li>
+      <li>Bất kỳ dữ liệu chéo nào với đơn vị không đồng nhất → robust</li>
+      <li>Bạn không chắc → dùng robust (không có bất lợi ở N lớn)</li>
+    </ul>
+  </div>
+</div>
+
+<section style="margin-top:2rem;">
+  <h2>Khi nào phân cụm vs. khi nào robust là đủ</h2>
+  <div class="callout callout-warning"><div class="callout-title">Quy tắc phân cụm</div>
+    <p>Phân cụm khi <strong>cơ chế gán ở cấp khác</strong> so với đơn vị quan sát.</p>
+    <ul>
+      <li><strong>Lương cá nhân, chính sách lương tối thiểu cấp bang</strong> → phân cụm theo bang</li>
+      <li><strong>Kết quả học sinh, chương trình cấp trường</strong> → phân cụm theo trường</li>
+      <li><strong>Hiệu suất doanh nghiệp, cú sốc cấp ngành</strong> → phân cụm theo ngành</li>
+      <li><strong>Dữ liệu chéo cá nhân, can thiệp cấp cá nhân</strong> → robust là đủ</li>
+    </ul>
+    <p>Nếu can thiệp ở cấp cao hơn (bang, trường, doanh nghiệp) nhưng dữ liệu ở cấp thấp hơn (cá nhân, học sinh, doanh nghiệp), bạn <em>phải</em> phân cụm ở cấp cao hơn. Không làm vậy có thể giảm SE đi hệ số √N/G, làm chúng quá nhỏ.</p>
+  </div>
+  <div class="callout callout-warning"><div class="callout-title">Vấn đề ít cụm</div>
+    <p>Với ít hơn ~30–50 cụm, ước lượng phương sai vững với cụm trở nên không đáng tin cậy. Trong trường hợp này:</p>
+    <ul>
+      <li>Dùng <code>boottest</code> (bootstrap cụm hoang dã) từ SSC</li>
+      <li>Xem xét tổng hợp dữ liệu lên cấp cụm</li>
+      <li>Báo cáo cả SE vững với cụm lẫn SE thông thường như kiểm tra sự nhạy</li>
+    </ul>
+  </div>
+</section>
+
+<section style="margin-top:2rem;">
+  <h2>Sai lầm phổ biến</h2>
+  <div class="callout callout-danger"><div class="callout-title">Sai lầm hàng đầu</div>
+    <ul>
+      <li><strong>Dùng SE cổ điển và báo cáo mức ý nghĩa</strong> — không hợp lệ trong hầu như mọi quá trình tạo dữ liệu thực</li>
+      <li><strong>Dùng hettest để quyết định có dùng SE vững không</strong> — luôn dùng SE vững bất kể kết quả kiểm định; hettest là tài liệu, không phải quy tắc quyết định</li>
+      <li><strong>Phân cụm ở cấp cá nhân</strong> — không có quan sát trong cá nhân, điều này giống với robust và không thêm gì; phân cụm ở cấp gán can thiệp</li>
+      <li><strong>Không phân cụm trong DID bảng</strong> — dùng <code>reg y treat i.time, robust</code> thay vì <code>vce(cluster panelid)</code> cho SE bị đánh giá thấp nghiêm trọng</li>
+      <li><strong>Nghĩ SE vững sửa nội sinh</strong> — chúng hiệu chỉnh suy diễn, không phải nhận dạng</li>
+    </ul>
+  </div>
+</section>
+
+<div class="verdict-box">
+  <div class="verdict-label">Kết luận</div>
+  <p><strong>Đặt <code>reg y x, robust</code> làm mặc định từ ngày đầu tiên.</strong> Không bao giờ dùng SE cổ điển trong nghiên cứu ứng dụng. Khi can thiệp hoặc chính sách thay đổi ở cấp nhóm (bang, trường, doanh nghiệp), phân cụm ở cấp đó với <code>vce(cluster groupvar)</code>. Nếu bạn có ít hơn 30 cụm, dùng <code>boottest</code> cho suy diễn bootstrap cụm hoang dã. Ước lượng điểm không bao giờ bị ảnh hưởng — chỉ suy diễn thay đổi.</p>
+</div>
+<div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:1.5rem;">
+  <a href="../commands/command.html?cmd=reg" class="btn-primary">Hướng dẫn đầy đủ reg →</a>
+  <a href="../commands/command.html?cmd=robust-se" class="btn-secondary">Hướng dẫn SE vững</a>
+  <a href="../categories/ols-diagnostics.html" class="btn-secondary">OLS &amp; Kiểm định →</a>
+</div>
+</div></main>
+<footer class="site-footer"><div class="footer-inner"><div class="footer-col"><h4>Liên quan</h4><ul>
+  <li><a href="../categories/ols-diagnostics.html">OLS &amp; Kiểm định</a></li>
+  <li><a href="outreg2-vs-estout.html">outreg2 vs estout</a></li>
+</ul></div></div><div class="footer-bottom">Stata Kinh Tế Lượng Task View · Tài nguyên học thuật cho kinh tế lượng ứng dụng</div></footer>
+<script src="../assets/js/navigation.js"></script>
+</body></html>

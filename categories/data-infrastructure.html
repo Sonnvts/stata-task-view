@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hạ tầng dữ liệu — Stata Kinh Tế Lượng Task View</title>
+  <meta name="description" content="Hướng dẫn tiền xử lý dữ liệu, kiểm toán chất lượng, dữ liệu thiếu và ngoại lệ trong Stata.">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/print.css" media="print">
+</head>
+<body>
+  <div class="noise-overlay" aria-hidden="true"></div>
+<nav class="site-nav"><div class="nav-inner">
+  <a class="nav-brand" href="../index.html">Stata <span>Task View</span></a>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="../index.html">Trang chủ</a></li>
+    <li class="nav-dropdown"><button class="nav-dropdown-btn">Danh mục ▾</button>
+      <div class="nav-dropdown-menu">
+        <a href="ols-diagnostics.html">OLS &amp; Kiểm định</a>
+        <a href="limited-dependent.html">Biến phụ thuộc giới hạn</a>
+        <a href="panel-data.html">Dữ liệu bảng</a>
+        <a href="iv-endogeneity.html">Biến công cụ &amp; Nội sinh</a>
+        <a href="time-series.html">Chuỗi thời gian</a>
+        <a href="causal-inference.html">Suy diễn nhân quả</a>
+        <a href="staggered-did.html">DID theo giai đoạn</a>
+        <a href="ml-econometrics.html">Kinh tế lượng ML</a>
+        <a href="data-infrastructure.html" class="active">Hạ tầng dữ liệu</a>
+        <a href="sensitivity-robustness.html">Độ nhạy &amp; Kiểm định sự vững</a>
+        <a href="publication-standards.html">Tiêu chuẩn xuất bản</a>
+      </div>
+    </li>
+    <li><a href="../decision-tree.html">Cây quyết định</a></li>
+    <li><a href="../best-packages.html">Gói tốt nhất</a></li>
+  </ul>
+  <button class="nav-search-btn" id="nav-search-btn">🔍 Tìm kiếm</button>
+  <button class="nav-hamburger" id="nav-hamburger" aria-label="Toggle menu">☰</button>
+</div></nav>
+
+<main><div class="page-container">
+<nav class="breadcrumb"><a href="../index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><span class="breadcrumb-current">Hạ tầng dữ liệu</span></nav>
+
+<div class="page-title-block">
+  <h1>🏗️ Hạ tầng dữ liệu</h1>
+  <p class="page-subtitle">Tiền xử lý, kiểm toán chất lượng và xử lý dữ liệu vững</p>
+</div>
+
+<!-- Overview -->
+<section style="margin-bottom:2rem;">
+  <h2>Tổng quan</h2>
+  <p>Nguồn gốc phổ biến nhất của kết quả sai không phải là lựa chọn ước lượng — mà là lỗi xây dựng dữ liệu. Quy tắc "Rác vào, Rác ra" áp dụng mạnh mẽ ở đây. Danh mục này bao gồm các bước bắt buộc trước khi ước lượng.</p>
+  <p>Kiểm toán đúng cách cấu trúc bảng, xử lý dữ liệu thiếu qua Quy chiếu đa bội (MI) hoặc Trọng số xác suất nghịch (IPW), và xử lý ngoại lệ qua Winsorization là thiết yếu cho tính toàn vẹn nghiên cứu.</p>
+  <div class="callout callout-info">
+    <div class="callout-title">Nguyên tắc chính</div>
+    <p><strong>Chẩn đoán trước điều trị.</strong> Không bao giờ loại bỏ dữ liệu (thiếu hay ngoại lệ) mà không kiểm toán chính thức các mẫu. Xóa theo danh sách thường là nguồn gốc của lệch lựa chọn.</p>
+  </div>
+</section>
+
+<!-- Filter bar -->
+<div class="filter-bar">
+  <label>Lọc theo:</label>
+  <select class="filter-select" data-filter-key="difficulty">
+    <option value="all">Tất cả cấp độ</option>
+    <option value="beginner">Cơ bản</option>
+    <option value="intermediate">Trung cấp</option>
+    <option value="advanced">Nâng cao</option>
+  </select>
+  <select class="filter-select" data-filter-key="install">
+    <option value="all">Tất cả nguồn</option>
+    <option value="builtin">Có sẵn</option>
+    <option value="ssc">SSC</option>
+  </select>
+  <button class="filter-clear" id="filter-clear">Xóa bộ lọc</button>
+  <span class="filter-count" id="filter-count"></span>
+</div>
+
+<!-- Command cards -->
+<div class="cmd-grid" id="cmd-grid">
+
+  <a class="cmd-card" href="../commands/command.html?cmd=misstable"
+     data-tags='{"difficulty":"beginner","install":"builtin"}'>
+    <div class="cmd-card-header">
+      <div><div class="cmd-card-name">misstable</div><div class="cmd-card-title">Kiểm toán dữ liệu thiếu</div></div>
+      <span class="badge badge-builtin">Có sẵn</span>
+    </div>
+    <div class="cmd-card-desc">Hiển thị mẫu và tỷ lệ dữ liệu thiếu. Thiết yếu để xác định dữ liệu là MCAR, MAR hay MNAR.</div>
+    <div class="cmd-card-footer"><span class="badge badge-beginner">Cơ bản</span><span class="tag-pill">kiểm toán</span><span class="tag-pill">thiếu</span></div>
+  </a>
+
+  <a class="cmd-card" href="../commands/command.html?cmd=mi-impute"
+     data-tags='{"difficulty":"intermediate","install":"builtin"}'>
+    <div class="cmd-card-header">
+      <div><div class="cmd-card-name">mi impute</div><div class="cmd-card-title">Quy chiếu đa bội</div></div>
+      <span class="badge badge-builtin">Có sẵn</span>
+    </div>
+    <div class="cmd-card-desc">Phương pháp ưu tiên để xử lý dữ liệu thiếu dưới MAR. Sử dụng Phương trình Chuỗi (MICE) để lấp đầy khoảng trống trong khi bảo toàn phương sai.</div>
+    <div class="cmd-card-footer"><span class="badge badge-intermediate">Trung cấp</span><span class="tag-pill">quy chiếu</span><span class="tag-pill">MAR</span></div>
+  </a>
+
+  <a class="cmd-card" href="../commands/command.html?cmd=winsor2"
+     data-tags='{"difficulty":"beginner","install":"ssc"}'>
+    <div class="cmd-card-header">
+      <div><div class="cmd-card-name">winsor2</div><div class="cmd-card-title">Winsorization ngoại lệ</div></div>
+      <span class="badge badge-ssc">SSC</span>
+    </div>
+    <div class="cmd-card-desc">Tiêu chuẩn hiện đại cho ngoại lệ — thay thế các giá trị cực đoan bằng giá trị phân vị thay vì loại bỏ chúng.</div>
+    <div class="cmd-card-footer"><span class="badge badge-beginner">Cơ bản</span><span class="tag-pill">ngoại lệ</span><span class="tag-pill">độ vững</span></div>
+  </a>
+
+</div><!-- #cmd-grid -->
+
+<!-- Upgrade path -->
+<section style="margin-top:2rem;">
+  <h2>Quy trình toàn vẹn dữ liệu</h2>
+  <div class="learning-path">
+    <div class="learning-step"><div class="learning-step-content"><h4>Kiểm toán chất lượng</h4><p>Chạy <code>misstable summarize</code> và <code>xtdescribe</code>. Lập bản đồ các khoảng trống và phạm vi bao phủ từ sớm.</p></div></div>
+    <div class="learning-step"><div class="learning-step-content"><h4>Chuyển đổi biến</h4><p>Dùng <code>ihs</code> (Sine hyperbolic nghịch đảo) cho biến lệch cao có giá trị không thay vì <code>ln(x+1)</code>.</p></div></div>
+    <div class="learning-step"><div class="learning-step-content"><h4>Xử lý ngoại lệ</h4><p>Chạy <code>winsor2</code> ở mức 1% và 99%. Báo cáo cả kết quả đã Winsorized và kết quả gốc.</p></div></div>
+    <div class="learning-step"><div class="learning-step-content"><h4>Xử lý dữ liệu thiếu</h4><p>Chuyển từ xóa theo danh sách sang <code>mi impute chained</code> khi tỷ lệ thiếu > 5% và MAR hợp lý.</p></div></div>
+  </div>
+</section>
+
+</div></main>
+
+<footer class="site-footer"><div class="footer-inner">
+  <div class="footer-col"><h4>Danh mục khác</h4><ul>
+    <li><a href="ols-diagnostics.html">OLS &amp; Kiểm định</a></li>
+    <li><a href="panel-data.html">Dữ liệu bảng</a></li>
+    <li><a href="causal-inference.html">Suy diễn nhân quả</a></li>
+    <li><a href="sensitivity-robustness.html">Độ nhạy &amp; Kiểm định sự vững</a></li>
+    <li><a href="publication-standards.html">Tiêu chuẩn xuất bản</a></li>
+  </ul></div>
+</div><div class="footer-bottom">Stata Kinh Tế Lượng Task View · Tài nguyên học thuật cho kinh tế lượng ứng dụng</div></footer>
+
+<script src="../assets/js/navigation.js"></script>
+<script src="../assets/js/filter.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    StataFilter.initCategoryFilter({ gridId: 'cmd-grid', countId: 'filter-count', clearId: 'filter-clear' });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Độ nhạy &amp; Kiểm định sự vững — Stata Kinh Tế Lượng Task View</title>
+    <meta name="description"
+        content="Hướng dẫn phân tích độ nhạy, tính ổn định hệ số và hiệu chỉnh kiểm định đa bội trong Stata.">
+      <link rel="stylesheet" href="../assets/css/main.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="../assets/css/print.css" media="print">
+</head>
+
+<body>
+    <div class="noise-overlay" aria-hidden="true"></div>
+    <nav class="site-nav">
+        <div class="nav-inner">
+            <a class="nav-brand" href="../index.html">Stata <span>Task View</span></a>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="../index.html">Trang chủ</a></li>
+                <li class="nav-dropdown"><button class="nav-dropdown-btn">Danh mục ▾</button>
+                    <div class="nav-dropdown-menu">
+                        <a href="ols-diagnostics.html">OLS &amp; Kiểm định</a>
+                        <a href="limited-dependent.html">Biến phụ thuộc giới hạn</a>
+                        <a href="panel-data.html">Dữ liệu bảng</a>
+                        <a href="iv-endogeneity.html">Biến công cụ &amp; Nội sinh</a>
+                        <a href="time-series.html">Chuỗi thời gian</a>
+                        <a href="causal-inference.html">Suy diễn nhân quả</a>
+                        <a href="staggered-did.html">DID theo giai đoạn</a>
+                        <a href="ml-econometrics.html">Kinh tế lượng ML</a>
+                        <a href="data-infrastructure.html">Hạ tầng dữ liệu</a>
+                        <a href="sensitivity-robustness.html" class="active">Độ nhạy &amp; Kiểm định sự vững</a>
+                        <a href="publication-standards.html">Tiêu chuẩn xuất bản</a>
+                    </div>
+                </li>
+                <li><a href="../decision-tree.html">Cây quyết định</a></li>
+                <li><a href="../best-packages.html">Gói tốt nhất</a></li>
+            </ul>
+            <button class="nav-search-btn" id="nav-search-btn">🔍 Tìm kiếm</button>
+            <button class="nav-hamburger" id="nav-hamburger" aria-label="Toggle menu">☰</button>
+        </div>
+    </nav>
+
+    <main>
+        <div class="page-container">
+            <nav class="breadcrumb"><a href="../index.html">Trang chủ</a><span class="breadcrumb-sep">›</span><span
+                    class="breadcrumb-current">Độ nhạy &amp; Kiểm định sự vững</span></nav>
+
+            <div class="page-title-block">
+                <h1>🛡️ Độ nhạy &amp; Kiểm định sự vững</h1>
+                <p class="page-subtitle">Kiểm tra stress cho nhận dạng nhân quả và suy diễn</p>
+            </div>
+
+            <!-- Overview -->
+            <section style="margin-bottom:2rem;">
+                <h2>Tổng quan</h2>
+                <p>Ước lượng nhân quả chỉ tốt khi các giả định nhận dạng tốt. Tiêu chuẩn nghiên cứu hiện đại
+                    yêu cầu kiểm tra độ nhạy của kết quả với các vi phạm giả định này. Danh mục này bao gồm
+                    các công cụ để kiểm tra stress các phát hiện của bạn.</p>
+                <p>Các phương pháp chính bao gồm kiểm tra tính ổn định hệ số so với lựa chọn không quan sát được (Oster
+                    2019), suy diễn DID trung thực (Rambachan &amp; Roth 2023), và hiệu chỉnh kiểm định đa giả thuyết.
+                </p>
+                <div class="callout callout-info">
+                    <div class="callout-title">Nguyên tắc chính</div>
+                    <p><strong>Sự vững không phải nhị phân.</strong> Đừng chỉ hỏi "nó có vững không?" Hãy hỏi "vi phạm phải lớn bao nhiêu để vô hiệu hóa kết quả của tôi?"</p>
+                </div>
+            </section>
+
+            <!-- Filter bar -->
+            <div class="filter-bar">
+                <label>Lọc theo:</label>
+                <select class="filter-select" data-filter-key="difficulty">
+                    <option value="all">Tất cả cấp độ</option>
+                    <option value="beginner">Cơ bản</option>
+                    <option value="intermediate">Trung cấp</option>
+                    <option value="advanced">Nâng cao</option>
+                </select>
+                <select class="filter-select" data-filter-key="install">
+                    <option value="all">Tất cả nguồn</option>
+                    <option value="builtin">Có sẵn</option>
+                    <option value="ssc">SSC</option>
+                </select>
+                <button class="filter-clear" id="filter-clear">Xóa bộ lọc</button>
+                <span class="filter-count" id="filter-count"></span>
+            </div>
+
+            <!-- Command cards -->
+            <div class="cmd-grid" id="cmd-grid">
+
+                <a class="cmd-card" href="../commands/command.html?cmd=psacalc"
+                    data-tags='{"difficulty":"intermediate","install":"ssc"}'>
+                    <div class="cmd-card-header">
+                        <div>
+                            <div class="cmd-card-name">psacalc</div>
+                            <div class="cmd-card-title">Tính ổn định hệ số Oster</div>
+                        </div>
+                        <span class="badge badge-ssc">SSC</span>
+                    </div>
+                    <div class="cmd-card-desc">Thực hiện chẩn đoán Oster (2019) cho lựa chọn trên biến không quan sát được.
+                        Định lượng liệu hiệu ứng của bạn có thể bị thúc đẩy bởi biến bị bỏ sót hay không.</div>
+                    <div class="cmd-card-footer"><span class="badge badge-intermediate">Trung cấp</span><span
+                            class="tag-pill">độ nhạy</span><span class="tag-pill">lựa chọn</span></div>
+                </a>
+
+                <a class="cmd-card" href="../commands/command.html?cmd=honestdid"
+                    data-tags='{"difficulty":"advanced","install":"ssc"}'>
+                    <div class="cmd-card-header">
+                        <div>
+                            <div class="cmd-card-name">honestdid</div>
+                            <div class="cmd-card-title">Suy diễn DID trung thực</div>
+                        </div>
+                        <span class="badge badge-ssc">SSC</span>
+                    </div>
+                    <div class="cmd-card-desc">Xây dựng khoảng tin cậy vững với các vi phạm giả định xu hướng song song
+                        (Rambachan &amp; Roth 2023).</div>
+                    <div class="cmd-card-footer"><span class="badge badge-advanced">Nâng cao</span><span
+                            class="tag-pill">DID</span><span class="tag-pill">xu hướng song song</span></div>
+                </a>
+
+                <a class="cmd-card" href="../commands/command.html?cmd=wyoung"
+                    data-tags='{"difficulty":"intermediate","install":"ssc"}'>
+                    <div class="cmd-card-header">
+                        <div>
+                            <div class="cmd-card-name">wyoung / rwolf</div>
+                            <div class="cmd-card-title">Kiểm định đa giả thuyết</div>
+                        </div>
+                        <span class="badge badge-ssc">SSC</span>
+                    </div>
+                    <div class="cmd-card-desc">Hiệu chỉnh p-value cho so sánh đa bội sử dụng thủ tục Westfall-Young hoặc
+                        Romano-Wolf. Ngăn ngừa phát hiện sai.</div>
+                    <div class="cmd-card-footer"><span class="badge badge-intermediate">Trung cấp</span><span
+                            class="tag-pill">suy diễn</span><span class="tag-pill">p-value</span></div>
+                </a>
+
+            </div><!-- #cmd-grid -->
+
+            <!-- Upgrade path -->
+            <section style="margin-top:2rem;">
+                <h2>Quy trình kiểm định sự vững</h2>
+                <div class="learning-path">
+                    <div class="learning-step">
+                        <div class="learning-step-content">
+                            <h4>Tính ổn định hệ số</h4>
+                            <p>Chạy <code>psacalc</code> để cho thấy lựa chọn trên biến không quan sát được phải lớn bao nhiêu để
+                                vô hiệu hóa kết quả của bạn.</p>
+                        </div>
+                    </div>
+                    <div class="learning-step">
+                        <div class="learning-step-content">
+                            <h4>Độ nhạy xu hướng song song</h4>
+                            <p>Dùng <code>honestdid</code> sau <code>csdid</code> để kiểm tra liệu kết quả của bạn có tồn tại
+                                với vi phạm xu hướng gần song song hay không.</p>
+                        </div>
+                    </div>
+                    <div class="learning-step">
+                        <div class="learning-step-content">
+                            <h4>Kiểm định đa bội</h4>
+                            <p>Nếu chạy nhiều biến kết quả, báo cáo p-value đã hiệu chỉnh <code>wyoung</code> bên cạnh
+                                p-value gốc.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-col">
+                <h4>Danh mục khác</h4>
+                <ul>
+                    <li><a href="ols-diagnostics.html">OLS &amp; Kiểm định</a></li>
+                    <li><a href="panel-data.html">Dữ liệu bảng</a></li>
+                    <li><a href="causal-inference.html">Suy diễn nhân quả</a></li>
+                    <li><a href="data-infrastructure.html">Hạ tầng dữ liệu</a></li>
+                    <li><a href="publication-standards.html">Tiêu chuẩn xuất bản</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">Stata Kinh Tế Lượng Task View · Tài nguyên học thuật cho kinh tế lượng ứng dụng</div>
+    </footer>
+
+    <script src="../assets/js/navigation.js"></script>
+    <script src="../assets/js/filter.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            StataFilter.initCategoryFilter({ gridId: 'cmd-grid', countId: 'filter-count', clearId: 'filter-clear' });
+        });
+    </script>
+</body>
+
+</html>

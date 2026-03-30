@@ -1,0 +1,549 @@
+{
+  "version": "1.0",
+  "start": "root",
+  "nodes": {
+    "root": {
+      "type": "question",
+      "text": "Bạn có loại biến phụ thuộc nào?",
+      "help": "Đây là bộ lọc đầu tiên quan trọng nhất. Bản chất của biến phụ thuộc sẽ quyết định họ mô hình nào là phù hợp.",
+      "choices": [
+        {
+          "label": "Liên tục (vd: tiền lương, GDP, điểm kiểm tra)",
+          "next": "q_continuous_1"
+        },
+        {
+          "label": "Nhị phân (vd: có việc/thất nghiệp, thắng/thua, có/không)",
+          "next": "q_binary_1"
+        },
+        {
+          "label": "Bị kiểm duyệt hoặc rút cụt (vd: số giờ làm việc ≥ 0, thu nhập bị giới hạn trần)",
+          "next": "terminal_tobit"
+        },
+        {
+          "label": "Dữ liệu đếm (vd: số lần đi khám bác sĩ, số vụ tai nạn)",
+          "next": "terminal_count"
+        }
+      ]
+    },
+    "q_continuous_1": {
+      "type": "question",
+      "text": "Cấu trúc dữ liệu của bạn là gì?",
+      "help": "Cấu trúc của bộ dữ liệu — cho dù bạn có một quan sát trên mỗi đơn vị, nhiều quan sát theo thời gian, hay một chuỗi thời gian duy nhất — sẽ quyết định trình ước lượng phù hợp.",
+      "choices": [
+        {
+          "label": "Dữ liệu chéo (một quan sát trên mỗi đơn vị)",
+          "next": "q_cross_1"
+        },
+        {
+          "label": "Dữ liệu bảng (cùng một đơn vị được quan sát qua nhiều thời kỳ)",
+          "next": "q_panel_1"
+        },
+        {
+          "label": "Chuỗi thời gian (quan sát gộp hoặc đơn vị duy nhất theo thời gian)",
+          "next": "q_ts_1"
+        }
+      ]
+    },
+    "q_cross_1": {
+      "type": "question",
+      "text": "Mối quan tâm chính của bạn với dữ liệu chéo là gì?",
+      "choices": [
+        {
+          "label": "Không có quan tâm đặc biệt — tôi muốn ước lượng giá trị trung bình có điều kiện",
+          "next": "terminal_reg"
+        },
+        {
+          "label": "Nội sinh: biến giải thích chính tương quan với sai số (biến bị bỏ sót, nhân quả ngược)",
+          "next": "q_endogeneity_2"
+        },
+        {
+          "label": "Tác động can thiệp: tôi có một chính sách/chương trình và muốn ước lượng tác động nhân quả của nó",
+          "next": "q_treatment_1"
+        },
+        {
+          "label": "Nhiều biến kiểm soát: tôi có nhiều biến kiểm soát tiềm năng so với kích thước mẫu",
+          "next": "q_cross_2"
+        }
+      ]
+    },
+    "q_endogeneity_2": {
+      "type": "question",
+      "text": "Bạn có bao nhiêu cụm (clusters) để suy luận IV?",
+      "help": "Với ít cụm, suy luận IV phân cụm thông thường có thể dẫn đến bác bỏ quá mức. Hãy sử dụng hiệu chỉnh wild bootstrap.",
+      "choices": [
+        {
+          "label": "Ít hơn 30 cụm",
+          "next": "terminal_boottest_iv"
+        },
+        {
+          "label": "Từ 30 cụm trở lên",
+          "next": "terminal_ivreg2"
+        }
+      ]
+    },
+    "q_cross_2": {
+      "type": "question",
+      "text": "Bạn có hơn 100 biến kiểm soát tiềm năng?",
+      "help": "Các biến kiểm soát chiều cao yêu cầu các phương pháp hậu lựa chọn (post-selection) hiện đại để suy luận hợp lệ.",
+      "choices": [
+        {
+          "label": "Có — cấu trúc chủ yếu là thưa/tuyến tính",
+          "next": "terminal_pdslasso"
+        },
+        {
+          "label": "Có — có khả năng là các hàm gây nhiễu phi tuyến",
+          "next": "terminal_ddml"
+        },
+        {
+          "label": "Không — ít hơn 100 biến kiểm soát",
+          "next": "terminal_reg"
+        }
+      ]
+    },
+    "q_panel_1": {
+      "type": "question",
+      "text": "Mối quan tâm chính của bạn về dữ liệu bảng là gì?",
+      "choices": [
+        {
+          "label": "Tính không đồng nhất cấp đơn vị không quan sát được tương quan với các biến giải thích",
+          "next": "q_fe_re"
+        },
+        {
+          "label": "Tác động can thiệp: tôi có sự áp dụng chính sách so le giữa các đơn vị/thời gian",
+          "next": "q_staggered"
+        },
+        {
+          "label": "Mô hình động: biến phụ thuộc trễ thuộc về mô hình",
+          "next": "terminal_xtabond2"
+        }
+      ]
+    },
+    "q_fe_re": {
+      "type": "question",
+      "text": "Bạn có cần ước lượng hệ số của các biến không thay đổi theo thời gian (giới tính, chủng tộc, địa lý)?",
+      "help": "Hiệu ứng cố định (FE) hấp thụ tất cả các biến động không thay đổi theo thời gian — nếu biến giải thích chính của bạn không thay đổi trong nội bộ đơn vị theo thời gian, FE không thể định danh hệ số của nó.",
+      "choices": [
+        {
+          "label": "Không — biến giải thích chính của tôi thay đổi trong nội bộ đơn vị theo thời gian",
+          "next": "q_panel_2"
+        },
+        {
+          "label": "Có — tôi cần ước lượng hệ số của biến không thay đổi theo thời gian",
+          "next": "terminal_xtreg_re"
+        }
+      ]
+    },
+    "q_panel_2": {
+      "type": "question",
+      "text": "Bạn có nhiều hơn 10 cụm can thiệp?",
+      "help": "Ít cụm yêu cầu wild-cluster bootstrap để suy luận hợp lệ.",
+      "choices": [
+        {
+          "label": "Không — từ 10 cụm trở xuống",
+          "next": "terminal_boottest"
+        },
+        {
+          "label": "Có — nhiều hơn 10 cụm",
+          "next": "terminal_xtreg_fe"
+        }
+      ]
+    },
+    "q_staggered": {
+      "type": "question",
+      "text": "Thời điểm can thiệp là giống nhau cho tất cả các đơn vị (thiết kế 2 thời kỳ sạch) hay so le (các đơn vị khác nhau được can thiệp ở các thời điểm khác nhau)?",
+      "choices": [
+        {
+          "label": "Thiết kế 2 thời kỳ sạch: tất cả các đơn vị được can thiệp cùng một lúc",
+          "next": "terminal_diff"
+        },
+        {
+          "label": "So le (Staggered): các đơn vị khác nhau được can thiệp ở các thời kỳ khác nhau",
+          "next": "q_staggered_2"
+        }
+      ]
+    },
+    "q_staggered_2": {
+      "type": "question",
+      "text": "Thời điểm can thiệp của bạn có so le giữa các đơn vị không?",
+      "choices": [
+        {
+          "label": "Có",
+          "next": "q_staggered_control"
+        },
+        {
+          "label": "Không",
+          "next": "terminal_diff"
+        }
+      ]
+    },
+    "q_staggered_control": {
+      "type": "question",
+      "text": "Bạn ưu tiên nhóm đối chứng nào trong csdid?",
+      "help": "Lựa chọn đối chứng ảnh hưởng đến việc gộp ATT và cách diễn giải.",
+      "choices": [
+        {
+          "label": "Chỉ những đơn vị chưa bao giờ được can thiệp (Never-treated)",
+          "next": "terminal_csdid_never"
+        },
+        {
+          "label": "Chưa được can thiệp + chưa đến lượt được can thiệp (Mặc định)",
+          "next": "terminal_csdid"
+        }
+      ]
+    },
+    "q_ts_1": {
+      "type": "question",
+      "text": "Bạn đang mô hình hóa một biến hay nhiều biến phụ thuộc lẫn nhau?",
+      "choices": [
+        {
+          "label": "Một biến — tôi muốn mô hình hóa động thái và dự báo nó",
+          "next": "terminal_arima"
+        },
+        {
+          "label": "Nhiều biến — tôi muốn nghiên cứu động thái tương hỗ và sự truyền dẫn cú sốc",
+          "next": "terminal_var"
+        }
+      ]
+    },
+    "q_binary_1": {
+      "type": "question",
+      "text": "Bạn có bất kỳ quan ngại nào về nội sinh với biến kết quả nhị phân không?",
+      "choices": [
+        {
+          "label": "Không — tôi chỉ muốn ước lượng xác suất Y=1 khi biết X",
+          "next": "terminal_logit"
+        },
+        {
+          "label": "Có — một trong các biến giải thích của tôi bị nội sinh (cần một biến công cụ)",
+          "next": "terminal_ivprobit"
+        }
+      ]
+    },
+    "q_treatment_1": {
+      "type": "question",
+      "text": "Bạn có loại thí nghiệm tự nhiên / giả thí nghiệm nào?",
+      "choices": [
+        {
+          "label": "Ngưỡng sắc nét: can thiệp được quyết định bởi việc liệu một biến chạy có vượt qua một điểm cắt hay không",
+          "next": "terminal_rdrobust"
+        },
+        {
+          "label": "So sánh trước/sau với một nhóm đối chứng (thiết kế DID)",
+          "next": "q_staggered_cross"
+        },
+        {
+          "label": "Các biến kiểm soát quan sát được có thể giải thích đầy đủ việc lựa chọn vào nhóm can thiệp",
+          "next": "terminal_psmatch2"
+        },
+        {
+          "label": "Đơn vị can thiệp duy nhất (một quốc gia, bang hoặc thành phố nhận can thiệp)",
+          "next": "terminal_synth"
+        }
+      ]
+    },
+    "q_staggered_cross": {
+      "type": "question",
+      "text": "Thiết kế DID của bạn là dữ liệu chéo (hai thời kỳ) hay thời điểm can thiệp thay đổi giữa các đơn vị?",
+      "choices": [
+        {
+          "label": "Hai thời kỳ, hai nhóm — DiD sạch",
+          "next": "terminal_diff"
+        },
+        {
+          "label": "Áp dụng can thiệp so le qua nhiều thời kỳ",
+          "next": "q_staggered_2"
+        }
+      ]
+    },
+    "terminal_reg": {
+      "type": "terminal",
+      "command_id": "reg",
+      "name": "reg (với robust SEs)",
+      "rationale": "Hồi quy OLS với sai số chuẩn vững trước phương sai thay đổi là điểm khởi đầu chính xác cho biến kết quả liên tục với dữ liệu chéo và không có quan ngại về nội sinh.",
+      "install": "builtin",
+      "difficulty": "beginner",
+      "also_see": [
+        "vif",
+        "hettest",
+        "ivreg2"
+      ],
+      "comparison_page": null,
+      "warning": "Luôn thêm tùy chọn 'robust'. Chạy hettest và vif sau khi ước lượng."
+    },
+    "terminal_ivreg2": {
+      "type": "terminal",
+      "command_id": "ivreg2",
+      "name": "ivreg2",
+      "rationale": "IV với 2SLS điều chỉnh nội sinh khi bạn có một biến công cụ hợp lệ. ivreg2 cung cấp kiểm định công cụ yếu Kleibergen-Paap và kiểm định quá định danh Hansen J cần thiết cho nghiên cứu IV đáng tin cậy.",
+      "install": "ssc",
+      "difficulty": "intermediate",
+      "also_see": [
+        "ivregress"
+      ],
+      "comparison_page": "ivregress-vs-ivreg2",
+      "warning": "Một biến công cụ hợp lệ phải có tương quan mạnh (F > 10 ở giai đoạn 1) và thỏa mãn điều kiện loại trừ (không tác động trực tiếp lên Y). Luôn báo cáo thống kê rk Wald F của Kleibergen-Paap."
+    },
+    "terminal_boottest_iv": {
+      "type": "terminal",
+      "command_id": "boottest",
+      "name": "boottest sau ivreg2",
+      "rationale": "Với ít cụm, suy luận IV phân cụm tiệm cận có thể gây hiểu lầm. Hãy chạy ivreg2, sau đó dùng boottest để lấy giá trị p từ wild-cluster bootstrap.",
+      "install": "ssc",
+      "difficulty": "advanced",
+      "also_see": [
+        "ivreg2",
+        "ivreghdfe"
+      ],
+      "comparison_page": "boottest-vs-cluster-se",
+      "warning": "Ước lượng mô hình IV trước, sau đó bootstrap hệ số chính của bạn bằng boottest (vd: reps(9999), cố định seed)."
+    },
+    "terminal_pdslasso": {
+      "type": "terminal",
+      "command_id": "pdslasso",
+      "name": "pdslasso",
+      "rationale": "Lasso sau lựa chọn kép (Post-double-selection Lasso) là một điểm khởi đầu chiều cao vững chắc khi bạn có nhiều biến kiểm soát tiềm năng và cấu trúc chủ yếu là tuyến tính thưa.",
+      "install": "ssc",
+      "difficulty": "advanced",
+      "also_see": [
+        "ddml",
+        "lasso-tools"
+      ],
+      "comparison_page": "pdslasso-vs-ddml",
+      "warning": "Nếu các mối quan hệ gây nhiễu phi tuyến tính mạnh, hãy ưu tiên dùng ddml với cross-fitting."
+    },
+    "terminal_ddml": {
+      "type": "terminal",
+      "command_id": "ddml",
+      "name": "ddml",
+      "rationale": "Double Machine Learning (DDML) là công cụ phù hợp khi bạn có nhiều biến kiểm soát (X chiều cao) và cần suy luận nhân quả hợp lệ. Nó sử dụng ML để ước lượng các thành phần gây nhiễu với cross-fitting để cung cấp suy luận trực giao Neyman.",
+      "install": "ssc",
+      "difficulty": "advanced",
+      "also_see": [
+        "lasso-tools"
+      ],
+      "comparison_page": null,
+      "warning": "Yêu cầu hiểu biết về cross-fitting và tính tuyến tính một phần. Đối với Stata 16+, cũng có thể cân nhắc dùng poregress/xporegress (có sẵn)."
+    },
+    "terminal_xtreg_fe": {
+      "type": "terminal",
+      "command_id": "xtreg-fe",
+      "name": "xtreg, fe",
+      "rationale": "Hiệu ứng cố định loại bỏ tất cả các tính không đồng nhất của đơn vị không quan sát được và không thay đổi theo thời gian thông qua việc lấy sai số so với trung bình nhóm. Lựa chọn mặc định thận trọng cho dữ liệu bảng khi hiệu ứng đơn vị có thể tương quan với các biến giải thích.",
+      "install": "builtin",
+      "difficulty": "intermediate",
+      "also_see": [
+        "xtreg-re",
+        "xtabond2"
+      ],
+      "comparison_page": "xtreg-fe-vs-re",
+      "warning": "Luôn dùng vce(cluster panelvar). Chạy kiểm định Hausman so sánh FE và RE. Đối với dữ liệu lớn hoặc nhiều FE, hãy dùng reghdfe (SSC)."
+    },
+    "terminal_boottest": {
+      "type": "terminal",
+      "command_id": "boottest",
+      "name": "boottest sau FE/DiD",
+      "rationale": "Với rất ít cụm, bạn nên thực hiện bootstrap cho suy luận phân cụm. Ước lượng FE/DiD trước, sau đó dùng boottest để lấy giá trị p hợp lệ.",
+      "install": "ssc",
+      "difficulty": "advanced",
+      "also_see": [
+        "xtreg-fe",
+        "reghdfe",
+        "csdid"
+      ],
+      "comparison_page": "boottest-vs-cluster-se",
+      "warning": "Không thay thế mô hình chính bằng boottest; boottest là một lớp suy luận được chạy sau khi ước lượng."
+    },
+    "terminal_xtreg_re": {
+      "type": "terminal",
+      "command_id": "xtreg-re",
+      "name": "xtreg, re",
+      "rationale": "Hiệu ứng ngẫu nhiên (Random effects) hiệu quả hơn FE khi các hiệu ứng cá biệt không tương quan với các biến giải thích, và cho phép ước lượng hệ số của các biến không thay đổi theo thời gian. Luôn xác nhận bằng kiểm định Hausman.",
+      "install": "builtin",
+      "difficulty": "intermediate",
+      "also_see": [
+        "xtreg-fe"
+      ],
+      "comparison_page": "xtreg-fe-vs-re",
+      "warning": "Chạy kiểm định Hausman trước. Nếu bị bác bỏ, hãy dùng FE. RE không nhất quán khi hiệu ứng đơn vị tương quan với các biến giải thích — điều này rất phổ biến trong kinh tế học."
+    },
+    "terminal_xtabond2": {
+      "type": "terminal",
+      "command_id": "xtabond2",
+      "name": "xtabond2",
+      "rationale": "Arellano-Bond GMM xử lý các mô hình bảng động nơi biến phụ thuộc trễ tạo ra chệch Nickell trong ước lượng FE. Chỉ sử dụng khi biến phụ thuộc trễ thực sự thuộc về mô hình.",
+      "install": "ssc",
+      "difficulty": "advanced",
+      "also_see": [
+        "xtreg-fe"
+      ],
+      "comparison_page": "fe-vs-xtabond2",
+      "warning": "CHỈ sử dụng khi mô hình về mặt lý thuyết yêu cầu biến phụ thuộc trễ. Luôn kiểm tra kiểm định AR(2) và kiểm định Hansen J. Dùng tùy chọn 'collapse' để ngăn chặn sự bừng nổ biến công cụ. Đọc Roodman (2009) trước khi dùng."
+    },
+    "terminal_diff": {
+      "type": "terminal",
+      "command_id": "diff",
+      "name": "diff (hoặc hồi quy DID thủ công)",
+      "rationale": "Difference-in-Differences cổ điển cho các thiết kế 2 thời kỳ, 2 nhóm sạch. Đơn giản, minh bạch và có khả năng diễn giải cao khi giả định xu hướng song song là đáng tin cậy.",
+      "install": "ssc",
+      "difficulty": "intermediate",
+      "also_see": [
+        "csdid"
+      ],
+      "comparison_page": "did-simple-vs-csdid",
+      "warning": "KHÔNG sử dụng cho thời điểm can thiệp so le — hãy dùng csdid thay thế. Luôn vẽ biểu đồ nghiên cứu sự kiện (event study) để kiểm tra các xu hướng trước can thiệp."
+    },
+    "terminal_csdid": {
+      "type": "terminal",
+      "command_id": "csdid",
+      "name": "csdid (Callaway-Sant'Anna)",
+      "rationale": "Tiêu chuẩn hiện đại cho DID so le. Ước lượng các ATT nhóm-thời gian bằng cách so sánh 2×2 sạch, tránh chệch trọng số âm của TWFE khi tác động can thiệp không đồng nhất.",
+      "install": "ssc",
+      "difficulty": "advanced",
+      "also_see": [
+        "drdid",
+        "diff"
+      ],
+      "comparison_page": "did-simple-vs-csdid",
+      "warning": "Không sử dụng hồi quy TWFE cổ điển (i.treated##i.year) cho các thiết kế so le. Luôn vẽ biểu đồ nghiên cứu sự kiện và báo cáo kiểm định xu hướng trước can thiệp."
+    },
+    "terminal_csdid_never": {
+      "type": "terminal",
+      "command_id": "csdid",
+      "name": "csdid với đối chứng chưa bao giờ được can thiệp",
+      "rationale": "Sử dụng khung phân tích Callaway-Sant'Anna với định nghĩa nhóm đối chứng chặt chẽ hơn khi thiết kế của bạn coi các đơn vị chưa bao giờ được can thiệp là nhóm đối chứng hợp lệ duy nhất.",
+      "install": "ssc",
+      "difficulty": "advanced",
+      "also_see": [
+        "eventstudyinteract",
+        "honestdid"
+      ],
+      "comparison_page": "csdid-vs-eventstudyinteract",
+      "warning": "Thiết lập các tùy chọn nhóm đối chứng một cách rõ ràng (vd: notyet(false)) và lập luận tại sao chỉ dùng nhóm never-treated là phù hợp cho bối cảnh của bạn."
+    },
+    "terminal_arima": {
+      "type": "terminal",
+      "command_id": "arima",
+      "name": "arima",
+      "rationale": "Mô hình ARIMA mô tả động thái đơn biến của một chuỗi thời gian dừng duy nhất. Bắt đầu bằng cách kiểm định tính dừng với dfuller, sau đó kiểm tra ACF/PACF để hướng dẫn xác định (p,d,q).",
+      "install": "builtin",
+      "difficulty": "intermediate",
+      "also_see": [
+        "dfuller",
+        "var"
+      ],
+      "comparison_page": "arima-vs-var",
+      "warning": "Luôn chạy dfuller trước. Kiểm tra ACF/PACF trước khi xác định bậc. Kiểm tra phần dư với kiểm định Ljung-Box Q sau khi ước lượng."
+    },
+    "terminal_var": {
+      "type": "terminal",
+      "command_id": "var",
+      "name": "var",
+      "rationale": "VAR mô hình hóa đồng thời nhiều chuỗi thời gian dừng phụ thuộc lẫn nhau, cho phép phân tích các phản ứng động đối với các cú sốc thông qua Hàm phản ứng đẩy (Impulse Response Functions).",
+      "install": "builtin",
+      "difficulty": "advanced",
+      "also_see": [
+        "dfuller",
+        "arima"
+      ],
+      "comparison_page": "arima-vs-var",
+      "warning": "Kiểm định tính dừng với dfuller trước. Chọn độ trễ với varsoc. Kiểm tra tính ổn định với varstable. IRFs yêu cầu một sơ đồ định danh (Cholesky hoặc các ràng buộc cấu trúc)."
+    },
+    "terminal_logit": {
+      "type": "terminal",
+      "command_id": "logit",
+      "name": "logit + margins",
+      "rationale": "Logit là lựa chọn mặc định cho các kết quả nhị phân. Luôn theo sau ngay lập tức bằng 'margins, dydx(*)' để lấy Tác động biên trung bình (AME) — các hệ số thô là log-odds và không thể diễn giải trực tiếp.",
+      "install": "builtin",
+      "difficulty": "beginner",
+      "also_see": [
+        "probit",
+        "margins"
+      ],
+      "comparison_page": "logit-vs-probit",
+      "warning": "KHÔNG BAO GIỜ diễn giải trực tiếp hệ số logit. Luôn chạy 'margins, dydx(*)' cho AME. Chạy probit như một bước kiểm tra tính vững."
+    },
+    "terminal_ivprobit": {
+      "type": "terminal",
+      "command_id": "logit",
+      "name": "ivprobit (biến kết quả nhị phân nội sinh)",
+      "rationale": "Đối với các kết quả nhị phân có biến giải thích nội sinh, hãy dùng ivprobit (có sẵn trong Stata) với một biến công cụ. Ngoài ra, cách tiếp cận hàm kiểm soát (control function) sẽ đơn giản hơn để triển khai.",
+      "install": "builtin",
+      "difficulty": "advanced",
+      "also_see": [
+        "logit",
+        "ivreg2"
+      ],
+      "comparison_page": null,
+      "warning": "ivprobit yêu cầu một biến công cụ hợp lệ. Điều kiện loại trừ phải được thỏa mãn. Sau ivprobit, dùng margins để lấy tác động biên."
+    },
+    "terminal_rdrobust": {
+      "type": "terminal",
+      "command_id": "rdrobust",
+      "name": "rdrobust",
+      "rationale": "Thiết kế gián đoạn hồi quy sử dụng hồi quy đa thức cục bộ với việc lựa chọn băng thông dựa trên dữ liệu. Tiêu chuẩn vàng hiện đại cho ước lượng RD.",
+      "install": "ssc",
+      "difficulty": "intermediate",
+      "also_see": [
+        "diff"
+      ],
+      "comparison_page": "psmatch2-vs-rdrobust",
+      "warning": "Luôn chạy rddensity (kiểm định thao túng), rdplot (kiểm tra trực quan) và các kiểm định placebo. Báo cáo khoảng tin cậy vững đã hiệu chỉnh chệch. Tính đại diện bên ngoài chỉ giới hạn ở các đơn vị gần điểm cắt."
+    },
+    "terminal_psmatch2": {
+      "type": "terminal",
+      "command_id": "psmatch2",
+      "name": "psmatch2",
+      "rationale": "Ghép cặp điểm xu hướng khi việc lựa chọn vào nhóm can thiệp hoàn toàn do các đặc điểm quan sát được. Yêu cầu giả định về tính không gây nhiễu (chọn lọc trên các biến quan sát được).",
+      "install": "ssc",
+      "difficulty": "intermediate",
+      "also_see": [
+        "rdrobust",
+        "diff"
+      ],
+      "comparison_page": "psmatch2-vs-rdrobust",
+      "warning": "Tính không gây nhiễu là một giả định rất mạnh — nó thất bại bất cứ khi nào có các biến gây nhiễu không quan sát được. Luôn kiểm tra sự cân bằng biến kiểm soát sau khi ghép cặp và thực hiện phân tích độ nhạy (Rosenbaum bounds)."
+    },
+    "terminal_synth": {
+      "type": "terminal",
+      "command_id": "synth",
+      "name": "synth",
+      "rationale": "Kiểm soát tổng hợp xây dựng một kịch bản phản thực tế dựa trên dữ liệu bằng cách kết hợp có trọng số các đơn vị đối chứng không được can thiệp. Được thiết kế đặc biệt cho các nghiên cứu trường hợp so sánh với một đơn vị can thiệp duy nhất.",
+      "install": "ssc",
+      "difficulty": "advanced",
+      "also_see": [
+        "csdid",
+        "diff"
+      ],
+      "comparison_page": null,
+      "warning": "Chỉ hợp lệ cho một đơn vị can thiệp duy nhất với giai đoạn trước can thiệp dài và một nhóm đơn vị đối chứng (donor pool) phù hợp tốt. Luôn thực hiện các kiểm định hoán vị/placebo — giá trị p cổ điển không áp dụng được."
+    },
+    "terminal_tobit": {
+      "type": "terminal",
+      "command_id": "tobit",
+      "name": "tobit",
+      "rationale": "Tobit phù hợp khi kết quả của bạn bị kiểm duyệt (các giá trị không đại diện cho một biến tiềm ẩn nằm dưới một ngưỡng, không phải là một lựa chọn kinh tế thực sự).",
+      "install": "builtin",
+      "difficulty": "intermediate",
+      "also_see": [
+        "logit",
+        "margins"
+      ],
+      "comparison_page": null,
+      "warning": "Nếu giá trị không đại diện cho các lựa chọn kinh tế (corner solutions), hãy sử dụng mô hình hai phần (two-part model) thay vì tobit. Luôn tính toán tác động biên với margins sau tobit."
+    },
+    "terminal_count": {
+      "type": "terminal",
+      "command_id": "poisson",
+      "name": "poisson / nbreg (dữ liệu đếm)",
+      "rationale": "Đối với các kết quả đếm (số nguyên không âm), hãy sử dụng hồi quy Poisson (poisson, có sẵn) hoặc Nhị thức âm (nbreg) nếu có sự phân tán quá mức (overdispersion). Không sử dụng OLS.",
+      "install": "builtin",
+      "difficulty": "intermediate",
+      "also_see": [
+        "logit",
+        "margins"
+      ],
+      "comparison_page": null,
+      "warning": "Kiểm tra sự phân tán quá mức (var > mean) — nếu có, hãy dùng nbreg thay cho poisson. Luôn tính tác động biên với margins. Đối với dữ liệu có quá nhiều số không, hãy cân nhắc các mô hình zero-inflated (zinb, zip)."
+    }
+  }
+}
